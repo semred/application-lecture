@@ -1,6 +1,0 @@
-{
-  "name": "مكتبتي التفاعلية - PWA لتعليم القراءة ومحو الأمية",
-  "description": "تطبيق ويب تقدمي لتعليم القراءة ومحو الأمية مع قراءة صوتية بالكلمة، تمارين تفاعلية (ملء الفراغات، QCM، ترتيب كلمات وصور) واستوديو متكامل للتأليف والتصدير.",
-  "requestFramePermissions": [],
-  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
-}
