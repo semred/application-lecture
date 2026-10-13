@@ -403,21 +403,20 @@
 }
 
     function playFromWord(index) {
-      const page = currentBook.pages[currentPageIndex];
-      if (!page || !page.mots) return;
-      
-      const mot = page.mots[index];
-      if (page.audioMode === 'mp3' && page.audioPage) {
-        audio.currentTime = mot.debut;
-        audio.play();
-        isPlaying = true;
-        updatePlayButton();
-      } else if (page.texteAffiche) {
-        // Pour TTS, on ne peut pas démarrer à un mot précis
-        playTTS(page.texteAffiche);
-      }
-    }
-
+  const page = currentBook.pages[currentPageIndex];
+  if (!page || !page.mots) return;
+  
+  const mot = page.mots[index];
+  if (page.audioMode === 'mp3' && page.audioPage) {
+    audio.currentTime = mot.debut;
+    audio.play();
+    isPlaying = true;
+    updatePlayButton();
+  } else if (mot && mot.texte) {
+    // Lire uniquement le mot cliqué au lieu de tout le texte de la page
+    playTTS(mot.texte);
+  }
+}
     function stopAudio() {
       audio.pause();
       audio.currentTime = 0;
