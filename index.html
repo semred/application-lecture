@@ -9,78 +9,266 @@
 <link rel="apple-touch-icon" href="/application-lecture/icon-192.png">
 
   <title>مكتبتي التفاعلية</title>
-  <style>
-    :root { --primary: #0d5c4a; --secondary: #27ae60; --bg: #f4f7f6; --text: #333; }
-    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, sans-serif; }
-    body { background: var(--bg); color: var(--text); padding-bottom: 80px; }
-    
-    header { background: var(--primary); color: white; padding: 20px; text-align: center; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
-    header h1 { font-size: 1.5em; margin-bottom: 5px; }
-    header p { font-size: 0.9em; opacity: 0.9; }
+<style>
+  :root { 
+    --primary: #0d5c4a; 
+    --secondary: #27ae60; 
+    --bg: #f4f7f6; 
+    --text: #333; 
+    --reader-font-size: 24px;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, sans-serif; }
+  body { background: var(--bg); color: var(--text); padding-bottom: 80px; }
+  
+  header { background: var(--primary); color: white; padding: 20px; text-align: center; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+  header h1 { font-size: 1.5em; margin-bottom: 5px; }
+  header p { font-size: 0.9em; opacity: 0.9; }
 
-    .screen { display: none; padding: 20px; max-width: 800px; margin: 0 auto; }
-    .screen.active { display: block; }
-    .card { background: white; border-radius: 15px; padding: 20px; margin-bottom: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); }
+  .screen { display: none; padding: 20px; max-width: 800px; margin: 0 auto; }
+  .screen.active { display: block; }
+  .card { background: white; border-radius: 15px; padding: 20px; margin-bottom: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); }
 
-    .book-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 15px; }
-    .book-card { cursor: pointer; transition: transform 0.2s; }
-    .book-card:hover { transform: translateY(-5px); }
-    .book-card img { width: 100%; height: 200px; object-fit: cover; border-radius: 10px; }
-    .book-card h3 { font-size: 1em; margin: 10px 0 5px; color: var(--primary); }
-    .book-card .level { font-size: 0.8em; background: #e0f2f1; color: var(--primary); padding: 3px 8px; border-radius: 10px; display: inline-block; }
+  .book-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 15px; }
+  .book-card { cursor: pointer; transition: transform 0.2s; }
+  .book-card:hover { transform: translateY(-5px); }
+  .book-card img { width: 100%; height: 200px; object-fit: cover; border-radius: 10px; }
+  .book-card h3 { font-size: 1em; margin: 10px 0 5px; color: var(--primary); }
+  .book-card .level { font-size: 0.8em; background: #e0f2f1; color: var(--primary); padding: 3px 8px; border-radius: 10px; display: inline-block; }
 
-    .reader-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
-    .btn-back { background: none; border: none; font-size: 1.5em; cursor: pointer; color: var(--primary); }
-    .page-image { width: 100%; max-height: 250px; object-fit: cover; border-radius: 10px; margin-bottom: 15px; }
-    .page-title { font-size: 1.4em; color: var(--primary); margin-bottom: 15px; text-align: center; }
-    
-    .text-container { font-size: 1.5em; line-height: 2.2; text-align: justify; margin-bottom: 20px; }
-    .word { padding: 2px 4px; border-radius: 4px; cursor: pointer; transition: background 0.2s; display: inline-block; margin: 2px; }
-    .word:hover { background: #e0f2f1; }
-    .word.active { background: #ffd54f; font-weight: bold; }
+  .reader-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
+  .btn-back { background: none; border: none; font-size: 1.5em; cursor: pointer; color: var(--primary); }
+  .page-image { width: 100%; max-height: 250px; object-fit: cover; border-radius: 10px; margin-bottom: 15px; }
+  .page-title { font-size: 1.4em; color: var(--primary); margin-bottom: 15px; text-align: center; }
+  
+  .text-container { 
+    font-size: var(--reader-font-size); 
+    line-height: 2.2; 
+    text-align: justify; 
+    margin-bottom: 20px; 
+  }
+  .word { padding: 2px 4px; border-radius: 4px; cursor: pointer; transition: background 0.2s; display: inline-block; margin: 2px; }
+  .word:hover { background: #e0f2f1; }
+  .word.active { background: #ffd54f; font-weight: bold; }
 
-    .audio-controls { display: flex; justify-content: center; gap: 20px; margin: 20px 0; }
-    .btn-control { width: 60px; height: 60px; border-radius: 50%; border: none; background: var(--primary); color: white; font-size: 1.5em; cursor: pointer; box-shadow: 0 4px 10px rgba(0,0,0,0.2); }
-    .btn-control.play { width: 75px; height: 75px; font-size: 1.8em; background: var(--secondary); }
+  .audio-controls { display: flex; justify-content: center; gap: 20px; margin: 20px 0; }
+  .btn-control { width: 60px; height: 60px; border-radius: 50%; border: none; background: var(--primary); color: white; font-size: 1.5em; cursor: pointer; box-shadow: 0 4px 10px rgba(0,0,0,0.2); }
+  .btn-control.play { width: 75px; height: 75px; font-size: 1.8em; background: var(--secondary); }
 
-    .tabs { display: flex; gap: 10px; margin-bottom: 15px; overflow-x: auto; }
-    .tab-btn { padding: 10px 20px; border: none; background: #e0e0e0; border-radius: 20px; cursor: pointer; white-space: nowrap; }
-    .tab-btn.active { background: var(--primary); color: white; }
-    .tab-content { display: none; }
-    .tab-content.active { display: block; }
+  .tabs { display: flex; gap: 10px; margin-bottom: 15px; overflow-x: auto; }
+  .tab-btn { padding: 10px 20px; border: none; background: #e0e0e0; border-radius: 20px; cursor: pointer; white-space: nowrap; }
+  .tab-btn.active { background: var(--primary); color: white; }
+  .tab-content { display: none; }
+  .tab-content.active { display: block; }
 
-    .vocab-item { border-right: 4px solid var(--secondary); padding: 10px 15px; background: #f9f9f9; margin-bottom: 10px; border-radius: 8px; }
-    .vocab-word { font-weight: bold; font-size: 1.2em; color: var(--primary); }
-    .vocab-syn { color: #666; font-size: 0.9em; margin-top: 5px; }
+  .vocab-item { border-right: 4px solid var(--secondary); padding: 10px 15px; background: #f9f9f9; margin-bottom: 10px; border-radius: 8px; }
+  .vocab-word { font-weight: bold; font-size: 1.2em; color: var(--primary); }
+  .vocab-syn { color: #666; font-size: 0.9em; margin-top: 5px; }
 
-    /* Exercice à trous */
-    .exercise-fillblank { background: #f0f8ff; padding: 20px; border-radius: 12px; margin-bottom: 20px; border: 2px solid var(--primary); }
-    .exercise-fillblank h4 { color: var(--primary); margin-bottom: 15px; text-align: center; font-size: 1.2em; }
-    .texte-avec-trous { font-size: 1.5em; line-height: 2.5; text-align: center; margin: 20px 0; padding: 15px; background: white; border-radius: 10px; }
-    .trou { display: inline-block; min-width: 120px; height: 50px; border: 3px dashed var(--primary); border-radius: 8px; margin: 0 8px; vertical-align: middle; background: #fff9e6; cursor: pointer; transition: all 0.3s; }
-    .trou:hover { background: #fff3cd; border-color: #ef6c00; }
-    .trou.correct { border: 3px solid var(--secondary); background: #d4edda; cursor: default; }
-    .trou.incorrect { animation: shake 0.5s; border-color: #e74c3c; background: #f8d7da; }
-    @keyframes shake { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-10px); } 75% { transform: translateX(10px); } }
-    .trou .mot-place { display: block; padding: 8px 12px; font-size: 0.9em; color: var(--primary); font-weight: bold; }
-    .banque-mots { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; margin-top: 20px; padding: 15px; background: white; border-radius: 10px; min-height: 60px; }
-    .mot-banque { padding: 10px 20px; background: var(--primary); color: white; border-radius: 20px; cursor: pointer; font-size: 1.1em; transition: all 0.2s; user-select: none; }
-    .mot-banque:hover { background: #0a4a3c; transform: scale(1.05); }
-    .mot-banque.selected { background: #ef6c00; transform: scale(1.1); box-shadow: 0 4px 10px rgba(239, 108, 0, 0.3); }
-    .mot-banque.used { opacity: 0.3; cursor: not-allowed; transform: scale(0.9); }
-    .message-success { text-align: center; color: var(--secondary); font-size: 1.3em; font-weight: bold; margin-top: 15px; padding: 10px; background: #d4edda; border-radius: 8px; display: none; }
-    .message-success.show { display: block; animation: fadeIn 0.5s; }
-    @keyframes fadeIn { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
+  /* Exercice à trous */
+  .exercise-fillblank { background: #f0f8ff; padding: 20px; border-radius: 12px; margin-bottom: 20px; border: 2px solid var(--primary); }
+  .exercise-fillblank h4 { color: var(--primary); margin-bottom: 15px; text-align: center; font-size: 1.2em; }
+  .texte-avec-trous { font-size: 1.5em; line-height: 2.5; text-align: center; margin: 20px 0; padding: 15px; background: white; border-radius: 10px; }
+  .trou { display: inline-block; min-width: 120px; height: 50px; border: 3px dashed var(--primary); border-radius: 8px; margin: 0 8px; vertical-align: middle; background: #fff9e6; cursor: pointer; transition: all 0.3s; }
+  .trou:hover { background: #fff3cd; border-color: #ef6c00; }
+  .trou.correct { border: 3px solid var(--secondary); background: #d4edda; cursor: default; }
+  .trou.incorrect { animation: shake 0.5s; border-color: #e74c3c; background: #f8d7da; }
+  @keyframes shake { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-10px); } 75% { transform: translateX(10px); } }
+  .trou .mot-place { display: block; padding: 8px 12px; font-size: 0.9em; color: var(--primary); font-weight: bold; }
+  .banque-mots { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; margin-top: 20px; padding: 15px; background: white; border-radius: 10px; min-height: 60px; }
+  .mot-banque { padding: 10px 20px; background: var(--primary); color: white; border-radius: 20px; cursor: pointer; font-size: 1.1em; transition: all 0.2s; user-select: none; }
+  .mot-banque:hover { background: #0a4a3c; transform: scale(1.05); }
+  .mot-banque.selected { background: #ef6c00; transform: scale(1.1); box-shadow: 0 4px 10px rgba(239, 108, 0, 0.3); }
+  .mot-banque.used { opacity: 0.3; cursor: not-allowed; transform: scale(0.9); }
+  .message-success { text-align: center; color: var(--secondary); font-size: 1.3em; font-weight: bold; margin-top: 15px; padding: 10px; background: #d4edda; border-radius: 8px; display: none; }
+  .message-success.show { display: block; animation: fadeIn 0.5s; }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
 
-    .bottom-nav { position: fixed; bottom: 0; left: 0; right: 0; background: white; padding: 15px; display: flex; justify-content: space-around; box-shadow: 0 -2px 10px rgba(0,0,0,0.1); }
-    .nav-btn { background: none; border: none; font-size: 1.2em; color: var(--primary); cursor: pointer; }
-    .nav-btn:disabled { color: #ccc; }
+  .bottom-nav { position: fixed; bottom: 0; left: 0; right: 0; background: white; padding: 15px; display: flex; justify-content: space-around; box-shadow: 0 -2px 10px rgba(0,0,0,0.1); }
+  .nav-btn { background: none; border: none; font-size: 1.2em; color: var(--primary); cursor: pointer; }
+  .nav-btn:disabled { color: #ccc; }
 
-    .loading { text-align: center; padding: 50px; color: #666; }
-  </style>
+  .loading { text-align: center; padding: 50px; color: #666; }
+
+  /* ============ MENU DE CONFIGURATION ============ */
+  .btn-settings {
+    position: fixed;
+    top: 15px;
+    left: 15px;
+    width: 46px;
+    height: 46px;
+    border-radius: 50%;
+    background: var(--primary);
+    color: white;
+    border: none;
+    font-size: 1.4em;
+    cursor: pointer;
+    box-shadow: 0 4px 14px rgba(0,0,0,0.25);
+    z-index: 500;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: transform 0.2s;
+  }
+  .btn-settings:active { transform: scale(0.92); }
+
+  .settings-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.55);
+    z-index: 998;
+    backdrop-filter: blur(2px);
+  }
+  .settings-overlay.show { display: block; }
+
+  .settings-panel {
+    display: none;
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 92%;
+    max-width: 420px;
+    background: white;
+    border-radius: 22px;
+    box-shadow: 0 25px 70px rgba(0,0,0,0.35);
+    z-index: 999;
+    overflow: hidden;
+  }
+  .settings-panel.show { display: block; animation: popIn 0.25s ease-out; }
+  @keyframes popIn {
+    from { opacity: 0; transform: translate(-50%, -50%) scale(0.9); }
+    to   { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+  }
+
+  .settings-header {
+    background: var(--primary);
+    color: white;
+    padding: 16px 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .settings-header h3 { font-size: 1.15em; font-weight: bold; }
+  .btn-close {
+    background: none;
+    border: none;
+    color: white;
+    font-size: 1.4em;
+    cursor: pointer;
+    line-height: 1;
+    padding: 4px 8px;
+  }
+
+  .settings-body { padding: 22px 20px; }
+
+  .setting-item {
+    margin-bottom: 24px;
+    padding-bottom: 20px;
+    border-bottom: 1px solid #eee;
+  }
+  .setting-item:last-of-type { border-bottom: none; margin-bottom: 10px; padding-bottom: 5px; }
+
+  .setting-item > label {
+    display: block;
+    font-weight: bold;
+    color: var(--primary);
+    margin-bottom: 14px;
+    font-size: 1.02em;
+  }
+
+  .setting-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .setting-row .edge-label {
+    font-size: 0.8em;
+    color: #888;
+    min-width: 44px;
+    text-align: center;
+    font-weight: bold;
+  }
+  .setting-row input[type=range] {
+    flex: 1;
+    accent-color: var(--primary);
+    height: 8px;
+    cursor: pointer;
+  }
+  .setting-value {
+    text-align: center;
+    margin-top: 10px;
+    font-size: 1em;
+    font-weight: bold;
+    color: var(--primary);
+    background: #e0f2f1;
+    display: inline-block;
+    padding: 4px 14px;
+    border-radius: 20px;
+  }
+  .setting-value-wrapper { text-align: center; }
+
+  .btn-reset {
+    width: 100%;
+    padding: 13px;
+    background: #f1f5f9;
+    border: 2px solid #e2e8f0;
+    border-radius: 12px;
+    cursor: pointer;
+    font-weight: bold;
+    color: var(--primary);
+    font-size: 0.95em;
+    transition: background 0.2s;
+    margin-top: 8px;
+  }
+  .btn-reset:hover { background: #e2e8f0; }
+</style>  
 </head>
 <body>
 
+  <!-- ============ BOUTON PARAMÈTRES FLOTTANT ============ -->
+  <button class="btn-settings" onclick="toggleSettings()" aria-label="الإعدادات" title="الإعدادات">⚙️</button>
+
+  <!-- ============ PANNEAU PARAMÈTRES ============ -->
+  <div id="settings-overlay" class="settings-overlay" onclick="closeSettings()"></div>
+  <div id="settings-panel" class="settings-panel" role="dialog" aria-modal="true">
+    <div class="settings-header">
+      <h3>⚙️ إعدادات القراءة</h3>
+      <button class="btn-close" onclick="closeSettings()" aria-label="إغلاق">✕</button>
+    </div>
+    <div class="settings-body">
+
+      <div class="setting-item">
+        <label>🔊 سرعة القراءة</label>
+        <div class="setting-row">
+          <span class="edge-label">0.5x</span>
+          <input type="range" id="speedSlider" min="0.5" max="2" step="0.05" value="0.85"
+                 oninput="updateSpeed(this.value)">
+          <span class="edge-label">2.0x</span>
+        </div>
+        <div class="setting-value-wrapper">
+          <span id="speedValue" class="setting-value">0.85x</span>
+        </div>
+      </div>
+
+      <div class="setting-item">
+        <label>🔤 حجم الخط</label>
+        <div class="setting-row">
+          <span class="edge-label">أ</span>
+          <input type="range" id="fontSlider" min="16" max="40" step="1" value="24"
+                 oninput="updateFontSize(this.value)">
+          <span class="edge-label" style="font-size:1.4em;">أ</span>
+        </div>
+        <div class="setting-value-wrapper">
+          <span id="fontValue" class="setting-value">24 px</span>
+        </div>
+      </div>
+
+      <button class="btn-reset" onclick="resetSettings()">🔄 إعادة التعيين للإعدادات الافتراضية</button>
+    </div>
+  </div>
+
+  <!-- ============ EN-TÊTE ============ -->
   <header>
     <h1>📚 مكتبتي التفاعلية</h1>
     <p>تعلّم بسهولة ومتعة</p>
@@ -103,7 +291,7 @@
     <div class="card">
       <img id="page-img" class="page-image" src="" alt="Page" style="display:none;">
       <h2 id="page-title" class="page-title"></h2>
-      
+
       <div id="page-text" class="text-container"></div>
 
       <div class="audio-controls">
@@ -138,555 +326,640 @@
     </div>
   </div>
 
-<script>
-  // ============ CONFIGURATION ============
-  const GITHUB_BASE = 'https://raw.githubusercontent.com/semred/livre_alphabetisation/main';
-  const CATALOGUE_URL = `${GITHUB_BASE}/livres/catalogue.json`;
+  <script>
+    // ============ CONFIGURATION ============
+    const GITHUB_BASE = 'https://raw.githubusercontent.com/semred/livre_alphabetisation/main';
+    const CATALOGUE_URL = `${GITHUB_BASE}/livres/catalogue.json`;
 
-  // ============ ÉTAT GLOBAL ============
-  let catalogue = [];
-  let currentBook = null;
-  let currentPageIndex = 0;
-  let audio = new Audio();
-  let isPlaying = false;
-  let playStopTime = null;          // fin du mot en cours (mode MP3)
-  let currentWords = [];            // mots de la page (mode TTS)
-  let currentWordSpans = [];        // spans DOM correspondants
-  let ttsSessionId = 0;             // invalide les anciens callbacks TTS
+    // ============ ÉTAT GLOBAL ============
+    let catalogue = [];
+    let currentBook = null;
+    let currentPageIndex = 0;
+    let audio = new Audio();
+    let isPlaying = false;
+    let playStopTime = null;          // fin du mot en cours (mode MP3)
+    let currentWords = [];            // mots de la page (mode TTS)
+    let currentWordSpans = [];        // spans DOM correspondants
+    let ttsSessionId = 0;             // invalide les anciens callbacks TTS
+    let ttsCurrentIndex = -1;         // index du mot en cours de lecture TTS
 
-  // ============ INITIALISATION ============
-  document.addEventListener('DOMContentLoaded', loadCatalogue);
+    // ============ PARAMÈTRES UTILISATEUR ============
+    const SETTINGS_KEY = 'lecteur_settings_v1';
+    const DEFAULT_SETTINGS = { speed: 0.85, fontSize: 24 };
+    let userSettings = { ...DEFAULT_SETTINGS };
 
-  async function loadCatalogue() {
-    try {
-      console.log('Chargement du catalogue depuis:', CATALOGUE_URL);
-      const response = await fetch(CATALOGUE_URL);
-      if (!response.ok) throw new Error(`HTTP ${response.status}`);
-      const data = await response.json();
-      catalogue = data.livres || [];
-      console.log('Catalogue chargé:', catalogue);
-      renderLibrary();
-    } catch (error) {
-      console.error('Erreur chargement catalogue:', error);
-      document.getElementById('library-content').innerHTML = `
-        <div class="card" style="text-align:center; color:red;">
-          ❌ Erreur de chargement du catalogue.<br>
-          <small>${error.message}</small><br>
-          <button onclick="loadCatalogue()" style="margin-top:10px;">🔄 Réessayer</button>
-        </div>`;
+    function loadSettings() {
+      try {
+        const saved = JSON.parse(localStorage.getItem(SETTINGS_KEY) || '{}');
+        userSettings = {
+          speed: typeof saved.speed === 'number' ? saved.speed : DEFAULT_SETTINGS.speed,
+          fontSize: typeof saved.fontSize === 'number' ? saved.fontSize : DEFAULT_SETTINGS.fontSize
+        };
+      } catch {
+        userSettings = { ...DEFAULT_SETTINGS };
+      }
+      applySettings();
     }
-  }
 
-  function renderLibrary() {
-    if (catalogue.length === 0) {
-      document.getElementById('library-content').innerHTML = '<div class="card" style="text-align:center;">Aucun livre disponible</div>';
-      return;
+    function saveSettings() {
+      try { localStorage.setItem(SETTINGS_KEY, JSON.stringify(userSettings)); } catch {}
     }
-    let html = '<div class="book-grid">';
-    catalogue.forEach(book => {
-      const cover = book.couverture ? `${GITHUB_BASE}/${book.couverture}` : 'https://via.placeholder.com/150/0d5c4a/ffffff?text=كتاب';
-      html += `
-        <div class="card book-card" onclick="loadBook('${book.fichierJSON}')">
-          <img src="${cover}" alt="${book.titre}" onerror="this.src='https://via.placeholder.com/150/0d5c4a/ffffff?text=كتاب'">
-          <h3>${book.titre}</h3>
-          <span class="level">${book.niveau || 'moyen'}</span>
-          <p style="font-size:0.85em; color:#666; margin-top:5px;">${book.nombrePages || '?'} pages</p>
-        </div>`;
+
+    function applySettings() {
+      document.documentElement.style.setProperty('--reader-font-size', userSettings.fontSize + 'px');
+      if (audio) audio.playbackRate = userSettings.speed;
+
+      const speedSlider = document.getElementById('speedSlider');
+      const fontSlider  = document.getElementById('fontSlider');
+      if (speedSlider) speedSlider.value = userSettings.speed;
+      if (fontSlider)  fontSlider.value  = userSettings.fontSize;
+
+      updateSpeedDisplay();
+      updateFontDisplay();
+    }
+
+    function updateSpeed(val) {
+      userSettings.speed = parseFloat(val);
+      saveSettings();
+      if (audio) audio.playbackRate = userSettings.speed;
+      updateSpeedDisplay();
+
+      // Si lecture TTS en cours → relancer depuis le mot courant avec la nouvelle vitesse
+      if (isPlaying && ttsCurrentIndex >= 0 && currentWords.length > 0) {
+        playTTSFullText(ttsCurrentIndex);
+      }
+    }
+
+    function updateFontSize(val) {
+      userSettings.fontSize = parseInt(val);
+      saveSettings();
+      document.documentElement.style.setProperty('--reader-font-size', userSettings.fontSize + 'px');
+      updateFontDisplay();
+    }
+
+    function updateSpeedDisplay() {
+      const el = document.getElementById('speedValue');
+      if (el) el.textContent = userSettings.speed.toFixed(2) + 'x';
+    }
+
+    function updateFontDisplay() {
+      const el = document.getElementById('fontValue');
+      if (el) el.textContent = userSettings.fontSize + ' px';
+    }
+
+    function toggleSettings() {
+      document.getElementById('settings-overlay').classList.toggle('show');
+      document.getElementById('settings-panel').classList.toggle('show');
+    }
+
+    function closeSettings() {
+      document.getElementById('settings-overlay').classList.remove('show');
+      document.getElementById('settings-panel').classList.remove('show');
+    }
+
+    function resetSettings() {
+      userSettings = { ...DEFAULT_SETTINGS };
+      saveSettings();
+      applySettings();
+    }
+
+    // ============ INITIALISATION ============
+    document.addEventListener('DOMContentLoaded', () => {
+      loadSettings();
+      loadCatalogue();
     });
-    html += '</div>';
-    document.getElementById('library-content').innerHTML = html;
-  }
 
-  // ============ CHARGEMENT DU LIVRE ============
-  async function loadBook(jsonPath) {
-    try {
-      const fullUrl = `${GITHUB_BASE}/${jsonPath}`;
-      const response = await fetch(fullUrl);
-      if (!response.ok) throw new Error(`HTTP ${response.status}`);
-      currentBook = await response.json();
-      currentPageIndex = 0;
-      showScreen('reader');
-      renderPage();
-    } catch (error) {
-      console.error('Erreur chargement livre:', error);
-      alert(`Erreur lors du chargement du livre: ${error.message}`);
-    }
-  }
-
-  // ============ AFFICHAGE DE LA PAGE ============
-  function renderPage() {
-    const page = currentBook.pages[currentPageIndex];
-    if (!page) return;
-
-    document.getElementById('reader-page-info').textContent = `صفحة ${currentPageIndex + 1} / ${currentBook.pages.length}`;
-    document.getElementById('page-title').textContent = page.titreSection || '';
-
-    // Image
-    const imgEl = document.getElementById('page-img');
-    if (page.image) {
-      imgEl.src = `${GITHUB_BASE}/${page.image}`;
-      imgEl.style.display = 'block';
-      imgEl.onerror = () => { imgEl.style.display = 'none'; };
-    } else {
-      imgEl.style.display = 'none';
+    async function loadCatalogue() {
+      try {
+        console.log('Chargement du catalogue depuis:', CATALOGUE_URL);
+        const response = await fetch(CATALOGUE_URL);
+        if (!response.ok) throw new Error(`HTTP ${response.status}`);
+        const data = await response.json();
+        catalogue = data.livres || [];
+        console.log('Catalogue chargé:', catalogue);
+        renderLibrary();
+      } catch (error) {
+        console.error('Erreur chargement catalogue:', error);
+        document.getElementById('library-content').innerHTML = `
+          <div class="card" style="text-align:center; color:red;">
+            ❌ Erreur de chargement du catalogue.<br>
+            <small>${error.message}</small><br>
+            <button onclick="loadCatalogue()" style="margin-top:10px;">🔄 Réessayer</button>
+          </div>`;
+      }
     }
 
-    // Réinitialiser l'état audio
-    stopAudio();
-
-    const textContainer = document.getElementById('page-text');
-    textContainer.innerHTML = '';
-    currentWords = [];
-    currentWordSpans = [];
-
-    const isMp3Mode = (page.audioMode === 'mp3' && page.audioPage && page.mots && page.mots.length > 0);
-
-    if (isMp3Mode) {
-      // === Mode MP3 avec timings WebMAUS ===
-      page.mots.forEach((mot, index) => {
-        const span = document.createElement('span');
-        span.className = 'word';
-        span.textContent = mot.texte + ' ';
-        span.dataset.index = index;
-        span.onclick = (e) => { e.stopPropagation(); playFromWord(index); };
-        textContainer.appendChild(span);
+    function renderLibrary() {
+      if (catalogue.length === 0) {
+        document.getElementById('library-content').innerHTML = '<div class="card" style="text-align:center;">Aucun livre disponible</div>';
+        return;
+      }
+      let html = '<div class="book-grid">';
+      catalogue.forEach(book => {
+        const cover = book.couverture ? `${GITHUB_BASE}/${book.couverture}` : 'https://via.placeholder.com/150/0d5c4a/ffffff?text=كتاب';
+        html += `
+          <div class="card book-card" onclick="loadBook('${book.fichierJSON}')">
+            <img src="${cover}" alt="${book.titre}" onerror="this.src='https://via.placeholder.com/150/0d5c4a/ffffff?text=كتاب'">
+            <h3>${book.titre}</h3>
+            <span class="level">${book.niveau || 'moyen'}</span>
+            <p style="font-size:0.85em; color:#666; margin-top:5px;">${book.nombrePages || '?'} pages</p>
+          </div>`;
       });
-    } else {
-      // === Mode TTS : découper le texte en mots cliquables ===
-      const texte = page.texteAffiche || '';
-      // On garde les espaces pour l'affichage naturel
-      const parts = texte.split(/(\s+)/);
-      parts.forEach(part => {
-        if (part === '') return;
-        if (/^\s+$/.test(part)) {
-          textContainer.appendChild(document.createTextNode(part));
-        } else {
+      html += '</div>';
+      document.getElementById('library-content').innerHTML = html;
+    }
+
+    // ============ CHARGEMENT DU LIVRE ============
+    async function loadBook(jsonPath) {
+      try {
+        const fullUrl = `${GITHUB_BASE}/${jsonPath}`;
+        const response = await fetch(fullUrl);
+        if (!response.ok) throw new Error(`HTTP ${response.status}`);
+        currentBook = await response.json();
+        currentPageIndex = 0;
+        showScreen('reader');
+        renderPage();
+      } catch (error) {
+        console.error('Erreur chargement livre:', error);
+        alert(`Erreur lors du chargement du livre: ${error.message}`);
+      }
+    }
+
+    // ============ AFFICHAGE DE LA PAGE ============
+    function renderPage() {
+      const page = currentBook.pages[currentPageIndex];
+      if (!page) return;
+
+      document.getElementById('reader-page-info').textContent = `صفحة ${currentPageIndex + 1} / ${currentBook.pages.length}`;
+      document.getElementById('page-title').textContent = page.titreSection || '';
+
+      // Image
+      const imgEl = document.getElementById('page-img');
+      if (page.image) {
+        imgEl.src = `${GITHUB_BASE}/${page.image}`;
+        imgEl.style.display = 'block';
+        imgEl.onerror = () => { imgEl.style.display = 'none'; };
+      } else {
+        imgEl.style.display = 'none';
+      }
+
+      // Réinitialiser l'état audio
+      stopAudio();
+
+      const textContainer = document.getElementById('page-text');
+      textContainer.innerHTML = '';
+      currentWords = [];
+      currentWordSpans = [];
+
+      const isMp3Mode = (page.audioMode === 'mp3' && page.audioPage && page.mots && page.mots.length > 0);
+
+      if (isMp3Mode) {
+        // === Mode MP3 avec timings WebMAUS ===
+        page.mots.forEach((mot, index) => {
           const span = document.createElement('span');
           span.className = 'word';
-          span.textContent = part;
-          const wordText = part;
-          span.onclick = (e) => {
-            e.stopPropagation();
-            playWordTTS(wordText, span);
-          };
+          span.textContent = mot.texte + ' ';
+          span.dataset.index = index;
+          span.onclick = (e) => { e.stopPropagation(); playFromWord(index); };
           textContainer.appendChild(span);
-          currentWords.push(wordText);
-          currentWordSpans.push(span);
-        }
-      });
-    }
+        });
+      } else {
+        // === Mode TTS : découper le texte en mots cliquables ===
+        const texte = page.texteAffiche || '';
+        const parts = texte.split(/(\s+)/);
+        parts.forEach(part => {
+          if (part === '') return;
+          if (/^\s+$/.test(part)) {
+            textContainer.appendChild(document.createTextNode(part));
+          } else {
+            const span = document.createElement('span');
+            span.className = 'word';
+            span.textContent = part;
+            const wordText = part;
+            span.onclick = (e) => {
+              e.stopPropagation();
+              playWordTTS(wordText, span);
+            };
+            textContainer.appendChild(span);
+            currentWords.push(wordText);
+            currentWordSpans.push(span);
+          }
+        });
+      }
 
-    // Vocabulaire
-    const vocabDiv = document.getElementById('tab-vocab');
-    if (page.vocabulaire && page.vocabulaire.length > 0) {
-      vocabDiv.innerHTML = page.vocabulaire.map(v => `
-        <div class="vocab-item">
-          <div class="vocab-word">${v.mot || ''}</div>
-          <div>${v.traduction || ''}</div>
-          ${v.synonymes && v.synonymes.length ? `<div class="vocab-syn">🔄 Synonymes: ${v.synonymes.join(', ')}</div>` : ''}
-          ${v.exemple ? `<div style="margin-top:5px; font-style:italic;">💬 ${v.exemple}</div>` : ''}
-        </div>`).join('');
-    } else {
-      vocabDiv.innerHTML = '<p style="text-align:center; color:#999;">Aucun vocabulaire pour cette page.</p>';
-    }
+      // Vocabulaire
+      const vocabDiv = document.getElementById('tab-vocab');
+      if (page.vocabulaire && page.vocabulaire.length > 0) {
+        vocabDiv.innerHTML = page.vocabulaire.map(v => `
+          <div class="vocab-item">
+            <div class="vocab-word">${v.mot || ''}</div>
+            <div>${v.traduction || ''}</div>
+            ${v.synonymes && v.synonymes.length ? `<div class="vocab-syn">🔄 Synonymes: ${v.synonymes.join(', ')}</div>` : ''}
+            ${v.exemple ? `<div style="margin-top:5px; font-style:italic;">💬 ${v.exemple}</div>` : ''}
+          </div>`).join('');
+      } else {
+        vocabDiv.innerHTML = '<p style="text-align:center; color:#999;">Aucun vocabulaire pour cette page.</p>';
+      }
 
-    // Exercices
-    renderExercises(page.exercices);
+      // Exercices
+      renderExercises(page.exercices);
 
-    // Notes
-    document.getElementById('tab-notes').innerHTML = page.notes ? `<p style="line-height:1.6;">${page.notes}</p>` : '<p style="text-align:center; color:#999;">Aucune note.</p>';
+      // Notes
+      document.getElementById('tab-notes').innerHTML = page.notes ? `<p style="line-height:1.6;">${page.notes}</p>` : '<p style="text-align:center; color:#999;">Aucune note.</p>';
 
-    // Préparer la source audio
-    if (page.audioMode === 'mp3' && page.audioPage) {
-      audio.src = `${GITHUB_BASE}/${page.audioPage}`;
-      audio.onerror = () => {
-        console.error('Erreur chargement audio:', audio.src);
-        if (page.texteAffiche && currentWords.length > 0) {
-          playTTSFullText();
-        }
-      };
-    } else if (page.texteAffiche && currentWords.length > 0) {
-      // Mode TTS : lecture auto de la page
-      playTTSFullText();
-    }
-  }
-
-  // ============ SURlignage MP3 (inchangé sauf ajout stop) ============
-  audio.ontimeupdate = () => {
-    if (!isPlaying || !currentBook || !currentBook.pages[currentPageIndex]) return;
-    const currentTime = audio.currentTime;
-    const page = currentBook.pages[currentPageIndex];
-
-    // --- Arrêt à la fin du mot sélectionné ---
-    if (playStopTime !== null && currentTime >= playStopTime) {
-      audio.pause();
-      playStopTime = null;
-      isPlaying = false;
-      updatePlayButton();
-      clearAllHighlight();
-      return;
-    }
-
-    if (!page.mots || page.mots.length === 0) return;
-
-    const currentWord = page.mots.find(m => currentTime >= m.debut && currentTime < m.fin);
-    document.querySelectorAll('.word').forEach(w => w.classList.remove('active'));
-    if (currentWord) {
-      const index = page.mots.indexOf(currentWord);
-      const el = document.querySelector(`.word[data-index="${index}"]`);
-      if (el) {
-        el.classList.add('active');
-        el.scrollIntoView({ behavior: 'smooth', block: 'center', inline: 'center' });
+      // Préparer la source audio
+      if (page.audioMode === 'mp3' && page.audioPage) {
+        audio.src = `${GITHUB_BASE}/${page.audioPage}`;
+        audio.playbackRate = userSettings.speed;
+        audio.onerror = () => {
+          console.error('Erreur chargement audio:', audio.src);
+          if (page.texteAffiche && currentWords.length > 0) {
+            playTTSFullText(0);
+          }
+        };
+      } else if (page.texteAffiche && currentWords.length > 0) {
+        // Mode TTS : lecture auto de la page
+        playTTSFullText(0);
       }
     }
-  };
 
-  audio.onended = () => {
-    isPlaying = false;
-    playStopTime = null;
-    updatePlayButton();
-    clearAllHighlight();
-  };
+    // ============ SURlignage MP3 + STOP à la fin du mot ============
+    audio.ontimeupdate = () => {
+      if (!isPlaying || !currentBook || !currentBook.pages[currentPageIndex]) return;
+      const currentTime = audio.currentTime;
+      const page = currentBook.pages[currentPageIndex];
 
-  // ============ CONTRÔLES AUDIO ============
-  function togglePlay() {
-    const page = currentBook.pages[currentPageIndex];
-    if (!page) return;
-
-    const isMp3Mode = (page.audioMode === 'mp3' && page.audioPage);
-
-    if (isMp3Mode) {
-      if (isPlaying) {
+      // Arrêt à la fin du mot sélectionné
+      if (playStopTime !== null && currentTime >= playStopTime) {
         audio.pause();
-        isPlaying = false;
         playStopTime = null;
-      } else {
-        playStopTime = null; // lecture complète
-        audio.play().catch(e => console.error('Erreur lecture audio:', e));
-        isPlaying = true;
-      }
-    } else if (page.texteAffiche) {
-      if (isPlaying) {
-        // Stop TTS
-        ttsSessionId++;
-        window.speechSynthesis.cancel();
-        isPlaying = false;
-        clearAllHighlight();
-      } else {
-        playTTSFullText();
-      }
-    }
-    updatePlayButton();
-  }
-
-  // ============ TTS : LECTURE COMPLÈTE MOT PAR MOT ============
-  function playTTSFullText() {
-    if (!currentWords || currentWords.length === 0) return;
-
-    const mySession = ++ttsSessionId;
-    window.speechSynthesis.cancel();
-    isPlaying = true;
-    updatePlayButton();
-    clearAllHighlight();
-
-    const voices = window.speechSynthesis.getVoices();
-    const arVoice = voices.find(v => v.lang && v.lang.startsWith('ar'));
-
-    let idx = 0;
-
-    const speakNext = () => {
-      if (mySession !== ttsSessionId) return; // session annulée
-      if (idx >= currentWords.length) {
         isPlaying = false;
         updatePlayButton();
         clearAllHighlight();
         return;
       }
 
-      // Surligner le mot courant
-      clearAllHighlight();
-      const span = currentWordSpans[idx];
-      if (span) {
-        span.classList.add('active');
-        span.scrollIntoView({ behavior: 'smooth', block: 'center', inline: 'center' });
+      if (!page.mots || page.mots.length === 0) return;
+
+      const currentWord = page.mots.find(m => currentTime >= m.debut && currentTime < m.fin);
+      document.querySelectorAll('.word').forEach(w => w.classList.remove('active'));
+      if (currentWord) {
+        const index = page.mots.indexOf(currentWord);
+        const el = document.querySelector(`.word[data-index="${index}"]`);
+        if (el) {
+          el.classList.add('active');
+          el.scrollIntoView({ behavior: 'smooth', block: 'center', inline: 'center' });
+        }
       }
-
-      const utt = new SpeechSynthesisUtterance(currentWords[idx]);
-      utt.lang = 'ar-DZ';
-      if (arVoice) utt.voice = arVoice;
-      utt.rate = 0.9;
-      utt.pitch = 1.0;
-
-      utt.onend = () => {
-        if (mySession !== ttsSessionId) return;
-        idx++;
-        speakNext();
-      };
-      utt.onerror = (e) => {
-        if (mySession !== ttsSessionId) return;
-        // 'interrupted' / 'canceled' => on n'avance pas, on arrête
-        if (e.error === 'interrupted' || e.error === 'canceled') return;
-        idx++;
-        speakNext();
-      };
-
-      window.speechSynthesis.speak(utt);
     };
 
-    // Attendre que les voix soient prêtes (Chrome)
-    if (window.speechSynthesis.getVoices().length === 0) {
-      window.speechSynthesis.onvoiceschanged = () => {
-        window.speechSynthesis.onvoiceschanged = null;
-        speakNext();
-      };
-    } else {
-      speakNext();
+    audio.onended = () => {
+      isPlaying = false;
+      playStopTime = null;
+      updatePlayButton();
+      clearAllHighlight();
+    };
+
+    // ============ CONTRÔLES AUDIO ============
+    function togglePlay() {
+      const page = currentBook.pages[currentPageIndex];
+      if (!page) return;
+
+      const isMp3Mode = (page.audioMode === 'mp3' && page.audioPage);
+
+      if (isMp3Mode) {
+        if (isPlaying) {
+          audio.pause();
+          isPlaying = false;
+          playStopTime = null;
+        } else {
+          playStopTime = null; // lecture complète
+          audio.play().catch(e => console.error('Erreur lecture audio:', e));
+          isPlaying = true;
+        }
+      } else if (page.texteAffiche) {
+        if (isPlaying) {
+          ttsSessionId++;
+          window.speechSynthesis.cancel();
+          isPlaying = false;
+          ttsCurrentIndex = -1;
+          clearAllHighlight();
+        } else {
+          playTTSFullText(0);
+        }
+      }
+      updatePlayButton();
     }
-  }
 
-  // ============ TTS : LECTURE D'UN SEUL MOT ============
-  function playWordTTS(word, span) {
-    const mySession = ++ttsSessionId;
-    window.speechSynthesis.cancel();
-    clearAllHighlight();
-    if (span) span.classList.add('active');
+    // ============ TTS : LECTURE COMPLÈTE MOT PAR MOT ============
+    function playTTSFullText(startIndex = 0) {
+      if (!currentWords || currentWords.length === 0) return;
 
-    const utter = () => {
-      const utt = new SpeechSynthesisUtterance(word);
-      utt.lang = 'ar-DZ';
+      const mySession = ++ttsSessionId;
+      window.speechSynthesis.cancel();
+      isPlaying = true;
+      updatePlayButton();
+      clearAllHighlight();
+
       const voices = window.speechSynthesis.getVoices();
       const arVoice = voices.find(v => v.lang && v.lang.startsWith('ar'));
-      if (arVoice) utt.voice = arVoice;
-      utt.rate = 0.85;
-      utt.pitch = 1.0;
 
-      utt.onend = () => {
+      let idx = startIndex;
+      ttsCurrentIndex = idx;
+
+      const speakNext = () => {
         if (mySession !== ttsSessionId) return;
-        if (span) span.classList.remove('active');
-        isPlaying = false;
-        updatePlayButton();
-      };
-      utt.onerror = () => {
-        if (mySession !== ttsSessionId) return;
-        if (span) span.classList.remove('active');
-        isPlaying = false;
-        updatePlayButton();
+        if (idx >= currentWords.length) {
+          isPlaying = false;
+          ttsCurrentIndex = -1;
+          updatePlayButton();
+          clearAllHighlight();
+          return;
+        }
+        ttsCurrentIndex = idx;
+
+        clearAllHighlight();
+        const span = currentWordSpans[idx];
+        if (span) {
+          span.classList.add('active');
+          span.scrollIntoView({ behavior: 'smooth', block: 'center', inline: 'center' });
+        }
+
+        const utt = new SpeechSynthesisUtterance(currentWords[idx]);
+        utt.lang = 'ar-DZ';
+        if (arVoice) utt.voice = arVoice;
+        utt.rate = userSettings.speed;
+        utt.pitch = 1.0;
+
+        utt.onend = () => {
+          if (mySession !== ttsSessionId) return;
+          idx++;
+          speakNext();
+        };
+        utt.onerror = (e) => {
+          if (mySession !== ttsSessionId) return;
+          if (e.error === 'interrupted' || e.error === 'canceled') return;
+          idx++;
+          speakNext();
+        };
+
+        window.speechSynthesis.speak(utt);
       };
 
-      isPlaying = true;
-      updatePlayButton();
-      window.speechSynthesis.speak(utt);
-    };
+      if (window.speechSynthesis.getVoices().length === 0) {
+        window.speechSynthesis.onvoiceschanged = () => {
+          window.speechSynthesis.onvoiceschanged = null;
+          speakNext();
+        };
+      } else {
+        speakNext();
+      }
+    }
 
-    if (window.speechSynthesis.getVoices().length === 0) {
-      window.speechSynthesis.onvoiceschanged = () => {
-        window.speechSynthesis.onvoiceschanged = null;
+    // ============ TTS : LECTURE D'UN SEUL MOT ============
+    function playWordTTS(word, span) {
+      const mySession = ++ttsSessionId;
+      window.speechSynthesis.cancel();
+      clearAllHighlight();
+      if (span) span.classList.add('active');
+
+      const utter = () => {
+        const utt = new SpeechSynthesisUtterance(word);
+        utt.lang = 'ar-DZ';
+        const voices = window.speechSynthesis.getVoices();
+        const arVoice = voices.find(v => v.lang && v.lang.startsWith('ar'));
+        if (arVoice) utt.voice = arVoice;
+        utt.rate = userSettings.speed;
+        utt.pitch = 1.0;
+
+        utt.onend = () => {
+          if (mySession !== ttsSessionId) return;
+          if (span) span.classList.remove('active');
+          isPlaying = false;
+          updatePlayButton();
+        };
+        utt.onerror = () => {
+          if (mySession !== ttsSessionId) return;
+          if (span) span.classList.remove('active');
+          isPlaying = false;
+          updatePlayButton();
+        };
+
+        isPlaying = true;
+        updatePlayButton();
+        window.speechSynthesis.speak(utt);
+      };
+
+      if (window.speechSynthesis.getVoices().length === 0) {
+        window.speechSynthesis.onvoiceschanged = () => {
+          window.speechSynthesis.onvoiceschanged = null;
+          utter();
+        };
+      } else {
         utter();
-      };
-    } else {
-      utter();
+      }
     }
-  }
 
-  // ============ MP3 : LECTURE DEPUIS UN MOT ============
-  function playFromWord(index) {
-    const page = currentBook.pages[currentPageIndex];
-    if (!page || !page.mots) return;
-    const mot = page.mots[index];
-    if (!mot) return;
+    // ============ MP3 : LECTURE DEPUIS UN MOT ============
+    function playFromWord(index) {
+      const page = currentBook.pages[currentPageIndex];
+      if (!page || !page.mots) return;
+      const mot = page.mots[index];
+      if (!mot) return;
 
-    if (page.audioMode === 'mp3' && page.audioPage) {
-      audio.currentTime = mot.debut;
-      playStopTime = mot.fin;     // ⬅️ STOP à la fin du mot
-      audio.play().catch(e => console.error('Erreur lecture audio:', e));
-      isPlaying = true;
+      if (page.audioMode === 'mp3' && page.audioPage) {
+        audio.currentTime = mot.debut;
+        playStopTime = mot.fin;    // STOP à la fin du mot
+        audio.play().catch(e => console.error('Erreur lecture audio:', e));
+        isPlaying = true;
+        updatePlayButton();
+      }
+    }
+
+    function stopAudio() {
+      audio.pause();
+      audio.currentTime = 0;
+      playStopTime = null;
+      ttsSessionId++;
+      window.speechSynthesis.cancel();
+      isPlaying = false;
+      ttsCurrentIndex = -1;
       updatePlayButton();
+      clearAllHighlight();
     }
-  }
 
-  function stopAudio() {
-    audio.pause();
-    audio.currentTime = 0;
-    playStopTime = null;
-    ttsSessionId++;
-    window.speechSynthesis.cancel();
-    isPlaying = false;
-    updatePlayButton();
-    clearAllHighlight();
-  }
-
-  function updatePlayButton() {
-    const btn = document.getElementById('btn-play');
-    if (btn) btn.textContent = isPlaying ? '⏸' : '▶';
-  }
-
-  function clearAllHighlight() {
-    document.querySelectorAll('.word').forEach(w => w.classList.remove('active'));
-  }
-
-  // ============ NAVIGATION ============
-  function nextPage() {
-    if (currentPageIndex < currentBook.pages.length - 1) {
-      currentPageIndex++;
-      renderPage();
-    } else {
-      showSummary();
+    function updatePlayButton() {
+      const btn = document.getElementById('btn-play');
+      if (btn) btn.textContent = isPlaying ? '⏸' : '▶';
     }
-  }
 
-  function prevPage() {
-    if (currentPageIndex > 0) {
-      currentPageIndex--;
-      renderPage();
+    function clearAllHighlight() {
+      document.querySelectorAll('.word').forEach(w => w.classList.remove('active'));
     }
-  }
 
-  function showSummary() {
-    if (!currentBook || !currentBook.resume) return;
-    document.getElementById('summary-text').textContent = currentBook.resume.texte || '';
-    const sumAudio = document.getElementById('summary-audio');
-    if (currentBook.resume.modeAudio === 'mp3' && currentBook.resume.audio) {
-      sumAudio.src = `${GITHUB_BASE}/${currentBook.resume.audio}`;
-      sumAudio.style.display = 'block';
-    } else {
-      sumAudio.style.display = 'none';
-    }
-    showScreen('summary');
-  }
-
-  // ============ UTILITAIRES ============
-  function showScreen(screenName) {
-    document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-    document.getElementById(`screen-${screenName}`).classList.add('active');
-    if (screenName !== 'reader') stopAudio();
-  }
-
-  function switchTab(tabName) {
-    document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
-    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-    document.getElementById(`tab-${tabName}`).classList.add('active');
-    event.target.classList.add('active');
-  }
-
-  // ============ EXERCICES À TROUS (inchangé) ============
-  function renderExercises(exercices) {
-    const container = document.getElementById('tab-exercises');
-    if (!exercices || exercices.length === 0) {
-      container.innerHTML = '<p style="text-align:center; color:#999;">Aucun exercice pour cette page.</p>';
-      return;
-    }
-    container.innerHTML = '';
-    exercices.forEach(ex => {
-      if (ex.type === 'fillblank') {
-        container.appendChild(creerExerciceATrous(ex));
+    // ============ NAVIGATION ============
+    function nextPage() {
+      if (currentPageIndex < currentBook.pages.length - 1) {
+        currentPageIndex++;
+        renderPage();
+      } else {
+        showSummary();
       }
-    });
-  }
-
-  function creerExerciceATrous(exercice) {
-    const container = document.createElement('div');
-    container.className = 'exercise-fillblank';
-
-    const titre = document.createElement('h4');
-    titre.textContent = '✍️ أكمل الفراغات بالضغط على الكلمة ثم على الفراغ:';
-    container.appendChild(titre);
-
-    const texteDiv = document.createElement('div');
-    texteDiv.className = 'texte-avec-trous';
-
-    let indexTrou = 0;
-    const texteHTML = exercice.texte.replace(/___/g, () => {
-      const trouId = `trou-${Date.now()}-${indexTrou}`;
-      indexTrou++;
-      return `<span class="trou" id="${trouId}" data-index="${indexTrou - 1}" onclick="placerMotDansTrou(this, ${indexTrou - 1})"></span>`;
-    });
-    texteDiv.innerHTML = texteHTML;
-    container.appendChild(texteDiv);
-
-    const banqueDiv = document.createElement('div');
-    banqueDiv.className = 'banque-mots';
-    (exercice.motsMelanges || []).forEach((mot, index) => {
-      const motSpan = document.createElement('span');
-      motSpan.className = 'mot-banque';
-      motSpan.textContent = mot;
-      motSpan.dataset.mot = mot;
-      motSpan.dataset.index = index;
-      motSpan.onclick = () => selectionnerMot(motSpan, container);
-      banqueDiv.appendChild(motSpan);
-    });
-    container.appendChild(banqueDiv);
-
-    const messageSuccess = document.createElement('div');
-    messageSuccess.className = 'message-success';
-    messageSuccess.textContent = '🎉 ممتاز! أحسنت!';
-    container.appendChild(messageSuccess);
-
-    container.dataset.trousRemplis = '0';
-    container.dataset.totalTrous = indexTrou;
-    container.dataset.reponses = JSON.stringify(exercice.reponses || []);
-    return container;
-  }
-
-  function selectionnerMot(element, container) {
-    if (element.classList.contains('used')) return;
-    document.querySelectorAll('.mot-banque').forEach(m => m.classList.remove('selected'));
-    element.classList.add('selected');
-    container.dataset.selectedMot = element.dataset.mot;
-    container.dataset.selectedElementIndex = element.dataset.index;
-  }
-
-  function placerMotDansTrou(trouElement, indexTrou) {
-    const container = trouElement.closest('.exercise-fillblank');
-    const motSelectionne = container.dataset.selectedMot;
-    const reponses = JSON.parse(container.dataset.reponses);
-    const bonneReponse = reponses[indexTrou];
-
-    if (!motSelectionne) {
-      const banque = container.querySelector('.banque-mots');
-      if (banque) {
-        banque.style.animation = 'shake 0.5s';
-        setTimeout(() => banque.style.animation = '', 500);
-      }
-      return;
     }
-    if (trouElement.classList.contains('correct')) return;
 
-    if (motSelectionne === bonneReponse) {
-      trouElement.innerHTML = `<span class="mot-place">${motSelectionne}</span>`;
-      trouElement.classList.add('correct');
-      trouElement.classList.remove('incorrect');
-
-      const motElement = container.querySelector(`.mot-banque[data-mot="${motSelectionne}"]:not(.used)`);
-      if (motElement) {
-        motElement.classList.add('used');
-        motElement.classList.remove('selected');
+    function prevPage() {
+      if (currentPageIndex > 0) {
+        currentPageIndex--;
+        renderPage();
       }
-      let trousRemplis = parseInt(container.dataset.trousRemplis) + 1;
-      container.dataset.trousRemplis = trousRemplis;
-      container.dataset.selectedMot = '';
+    }
 
-      const totalTrous = parseInt(container.dataset.totalTrous);
-      if (trousRemplis === totalTrous) {
-        container.querySelector('.message-success').classList.add('show');
+    function showSummary() {
+      if (!currentBook || !currentBook.resume) return;
+      document.getElementById('summary-text').textContent = currentBook.resume.texte || '';
+      const sumAudio = document.getElementById('summary-audio');
+      if (currentBook.resume.modeAudio === 'mp3' && currentBook.resume.audio) {
+        sumAudio.src = `${GITHUB_BASE}/${currentBook.resume.audio}`;
+        sumAudio.style.display = 'block';
+      } else {
+        sumAudio.style.display = 'none';
       }
-    } else {
-      trouElement.classList.add('incorrect');
-      setTimeout(() => trouElement.classList.remove('incorrect'), 500);
+      showScreen('summary');
+    }
+
+    // ============ UTILITAIRES ============
+    function showScreen(screenName) {
+      document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+      document.getElementById(`screen-${screenName}`).classList.add('active');
+      if (screenName !== 'reader') stopAudio();
+    }
+
+    function switchTab(tabName) {
+      document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+      document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+      document.getElementById(`tab-${tabName}`).classList.add('active');
+      event.target.classList.add('active');
+    }
+
+    // ============ EXERCICES À TROUS ============
+    function renderExercises(exercices) {
+      const container = document.getElementById('tab-exercises');
+      if (!exercices || exercices.length === 0) {
+        container.innerHTML = '<p style="text-align:center; color:#999;">Aucun exercice pour cette page.</p>';
+        return;
+      }
+      container.innerHTML = '';
+      exercices.forEach(ex => {
+        if (ex.type === 'fillblank') {
+          container.appendChild(creerExerciceATrous(ex));
+        }
+      });
+    }
+
+    function creerExerciceATrous(exercice) {
+      const container = document.createElement('div');
+      container.className = 'exercise-fillblank';
+
+      const titre = document.createElement('h4');
+      titre.textContent = '✍️ أكمل الفراغات بالضغط على الكلمة ثم على الفراغ:';
+      container.appendChild(titre);
+
+      const texteDiv = document.createElement('div');
+      texteDiv.className = 'texte-avec-trous';
+
+      let indexTrou = 0;
+      const texteHTML = exercice.texte.replace(/___/g, () => {
+        const trouId = `trou-${Date.now()}-${indexTrou}`;
+        indexTrou++;
+        return `<span class="trou" id="${trouId}" data-index="${indexTrou - 1}" onclick="placerMotDansTrou(this, ${indexTrou - 1})"></span>`;
+      });
+      texteDiv.innerHTML = texteHTML;
+      container.appendChild(texteDiv);
+
+      const banqueDiv = document.createElement('div');
+      banqueDiv.className = 'banque-mots';
+      (exercice.motsMelanges || []).forEach((mot, index) => {
+        const motSpan = document.createElement('span');
+        motSpan.className = 'mot-banque';
+        motSpan.textContent = mot;
+        motSpan.dataset.mot = mot;
+        motSpan.dataset.index = index;
+        motSpan.onclick = () => selectionnerMot(motSpan, container);
+        banqueDiv.appendChild(motSpan);
+      });
+      container.appendChild(banqueDiv);
+
+      const messageSuccess = document.createElement('div');
+      messageSuccess.className = 'message-success';
+      messageSuccess.textContent = '🎉 ممتاز! أحسنت!';
+      container.appendChild(messageSuccess);
+
+      container.dataset.trousRemplis = '0';
+      container.dataset.totalTrous = indexTrou;
+      container.dataset.reponses = JSON.stringify(exercice.reponses || []);
+      return container;
+    }
+
+    function selectionnerMot(element, container) {
+      if (element.classList.contains('used')) return;
       document.querySelectorAll('.mot-banque').forEach(m => m.classList.remove('selected'));
-      container.dataset.selectedMot = '';
+      element.classList.add('selected');
+      container.dataset.selectedMot = element.dataset.mot;
+      container.dataset.selectedElementIndex = element.dataset.index;
     }
-  }
-</script>
-  
+
+    function placerMotDansTrou(trouElement, indexTrou) {
+      const container = trouElement.closest('.exercise-fillblank');
+      const motSelectionne = container.dataset.selectedMot;
+      const reponses = JSON.parse(container.dataset.reponses);
+      const bonneReponse = reponses[indexTrou];
+
+      if (!motSelectionne) {
+        const banque = container.querySelector('.banque-mots');
+        if (banque) {
+          banque.style.animation = 'shake 0.5s';
+          setTimeout(() => banque.style.animation = '', 500);
+        }
+        return;
+      }
+      if (trouElement.classList.contains('correct')) return;
+
+      if (motSelectionne === bonneReponse) {
+        trouElement.innerHTML = `<span class="mot-place">${motSelectionne}</span>`;
+        trouElement.classList.add('correct');
+        trouElement.classList.remove('incorrect');
+
+        const motElement = container.querySelector(`.mot-banque[data-mot="${motSelectionne}"]:not(.used)`);
+        if (motElement) {
+          motElement.classList.add('used');
+          motElement.classList.remove('selected');
+        }
+        let trousRemplis = parseInt(container.dataset.trousRemplis) + 1;
+        container.dataset.trousRemplis = trousRemplis;
+        container.dataset.selectedMot = '';
+
+        const totalTrous = parseInt(container.dataset.totalTrous);
+        if (trousRemplis === totalTrous) {
+          container.querySelector('.message-success').classList.add('show');
+        }
+      } else {
+        trouElement.classList.add('incorrect');
+        setTimeout(() => trouElement.classList.remove('incorrect'), 500);
+        document.querySelectorAll('.mot-banque').forEach(m => m.classList.remove('selected'));
+        container.dataset.selectedMot = '';
+      }
+    }
+  </script>
+
   <script>
-  // Enregistrement du Service Worker pour le mode hors ligne
-  if ('serviceWorker' in navigator) {
-    window.addEventListener('load', () => {
-      navigator.serviceWorker.register('/app-alphabetisation/service-worker.js')
-        .then(reg => console.log('✅ Service Worker enregistré', reg))
-        .catch(err => console.log('❌ Erreur SW:', err));
-    });
-  }
-</script>
+    // Enregistrement du Service Worker pour le mode hors ligne
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('/app-alphabetisation/service-worker.js')
+          .then(reg => console.log('✅ Service Worker enregistré', reg))
+          .catch(err => console.log('❌ Erreur SW:', err));
+      });
+    }
+  </script>
 </body>
 </html>
