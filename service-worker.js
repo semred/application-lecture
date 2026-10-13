@@ -1,4 +1,4 @@
-const CACHE_NAME = 'app-alphabetisation-v1';
+const CACHE_NAME = 'app-lecture-v1';
 const urlsToCache = [
   '/application-lecture/',
   '/application-lecture/index.html',
@@ -7,7 +7,6 @@ const urlsToCache = [
   '/application-lecture/icon-512.png'
 ];
 
-// Installation : mettre en cache les fichiers essentiels
 self.addEventListener('install', event => {
   event.waitUntil(
     caches.open(CACHE_NAME)
@@ -17,8 +16,31 @@ self.addEventListener('install', event => {
       })
       .catch(err => console.log('Erreur cache:', err))
   );
+  self.skipWaiting();
 });
 
+self.addEventListener('activate', event => {
+  event.waitUntil(
+    caches.keys().then(cacheNames => {
+      return Promise.all(
+        cacheNames
+          .filter(name => name !== CACHE_NAME)
+          .map(name => caches.delete(name))
+      );
+    })
+  );
+  self.clients.claim();
+});
+
+self.addEventListener('fetch', event => {
+  event.respondWith(
+    caches.match(event.request)
+      .then(response => {
+        if (response) return response;
+        return fetch(event.request);
+      })
+  );
+});
 // Activation : nettoyer les anciens caches
 self.addEventListener('activate', event => {
   event.waitUntil(
