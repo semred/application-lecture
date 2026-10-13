@@ -1,8 +1,9 @@
 {
   "name": "مكتبتي التفاعلية - Livres Interactifs",
   "short_name": "مكتبتي",
-  "description": "Application de lecture interactive pour l'alphabétisation des adultes",
-  "start_url": "/application-lecture/",
+  "description": "Application de lecture interactive pour l'alphabétisation",
+  "start_url": "/application-lecture/index.html",
+  "scope": "/application-lecture/",
   "display": "standalone",
   "background_color": "#f4f7f6",
   "theme_color": "#0d5c4a",
@@ -11,13 +12,13 @@
   "dir": "rtl",
   "icons": [
     {
-      "src": "icon-192.png",
+      "src": "/application-lecture/icon-192.png",
       "sizes": "192x192",
       "type": "image/png",
       "purpose": "any maskable"
     },
     {
-      "src": "icon-512.png",
+      "src": "/application-lecture/icon-512.png",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "any maskable"
