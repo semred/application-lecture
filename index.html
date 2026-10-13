@@ -602,5 +602,15 @@
       }
     }
   </script>
+  <script>
+  // Enregistrement du Service Worker pour le mode hors ligne
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+      navigator.serviceWorker.register('/app-alphabetisation/service-worker.js')
+        .then(reg => console.log('✅ Service Worker enregistré', reg))
+        .catch(err => console.log('❌ Erreur SW:', err));
+    });
+  }
+</script>
 </body>
 </html>
