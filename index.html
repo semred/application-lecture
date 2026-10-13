@@ -342,10 +342,12 @@
     let currentWordSpans = [];        // spans DOM correspondants
     let ttsSessionId = 0;             // invalide les anciens callbacks TTS
     let ttsCurrentIndex = -1;         // index du mot en cours de lecture TTS
-
+    let ttsHighlightTimer = null;      // timer qui avance le surlignage
+    let ttsCharsPerSecond = 14;        // débit mesuré (auto-calibré), car/sec à rate 1.0
     // ============ PARAMÈTRES UTILISATEUR ============
     const SETTINGS_KEY = 'lecteur_settings_v1';
-    const DEFAULT_SETTINGS = { speed: 0.85, fontSize: 24 };
+       const DEFAULT_SETTINGS = { speed: 0.85, fontSize: 24, ttsBatchSize: 5 };
+
     let userSettings = { ...DEFAULT_SETTINGS };
 
     function loadSettings() {
@@ -651,119 +653,156 @@
       updatePlayButton();
     }
 
-    // ============ TTS : LECTURE COMPLÈTE MOT PAR MOT ============
+
     // ============ TTS : LECTURE EN LOTS (SILENCES RÉDUITS) ============
-function playTTSFullText(startIndex = 0) {
-  if (!currentWords || currentWords.length === 0) return;
+    // ============ TTS : LECTURE EN LOTS + SURLIGNAGE TIMER ============
+    function playTTSFullText(startIndex = 0) {
+      if (!currentWords || currentWords.length === 0) return;
 
-  const mySession = ++ttsSessionId;
-  window.speechSynthesis.cancel();
-  isPlaying = true;
-  updatePlayButton();
-  clearAllHighlight();
-
-  const voices = window.speechSynthesis.getVoices();
-  const arVoice = voices.find(v => v.lang && v.lang.startsWith('ar'));
-
-  // ⚙️ Taille du lot : 2 ou 3 = bon compromis (réduire encore = plus de silences,
-  //    augmenter = surlignage plus grossier). Modifiable via userSettings si besoin.
-  const BATCH_SIZE = userSettings.ttsBatchSize || 3;
-
-  // Construire les lots
-  const batches = [];
-  for (let i = startIndex; i < currentWords.length; i += BATCH_SIZE) {
-    batches.push({
-      startIdx: i,
-      words: currentWords.slice(i, Math.min(i + BATCH_SIZE, currentWords.length))
-    });
-  }
-
-  let batchPos = 0;
-
-  const speakNextBatch = () => {
-    if (mySession !== ttsSessionId) return;
-    if (batchPos >= batches.length) {
-      isPlaying = false;
-      ttsCurrentIndex = -1;
+      const mySession = ++ttsSessionId;
+      window.speechSynthesis.cancel();
+      clearHighlightTimer();
+      isPlaying = true;
       updatePlayButton();
       clearAllHighlight();
-      return;
+
+      const voices = window.speechSynthesis.getVoices();
+      const arVoice = voices.find(v => v.lang && v.lang.startsWith('ar'));
+
+      const BATCH_SIZE = userSettings.ttsBatchSize || 5;
+
+      const batches = [];
+      for (let i = startIndex; i < currentWords.length; i += BATCH_SIZE) {
+        batches.push({
+          startIdx: i,
+          words: currentWords.slice(i, Math.min(i + BATCH_SIZE, currentWords.length))
+        });
+      }
+
+      let batchPos = 0;
+
+      const speakNextBatch = () => {
+        if (mySession !== ttsSessionId) return;
+        if (batchPos >= batches.length) {
+          isPlaying = false;
+          ttsCurrentIndex = -1;
+          updatePlayButton();
+          clearAllHighlight();
+          clearHighlightTimer();
+          return;
+        }
+
+        const batch = batches[batchPos];
+        const batchText = batch.words.join(' ');
+
+        // Durée estimée de chaque mot (ms) → tableau cumulatif
+        const rate = userSettings.speed;
+        const cumulTimes = [0];
+        let acc = 0;
+        for (let i = 0; i < batch.words.length; i++) {
+          const dur = ((batch.words[i].length + 1) / ttsCharsPerSecond) * 1000 / rate;
+          acc += dur;
+          cumulTimes.push(acc);
+        }
+
+        const utt = new SpeechSynthesisUtterance(batchText);
+        utt.lang = 'ar-DZ';
+        if (arVoice) utt.voice = arVoice;
+        utt.rate = rate;
+        utt.pitch = 1.0;
+
+        let batchStartTime = 0;
+
+        // Surlignage initial du 1er mot du lot
+        ttsCurrentIndex = batch.startIdx;
+        clearAllHighlight();
+        const firstSpan = currentWordSpans[batch.startIdx];
+        if (firstSpan) {
+          firstSpan.classList.add('active');
+          firstSpan.scrollIntoView({ behavior: 'smooth', block: 'center', inline: 'center' });
+        }
+
+        utt.onstart = () => {
+          if (mySession !== ttsSessionId) return;
+          batchStartTime = performance.now();
+          startHighlightTimer(batch, mySession, cumulTimes);
+        };
+
+        utt.onend = () => {
+          if (mySession !== ttsSessionId) return;
+          clearHighlightTimer();
+
+          // Auto-calibration : ajuste ttsCharsPerSecond sur la vraie durée observée
+          if (batchStartTime > 0) {
+            const actual = (performance.now() - batchStartTime) / 1000;
+            if (actual > 0.2) {
+              const measuredCPS = batchText.length / actual / rate;
+              ttsCharsPerSecond = ttsCharsPerSecond * 0.7 + measuredCPS * 0.3;
+              ttsCharsPerSecond = Math.max(8, Math.min(25, ttsCharsPerSecond));
+              console.log(`⏱️ Débit TTS calibré : ${ttsCharsPerSecond.toFixed(1)} car/s`);
+            }
+          }
+
+          batchPos++;
+          speakNextBatch();
+        };
+
+        utt.onerror = (e) => {
+          if (mySession !== ttsSessionId) return;
+          clearHighlightTimer();
+          if (e.error === 'interrupted' || e.error === 'canceled') return;
+          batchPos++;
+          speakNextBatch();
+        };
+
+        window.speechSynthesis.speak(utt);
+      };
+
+      if (window.speechSynthesis.getVoices().length === 0) {
+        window.speechSynthesis.onvoiceschanged = () => {
+          window.speechSynthesis.onvoiceschanged = null;
+          speakNextBatch();
+        };
+      } else {
+        speakNextBatch();
+      }
     }
 
-    const batch = batches[batchPos];
-    const batchText = batch.words.join(' ');
-
-    // Offsets (en caractères) du début de chaque mot dans le texte du lot
-    const offsets = [];
-    let off = 0;
-    batch.words.forEach(w => { offsets.push(off); off += w.length + 1; });
-
-    // --- Surlignage initial du 1er mot du lot ---
-    ttsCurrentIndex = batch.startIdx;
-    clearAllHighlight();
-    const firstSpan = currentWordSpans[batch.startIdx];
-    if (firstSpan) {
-      firstSpan.classList.add('active');
-      firstSpan.scrollIntoView({ behavior: 'smooth', block: 'center', inline: 'center' });
+    // Avance le surlignage dans le lot en fonction des durées estimées
+    function startHighlightTimer(batch, mySession, cumulTimes) {
+      clearHighlightTimer();
+      let pos = 0; // index du mot en cours dans le lot (0 = déjà surligné)
+      const advance = () => {
+        if (mySession !== ttsSessionId) return;
+        if (pos + 1 >= batch.words.length) return; // dernier mot du lot : on reste dessus
+        pos++;
+        const globalIdx = batch.startIdx + pos;
+        ttsCurrentIndex = globalIdx;
+        clearAllHighlight();
+        const s = currentWordSpans[globalIdx];
+        if (s) {
+          s.classList.add('active');
+          s.scrollIntoView({ behavior: 'smooth', block: 'center', inline: 'center' });
+        }
+        const delta = cumulTimes[pos + 1] - cumulTimes[pos];
+        ttsHighlightTimer = setTimeout(advance, delta);
+      };
+      const firstDelta = cumulTimes[1] - cumulTimes[0];
+      ttsHighlightTimer = setTimeout(advance, firstDelta);
     }
 
-    const utt = new SpeechSynthesisUtterance(batchText);
-    utt.lang = 'ar-DZ';
-    if (arVoice) utt.voice = arVoice;
-    utt.rate = userSettings.speed;
-    utt.pitch = 1.0;
-
-    // --- Surlignage fin dans le lot (si onboundary est supporté) ---
-    utt.onboundary = (e) => {
-      if (mySession !== ttsSessionId) return;
-      if (e.name && e.name !== 'word') return;
-
-      let localIdx = 0;
-      for (let i = 0; i < offsets.length; i++) {
-        if (offsets[i] <= e.charIndex) localIdx = i;
-        else break;
+    function clearHighlightTimer() {
+      if (ttsHighlightTimer) {
+        clearTimeout(ttsHighlightTimer);
+        ttsHighlightTimer = null;
       }
-      const globalIdx = batch.startIdx + localIdx;
-      if (globalIdx === ttsCurrentIndex) return;
-
-      ttsCurrentIndex = globalIdx;
-      clearAllHighlight();
-      const s = currentWordSpans[globalIdx];
-      if (s) {
-        s.classList.add('active');
-        s.scrollIntoView({ behavior: 'smooth', block: 'center', inline: 'center' });
-      }
-    };
-
-    utt.onend = () => {
-      if (mySession !== ttsSessionId) return;
-      batchPos++;
-      speakNextBatch();
-    };
-
-    utt.onerror = (e) => {
-      if (mySession !== ttsSessionId) return;
-      if (e.error === 'interrupted' || e.error === 'canceled') return;
-      batchPos++;
-      speakNextBatch();
-    };
-
-    window.speechSynthesis.speak(utt);
-  };
-
-  if (window.speechSynthesis.getVoices().length === 0) {
-    window.speechSynthesis.onvoiceschanged = () => {
-      window.speechSynthesis.onvoiceschanged = null;
-      speakNextBatch();
-    };
-  } else {
-    speakNextBatch();
-  }
-}
+    }
 
     // ============ TTS : LECTURE D'UN SEUL MOT ============
     function playWordTTS(word, span) {
       const mySession = ++ttsSessionId;
+	        clearHighlightTimer();
+
       window.speechSynthesis.cancel();
       clearAllHighlight();
       if (span) span.classList.add('active');
@@ -821,17 +860,18 @@ function playTTSFullText(startIndex = 0) {
       }
     }
 
-    function stopAudio() {
+        function stopAudio() {
       audio.pause();
       audio.currentTime = 0;
       playStopTime = null;
       ttsSessionId++;
       window.speechSynthesis.cancel();
+      clearHighlightTimer();      // ⬅️ AJOUT
       isPlaying = false;
       ttsCurrentIndex = -1;
       updatePlayButton();
       clearAllHighlight();
-    }
+    }}
 
     function updatePlayButton() {
       const btn = document.getElementById('btn-play');
