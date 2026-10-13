@@ -4,9 +4,9 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="theme-color" content="#0d5c4a">
- <link rel="manifest" href="/application-lecture/manifest.json">
-<link rel="icon" href="/application-lecture/icon-192.png">
-<link rel="apple-touch-icon" href="/application-lecture/icon-192.png">
+  <link rel="manifest" href="/application-lecture/manifest.json">
+  <link rel="icon" href="/application-lecture/icon-192.png">
+  <link rel="apple-touch-icon" href="/application-lecture/icon-192.png">
 
   <title>مكتبتي التفاعلية</title>
 <style>
@@ -29,10 +29,10 @@
   .card { background: white; border-radius: 15px; padding: 20px; margin-bottom: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); }
 
   .book-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 15px; }
-  .book-card { cursor: pointer; transition: transform 0.2s; }
+  .book-card { cursor: default; transition: transform 0.2s; }
   .book-card:hover { transform: translateY(-5px); }
-  .book-card img { width: 100%; height: 200px; object-fit: cover; border-radius: 10px; }
-  .book-card h3 { font-size: 1em; margin: 10px 0 5px; color: var(--primary); }
+  .book-card img { width: 100%; height: 200px; object-fit: cover; border-radius: 10px; cursor: pointer; }
+  .book-card h3 { font-size: 1em; margin: 10px 0 5px; color: var(--primary); cursor: pointer; }
   .book-card .level { font-size: 0.8em; background: #e0f2f1; color: var(--primary); padding: 3px 8px; border-radius: 10px; display: inline-block; }
 
   .reader-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
@@ -42,7 +42,7 @@
   
   .text-container { 
     font-size: var(--reader-font-size); 
-    line-height: 2.2; 
+    line-height: 1.8; 
     text-align: justify; 
     margin-bottom: 20px; 
   }
@@ -55,7 +55,7 @@
   .btn-control.play { width: 75px; height: 75px; font-size: 1.8em; background: var(--secondary); }
 
   .tabs { display: flex; gap: 10px; margin-bottom: 15px; overflow-x: auto; }
-  .tab-btn { padding: 10px 20px; border: none; background: #e0e0e0; border-radius: 20px; cursor: pointer; white-space: nowrap; }
+  .tab-btn { padding: 10px 20px; border: none; background: #e0e0e0; border-radius: 20px; cursor: pointer; white-space: nowrap; font-family: inherit; }
   .tab-btn.active { background: var(--primary); color: white; }
   .tab-content { display: none; }
   .tab-content.active { display: block; }
@@ -74,7 +74,8 @@
   .trou.incorrect { animation: shake 0.5s; border-color: #e74c3c; background: #f8d7da; }
   @keyframes shake { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-10px); } 75% { transform: translateX(10px); } }
   .trou .mot-place { display: block; padding: 8px 12px; font-size: 0.9em; color: var(--primary); font-weight: bold; }
-  .banque-mots { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; margin-top: 20px; padding: 15px; background: white; border-radius: 10px; min-height: 60px; }
+  .banque-mots { display: flex; flex-wrap: wrap; gap: 12px; justify-content: center; margin-top: 20px; padding: 15px; background: white; border-radius: 10px; min-height: 60px; row-gap: 12px; }
+  .banque-mots .mot-banque { margin: 0; }
   .mot-banque { padding: 10px 20px; background: var(--primary); color: white; border-radius: 20px; cursor: pointer; font-size: 1.1em; transition: all 0.2s; user-select: none; }
   .mot-banque:hover { background: #0a4a3c; transform: scale(1.05); }
   .mot-banque.selected { background: #ef6c00; transform: scale(1.1); box-shadow: 0 4px 10px rgba(239, 108, 0, 0.3); }
@@ -220,9 +221,112 @@
     font-size: 0.95em;
     transition: background 0.2s;
     margin-top: 8px;
+    font-family: inherit;
   }
   .btn-reset:hover { background: #e2e8f0; }
-</style>  
+
+  /* ============ NOUVEAUX TYPES D'EXERCICES ============ */
+  .qcm-question {
+    font-size: 1.3em;
+    text-align: center;
+    margin: 20px 0;
+    padding: 15px;
+    background: white;
+    border-radius: 10px;
+    font-weight: bold;
+    color: var(--primary);
+  }
+  .qcm-options {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  .qcm-option {
+    padding: 15px;
+    background: white;
+    border: 2px solid var(--primary);
+    border-radius: 12px;
+    cursor: pointer;
+    font-size: 1.1em;
+    text-align: right;
+    transition: all 0.2s;
+    font-family: inherit;
+  }
+  .qcm-option:hover { background: #e0f2f1; }
+  .qcm-option.correct { background: #d4edda; border-color: var(--secondary); font-weight: bold; }
+  .qcm-option.incorrect { background: #f8d7da; border-color: #e74c3c; animation: shake 0.5s; }
+
+  .word-order-answer {
+    min-height: 70px;
+    padding: 15px;
+    background: #fff9e6;
+    border: 3px dashed var(--primary);
+    border-radius: 10px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    justify-content: flex-start;
+    margin-bottom: 15px;
+    align-items: center;
+  }
+  .word-order-answer:empty::before {
+    content: "اضغط على الكلمات لترتيبها هنا...";
+    color: #999;
+    font-style: italic;
+    font-size: 0.9em;
+  }
+  .word-order-answer .mot-banque { background: var(--secondary); }
+  .word-order-answer.correct { border: 3px solid var(--secondary); background: #d4edda; }
+  .word-order-answer.incorrect { animation: shake 0.5s; border-color: #e74c3c; }
+
+  .exercise-image {
+    width: 100%;
+    max-width: 350px;
+    display: block;
+    margin: 15px auto;
+    border-radius: 12px;
+    border: 2px solid #e0e0e0;
+  }
+  .image-labels-area {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    justify-content: center;
+    margin: 15px 0;
+  }
+  .image-label-zone {
+    display: inline-block;
+    min-width: 100px;
+    min-height: 44px;
+    padding: 6px 12px;
+    border: 2px dashed var(--primary);
+    border-radius: 8px;
+    background: #fff9e6;
+    text-align: center;
+    margin: 5px;
+    cursor: pointer;
+    vertical-align: middle;
+    font-weight: bold;
+    color: var(--primary);
+    transition: all 0.2s;
+  }
+  .image-label-zone.correct { border: 2px solid var(--secondary); background: #d4edda; cursor: default; }
+  .image-label-zone.incorrect { animation: shake 0.5s; border-color: #e74c3c; background: #f8d7da; }
+
+  .btn-listen {
+    background: var(--secondary);
+    color: white;
+    border: none;
+    border-radius: 50%;
+    width: 36px;
+    height: 36px;
+    cursor: pointer;
+    font-size: 1em;
+    margin-right: 8px;
+    vertical-align: middle;
+  }
+  .btn-listen:active { transform: scale(0.9); }
+</style>
 </head>
 <body>
 
@@ -277,7 +381,7 @@
   <!-- ÉCRAN 1 : BIBLIOTHÈQUE -->
   <div id="screen-library" class="screen active">
     <div id="library-content">
-      <div class="loading">⏳ Chargement du catalogue...</div>
+      <div class="loading">⏳ جاري تحميل الكتب...</div>
     </div>
   </div>
 
@@ -295,17 +399,17 @@
       <div id="page-text" class="text-container"></div>
 
       <div class="audio-controls">
-        <button class="btn-control" onclick="prevPage()">⏮</button>
-        <button class="btn-control play" id="btn-play" onclick="togglePlay()">▶</button>
-        <button class="btn-control" onclick="nextPage()">⏭</button>
+        <button class="btn-control" onclick="prevPage()" title="الصفحة السابقة">⏭</button>
+        <button class="btn-control play" id="btn-play" onclick="togglePlay()" title="تشغيل / إيقاف">▶</button>
+        <button class="btn-control" onclick="nextPage()" title="الصفحة التالية">⏮</button>
       </div>
     </div>
 
     <!-- Onglets interactifs -->
     <div class="tabs">
-      <button class="tab-btn active" onclick="switchTab('vocab')">📖 Vocabulaire</button>
-      <button class="tab-btn" onclick="switchTab('exercises')">🎮 Exercices</button>
-      <button class="tab-btn" onclick="switchTab('notes')">📌 Notes</button>
+      <button class="tab-btn active" onclick="switchTab('vocab')">📖 المفردات</button>
+      <button class="tab-btn" onclick="switchTab('exercises')">🎮 التمارين</button>
+      <button class="tab-btn" onclick="switchTab('notes')">📌 ملاحظات</button>
     </div>
 
     <div id="tab-vocab" class="tab-content active card"></div>
@@ -316,12 +420,15 @@
   <!-- ÉCRAN 3 : RÉSUMÉ -->
   <div id="screen-summary" class="screen">
     <div class="reader-header">
-      <button class="btn-back" onclick="showScreen('reader')">🔙 Retour</button>
-      <span>📝 Résumé du livre</span>
+      <button class="btn-back" onclick="showScreen('reader')">🔙 رجوع</button>
+      <span>📝 ملخص الكتاب</span>
     </div>
     <div class="card">
       <h2 style="color:var(--primary); margin-bottom:15px;">ملخص الكتاب</h2>
       <p id="summary-text" style="font-size:1.2em; line-height:1.8;"></p>
+      <div style="text-align:center; margin-top:20px;">
+        <button class="btn-control play" onclick="speakSummary()" title="اسمع الملخص" style="display:none;" id="btn-summary-tts">🔊</button>
+      </div>
       <audio id="summary-audio" controls style="width:100%; margin-top:20px;"></audio>
     </div>
   </div>
@@ -337,17 +444,17 @@
     let currentPageIndex = 0;
     let audio = new Audio();
     let isPlaying = false;
-    let playStopTime = null;          // fin du mot en cours (mode MP3)
-    let currentWords = [];            // mots de la page (mode TTS)
-    let currentWordSpans = [];        // spans DOM correspondants
-    let ttsSessionId = 0;             // invalide les anciens callbacks TTS
-    let ttsCurrentIndex = -1;         // index du mot en cours de lecture TTS
-    let ttsHighlightTimer = null;      // timer qui avance le surlignage
-    let ttsCharsPerSecond = 14;        // débit mesuré (auto-calibré), car/sec à rate 1.0
+    let playStopTime = null;
+    let currentWords = [];
+    let currentWordSpans = [];
+    let ttsSessionId = 0;
+    let ttsCurrentIndex = -1;
+    let ttsHighlightTimer = null;
+    let ttsCharsPerSecond = 14;
+
     // ============ PARAMÈTRES UTILISATEUR ============
     const SETTINGS_KEY = 'lecteur_settings_v1';
-       const DEFAULT_SETTINGS = { speed: 0.85, fontSize: 24, ttsBatchSize: 5 };
-
+    const DEFAULT_SETTINGS = { speed: 0.85, fontSize: 24, ttsBatchSize: 5 };
     let userSettings = { ...DEFAULT_SETTINGS };
 
     function loadSettings() {
@@ -355,7 +462,8 @@
         const saved = JSON.parse(localStorage.getItem(SETTINGS_KEY) || '{}');
         userSettings = {
           speed: typeof saved.speed === 'number' ? saved.speed : DEFAULT_SETTINGS.speed,
-          fontSize: typeof saved.fontSize === 'number' ? saved.fontSize : DEFAULT_SETTINGS.fontSize
+          fontSize: typeof saved.fontSize === 'number' ? saved.fontSize : DEFAULT_SETTINGS.fontSize,
+          ttsBatchSize: typeof saved.ttsBatchSize === 'number' ? saved.ttsBatchSize : DEFAULT_SETTINGS.ttsBatchSize
         };
       } catch {
         userSettings = { ...DEFAULT_SETTINGS };
@@ -386,7 +494,6 @@
       if (audio) audio.playbackRate = userSettings.speed;
       updateSpeedDisplay();
 
-      // Si lecture TTS en cours → relancer depuis le mot courant avec la nouvelle vitesse
       if (isPlaying && ttsCurrentIndex >= 0 && currentWords.length > 0) {
         playTTSFullText(ttsCurrentIndex);
       }
@@ -444,27 +551,29 @@
         console.error('Erreur chargement catalogue:', error);
         document.getElementById('library-content').innerHTML = `
           <div class="card" style="text-align:center; color:red;">
-            ❌ Erreur de chargement du catalogue.<br>
+            ❌ خطأ في تحميل الفهرس.<br>
             <small>${error.message}</small><br>
-            <button onclick="loadCatalogue()" style="margin-top:10px;">🔄 Réessayer</button>
+            <button onclick="loadCatalogue()" style="margin-top:10px;">🔄 إعادة المحاولة</button>
           </div>`;
       }
     }
 
     function renderLibrary() {
       if (catalogue.length === 0) {
-        document.getElementById('library-content').innerHTML = '<div class="card" style="text-align:center;">Aucun livre disponible</div>';
+        document.getElementById('library-content').innerHTML = '<div class="card" style="text-align:center;">لا يوجد أي كتاب متاح.</div>';
         return;
       }
       let html = '<div class="book-grid">';
-      catalogue.forEach(book => {
+      catalogue.forEach((book, idx) => {
         const cover = book.couverture ? `${GITHUB_BASE}/${book.couverture}` : 'https://via.placeholder.com/150/0d5c4a/ffffff?text=كتاب';
+        const textePresentation = (book.titre + '. ' + (book.description || '')).replace(/'/g, "\\'");
         html += `
-          <div class="card book-card" onclick="loadBook('${book.fichierJSON}')">
-            <img src="${cover}" alt="${book.titre}" onerror="this.src='https://via.placeholder.com/150/0d5c4a/ffffff?text=كتاب'">
-            <h3>${book.titre}</h3>
+          <div class="card book-card">
+            <img src="${cover}" alt="${book.titre}" onclick="loadBook('${book.fichierJSON}')" onerror="this.src='https://via.placeholder.com/150/0d5c4a/ffffff?text=كتاب'">
+            <h3 onclick="loadBook('${book.fichierJSON}')">${book.titre}</h3>
             <span class="level">${book.niveau || 'moyen'}</span>
-            <p style="font-size:0.85em; color:#666; margin-top:5px;">${book.nombrePages || '?'} pages</p>
+            <p style="font-size:0.85em; color:#666; margin-top:5px;">${book.nombrePages || '?'} صفحة</p>
+            <button class="btn-listen" onclick="event.stopPropagation(); speakText('${textePresentation}')" title="اسمع تعريف الكتاب">🔊</button>
           </div>`;
       });
       html += '</div>';
@@ -483,7 +592,7 @@
         renderPage();
       } catch (error) {
         console.error('Erreur chargement livre:', error);
-        alert(`Erreur lors du chargement du livre: ${error.message}`);
+        alert(`خطأ في تحميل الكتاب: ${error.message}`);
       }
     }
 
@@ -495,7 +604,6 @@
       document.getElementById('reader-page-info').textContent = `صفحة ${currentPageIndex + 1} / ${currentBook.pages.length}`;
       document.getElementById('page-title').textContent = page.titreSection || '';
 
-      // Image
       const imgEl = document.getElementById('page-img');
       if (page.image) {
         imgEl.src = `${GITHUB_BASE}/${page.image}`;
@@ -505,7 +613,6 @@
         imgEl.style.display = 'none';
       }
 
-      // Réinitialiser l'état audio
       stopAudio();
 
       const textContainer = document.getElementById('page-text');
@@ -516,7 +623,6 @@
       const isMp3Mode = (page.audioMode === 'mp3' && page.audioPage && page.mots && page.mots.length > 0);
 
       if (isMp3Mode) {
-        // === Mode MP3 avec timings WebMAUS ===
         page.mots.forEach((mot, index) => {
           const span = document.createElement('span');
           span.className = 'word';
@@ -526,7 +632,6 @@
           textContainer.appendChild(span);
         });
       } else {
-        // === Mode TTS : découper le texte en mots cliquables ===
         const texte = page.texteAffiche || '';
         const parts = texte.split(/(\s+)/);
         parts.forEach(part => {
@@ -552,24 +657,28 @@
       // Vocabulaire
       const vocabDiv = document.getElementById('tab-vocab');
       if (page.vocabulaire && page.vocabulaire.length > 0) {
-        vocabDiv.innerHTML = page.vocabulaire.map(v => `
+        vocabDiv.innerHTML = page.vocabulaire.map((v, vi) => {
+          const fullText = [v.mot, v.traduction, v.exemple].filter(Boolean).join('. ').replace(/'/g, "\\'");
+          return `
           <div class="vocab-item">
-            <div class="vocab-word">${v.mot || ''}</div>
+            <div class="vocab-word">
+              <button class="btn-listen" onclick="speakText('${(v.mot || '').replace(/'/g, "\\'")}')" title="اسمع الكلمة">🔊</button>
+              ${v.mot || ''}
+            </div>
             <div>${v.traduction || ''}</div>
-            ${v.synonymes && v.synonymes.length ? `<div class="vocab-syn">🔄 Synonymes: ${v.synonymes.join(', ')}</div>` : ''}
+            ${v.synonymes && v.synonymes.length ? `<div class="vocab-syn">🔄 مرادفات: ${v.synonymes.join(', ')}</div>` : ''}
             ${v.exemple ? `<div style="margin-top:5px; font-style:italic;">💬 ${v.exemple}</div>` : ''}
-          </div>`).join('');
+            <button class="btn-listen" style="margin-top:8px;" onclick="speakText('${fullText}')" title="اسمع الشرح الكامل">📢</button>
+          </div>`;
+        }).join('');
       } else {
-        vocabDiv.innerHTML = '<p style="text-align:center; color:#999;">Aucun vocabulaire pour cette page.</p>';
+        vocabDiv.innerHTML = '<p style="text-align:center; color:#999;">لا توجد مفردات لهذه الصفحة.</p>';
       }
 
-      // Exercices
       renderExercises(page.exercices);
 
-      // Notes
-      document.getElementById('tab-notes').innerHTML = page.notes ? `<p style="line-height:1.6;">${page.notes}</p>` : '<p style="text-align:center; color:#999;">Aucune note.</p>';
+      document.getElementById('tab-notes').innerHTML = page.notes ? `<p style="line-height:1.6;">${page.notes}</p>` : '<p style="text-align:center; color:#999;">لا توجد ملاحظات.</p>';
 
-      // Préparer la source audio
       if (page.audioMode === 'mp3' && page.audioPage) {
         audio.src = `${GITHUB_BASE}/${page.audioPage}`;
         audio.playbackRate = userSettings.speed;
@@ -580,18 +689,16 @@
           }
         };
       } else if (page.texteAffiche && currentWords.length > 0) {
-        // Mode TTS : lecture auto de la page
         playTTSFullText(0);
       }
     }
 
-    // ============ SURlignage MP3 + STOP à la fin du mot ============
+    // ============ MP3 : surlignage + STOP à la fin du mot ============
     audio.ontimeupdate = () => {
       if (!isPlaying || !currentBook || !currentBook.pages[currentPageIndex]) return;
       const currentTime = audio.currentTime;
       const page = currentBook.pages[currentPageIndex];
 
-      // Arrêt à la fin du mot sélectionné
       if (playStopTime !== null && currentTime >= playStopTime) {
         audio.pause();
         playStopTime = null;
@@ -635,7 +742,7 @@
           isPlaying = false;
           playStopTime = null;
         } else {
-          playStopTime = null; // lecture complète
+          playStopTime = null;
           audio.play().catch(e => console.error('Erreur lecture audio:', e));
           isPlaying = true;
         }
@@ -646,6 +753,7 @@
           isPlaying = false;
           ttsCurrentIndex = -1;
           clearAllHighlight();
+          clearHighlightTimer();
         } else {
           playTTSFullText(0);
         }
@@ -653,8 +761,6 @@
       updatePlayButton();
     }
 
-
-    // ============ TTS : LECTURE EN LOTS (SILENCES RÉDUITS) ============
     // ============ TTS : LECTURE EN LOTS + SURLIGNAGE TIMER ============
     function playTTSFullText(startIndex = 0) {
       if (!currentWords || currentWords.length === 0) return;
@@ -695,7 +801,6 @@
         const batch = batches[batchPos];
         const batchText = batch.words.join(' ');
 
-        // Durée estimée de chaque mot (ms) → tableau cumulatif
         const rate = userSettings.speed;
         const cumulTimes = [0];
         let acc = 0;
@@ -713,7 +818,6 @@
 
         let batchStartTime = 0;
 
-        // Surlignage initial du 1er mot du lot
         ttsCurrentIndex = batch.startIdx;
         clearAllHighlight();
         const firstSpan = currentWordSpans[batch.startIdx];
@@ -732,7 +836,6 @@
           if (mySession !== ttsSessionId) return;
           clearHighlightTimer();
 
-          // Auto-calibration : ajuste ttsCharsPerSecond sur la vraie durée observée
           if (batchStartTime > 0) {
             const actual = (performance.now() - batchStartTime) / 1000;
             if (actual > 0.2) {
@@ -768,13 +871,12 @@
       }
     }
 
-    // Avance le surlignage dans le lot en fonction des durées estimées
     function startHighlightTimer(batch, mySession, cumulTimes) {
       clearHighlightTimer();
-      let pos = 0; // index du mot en cours dans le lot (0 = déjà surligné)
+      let pos = 0;
       const advance = () => {
         if (mySession !== ttsSessionId) return;
-        if (pos + 1 >= batch.words.length) return; // dernier mot du lot : on reste dessus
+        if (pos + 1 >= batch.words.length) return;
         pos++;
         const globalIdx = batch.startIdx + pos;
         ttsCurrentIndex = globalIdx;
@@ -798,10 +900,52 @@
       }
     }
 
+    // ============ TTS SANS SURLIGNAGE ============
+    let simpleTtsSession = 0;
+    function speakText(text) {
+      if (!text) return;
+      const mySession = ++simpleTtsSession;
+      window.speechSynthesis.cancel();
+
+      const doSpeak = () => {
+        if (mySession !== simpleTtsSession) return;
+        const utt = new SpeechSynthesisUtterance(text);
+        utt.lang = 'ar-DZ';
+        const voices = window.speechSynthesis.getVoices();
+        const arVoice = voices.find(v => v.lang && v.lang.startsWith('ar'));
+        if (arVoice) utt.voice = arVoice;
+        utt.rate = userSettings.speed;
+        utt.pitch = 1.0;
+        window.speechSynthesis.speak(utt);
+      };
+
+      if (window.speechSynthesis.getVoices().length === 0) {
+        window.speechSynthesis.onvoiceschanged = () => {
+          window.speechSynthesis.onvoiceschanged = null;
+          doSpeak();
+        };
+      } else {
+        doSpeak();
+      }
+    }
+
+    function stopSpeakText() {
+      simpleTtsSession++;
+      window.speechSynthesis.cancel();
+    }
+
+    function speakSummary() {
+      if (!currentBook || !currentBook.resume) return;
+      speakText(currentBook.resume.texte || '');
+    }
+
+    function speakBravo() { speakText('أحسنت!'); }
+    function speakTryAgain() { speakText('حاول مرة أخرى'); }
+
     // ============ TTS : LECTURE D'UN SEUL MOT ============
     function playWordTTS(word, span) {
       const mySession = ++ttsSessionId;
-	        clearHighlightTimer();
+      clearHighlightTimer();
 
       window.speechSynthesis.cancel();
       clearAllHighlight();
@@ -853,20 +997,20 @@
 
       if (page.audioMode === 'mp3' && page.audioPage) {
         audio.currentTime = mot.debut;
-        playStopTime = mot.fin;    // STOP à la fin du mot
+        playStopTime = mot.fin;
         audio.play().catch(e => console.error('Erreur lecture audio:', e));
         isPlaying = true;
         updatePlayButton();
       }
     }
 
-        function stopAudio() {
+    function stopAudio() {
       audio.pause();
       audio.currentTime = 0;
       playStopTime = null;
       ttsSessionId++;
       window.speechSynthesis.cancel();
-      clearHighlightTimer();      // ⬅️ AJOUT
+      clearHighlightTimer();
       isPlaying = false;
       ttsCurrentIndex = -1;
       updatePlayButton();
@@ -903,11 +1047,15 @@
       if (!currentBook || !currentBook.resume) return;
       document.getElementById('summary-text').textContent = currentBook.resume.texte || '';
       const sumAudio = document.getElementById('summary-audio');
+      const btnTts = document.getElementById('btn-summary-tts');
+
       if (currentBook.resume.modeAudio === 'mp3' && currentBook.resume.audio) {
         sumAudio.src = `${GITHUB_BASE}/${currentBook.resume.audio}`;
         sumAudio.style.display = 'block';
+        if (btnTts) btnTts.style.display = 'none';
       } else {
         sumAudio.style.display = 'none';
+        if (btnTts) btnTts.style.display = 'inline-flex';
       }
       showScreen('summary');
     }
@@ -926,17 +1074,23 @@
       event.target.classList.add('active');
     }
 
-    // ============ EXERCICES À TROUS ============
+    // ============ EXERCICES ============
     function renderExercises(exercices) {
       const container = document.getElementById('tab-exercises');
       if (!exercices || exercices.length === 0) {
-        container.innerHTML = '<p style="text-align:center; color:#999;">Aucun exercice pour cette page.</p>';
+        container.innerHTML = '<p style="text-align:center; color:#999;">لا توجد تمارين لهذه الصفحة.</p>';
         return;
       }
       container.innerHTML = '';
       exercices.forEach(ex => {
         if (ex.type === 'fillblank') {
           container.appendChild(creerExerciceATrous(ex));
+        } else if (ex.type === 'qcm') {
+          container.appendChild(creerExerciceQCM(ex));
+        } else if (ex.type === 'word_order') {
+          container.appendChild(creerExerciceWordOrder(ex));
+        } else if (ex.type === 'image_click') {
+          container.appendChild(creerExerciceImageClick(ex));
         }
       });
     }
@@ -963,7 +1117,12 @@
 
       const banqueDiv = document.createElement('div');
       banqueDiv.className = 'banque-mots';
-      (exercice.motsMelanges || []).forEach((mot, index) => {
+      const motsShuffled = [...(exercice.motsMelanges || exercice.reponses || [])];
+      for (let i = motsShuffled.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [motsShuffled[i], motsShuffled[j]] = [motsShuffled[j], motsShuffled[i]];
+      }
+      motsShuffled.forEach((mot, index) => {
         const motSpan = document.createElement('span');
         motSpan.className = 'mot-banque';
         motSpan.textContent = mot;
@@ -1005,6 +1164,7 @@
           banque.style.animation = 'shake 0.5s';
           setTimeout(() => banque.style.animation = '', 500);
         }
+        speakTryAgain();
         return;
       }
       if (trouElement.classList.contains('correct')) return;
@@ -1026,13 +1186,189 @@
         const totalTrous = parseInt(container.dataset.totalTrous);
         if (trousRemplis === totalTrous) {
           container.querySelector('.message-success').classList.add('show');
+          speakBravo();
         }
       } else {
         trouElement.classList.add('incorrect');
         setTimeout(() => trouElement.classList.remove('incorrect'), 500);
         document.querySelectorAll('.mot-banque').forEach(m => m.classList.remove('selected'));
         container.dataset.selectedMot = '';
+        speakTryAgain();
       }
+    }
+
+    // ============ QCM ============
+    function creerExerciceQCM(exercice) {
+      const container = document.createElement('div');
+      container.className = 'exercise-fillblank';
+
+      const titre = document.createElement('h4');
+      titre.textContent = '❓ ' + (exercice.titre || 'اختر الإجابة الصحيحة:');
+      container.appendChild(titre);
+
+      const q = document.createElement('div');
+      q.className = 'qcm-question';
+      q.textContent = exercice.question || '';
+      container.appendChild(q);
+
+      const opts = document.createElement('div');
+      opts.className = 'qcm-options';
+
+      (exercice.options || []).forEach((opt, i) => {
+        const btn = document.createElement('button');
+        btn.className = 'qcm-option';
+        btn.textContent = opt;
+        btn.onclick = () => {
+          if (btn.disabled) return;
+          if (i === exercice.bonneReponseIndex) {
+            btn.classList.add('correct');
+            opts.querySelectorAll('.qcm-option').forEach(o => o.disabled = true);
+            msg.classList.add('show');
+            speakBravo();
+          } else {
+            btn.classList.add('incorrect');
+            setTimeout(() => btn.classList.remove('incorrect'), 500);
+            speakTryAgain();
+          }
+        };
+        opts.appendChild(btn);
+      });
+      container.appendChild(opts);
+
+      const msg = document.createElement('div');
+      msg.className = 'message-success';
+      msg.textContent = '🎉 ممتاز! أحسنت!';
+      container.appendChild(msg);
+
+      return container;
+    }
+
+    // ============ ORDONNER LES MOTS ============
+    function creerExerciceWordOrder(exercice) {
+      const container = document.createElement('div');
+      container.className = 'exercise-fillblank';
+
+      const titre = document.createElement('h4');
+      titre.textContent = '🔀 ' + (exercice.titre || 'رتب الكلمات لتكوين جملة صحيحة:');
+      container.appendChild(titre);
+
+      const answerZone = document.createElement('div');
+      answerZone.className = 'word-order-answer';
+      answerZone.dataset.correct = exercice.phraseCorrecte || '';
+      container.appendChild(answerZone);
+
+      const bank = document.createElement('div');
+      bank.className = 'banque-mots';
+
+      const words = [...(exercice.motsMelanges || (exercice.phraseCorrecte || '').split(/\s+/))];
+      for (let i = words.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [words[i], words[j]] = [words[j], words[i]];
+      }
+
+      words.forEach(w => {
+        const span = document.createElement('span');
+        span.className = 'mot-banque';
+        span.textContent = w;
+        span.onclick = () => {
+          if (answerZone.contains(span)) {
+            bank.appendChild(span);
+          } else {
+            answerZone.appendChild(span);
+          }
+          if (bank.children.length === 0) {
+            const composed = Array.from(answerZone.children).map(c => c.textContent).join(' ').trim();
+            const correct = (exercice.phraseCorrecte || '').trim();
+            if (composed === correct) {
+              answerZone.classList.add('correct');
+              msg.classList.add('show');
+              speakBravo();
+            } else {
+              answerZone.classList.add('incorrect');
+              setTimeout(() => answerZone.classList.remove('incorrect'), 600);
+              speakTryAgain();
+            }
+          }
+        };
+        bank.appendChild(span);
+      });
+      container.appendChild(bank);
+
+      const msg = document.createElement('div');
+      msg.className = 'message-success';
+      msg.textContent = '🎉 ممتاز! الجملة صحيحة.';
+      container.appendChild(msg);
+
+      return container;
+    }
+
+    // ============ IMAGE + LABELS ============
+    function creerExerciceImageClick(exercice) {
+      const container = document.createElement('div');
+      container.className = 'exercise-fillblank';
+
+      const titre = document.createElement('h4');
+      titre.textContent = '🖼️ ' + (exercice.instruction || 'اختر الكلمة المناسبة لكل صورة:');
+      container.appendChild(titre);
+
+      if (exercice.image) {
+        const img = document.createElement('img');
+        img.className = 'exercise-image';
+        img.src = `${GITHUB_BASE}/${exercice.image}`;
+        container.appendChild(img);
+      }
+
+      const zones = exercice.zones || [];
+      const zonesDiv = document.createElement('div');
+      zonesDiv.className = 'image-labels-area';
+
+      zones.forEach((z, i) => {
+        const el = document.createElement('div');
+        el.className = 'image-label-zone';
+        el.textContent = z.label || '___';
+        el.dataset.reponse = z.reponse;
+        el.dataset.idx = i;
+        el.onclick = () => {
+          if (el.classList.contains('correct')) return;
+          const sel = document.querySelector('.mot-banque.selected');
+          if (!sel) { speakTryAgain(); return; }
+          if (sel.textContent === z.reponse) {
+            el.textContent = z.reponse;
+            el.classList.add('correct');
+            sel.classList.add('used');
+            sel.classList.remove('selected');
+            speakBravo();
+          } else {
+            el.classList.add('incorrect');
+            setTimeout(() => el.classList.remove('incorrect'), 500);
+            speakTryAgain();
+          }
+        };
+        zonesDiv.appendChild(el);
+      });
+      container.appendChild(zonesDiv);
+
+      const bank = document.createElement('div');
+      bank.className = 'banque-mots';
+      const words = zones.map(z => z.reponse);
+      for (let i = words.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [words[i], words[j]] = [words[j], words[i]];
+      }
+      words.forEach(w => {
+        const span = document.createElement('span');
+        span.className = 'mot-banque';
+        span.textContent = w;
+        span.onclick = () => {
+          if (span.classList.contains('used')) return;
+          document.querySelectorAll('.mot-banque').forEach(m => m.classList.remove('selected'));
+          span.classList.add('selected');
+        };
+        bank.appendChild(span);
+      });
+      container.appendChild(bank);
+
+      return container;
     }
   </script>
 
