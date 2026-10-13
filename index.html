@@ -655,20 +655,26 @@
       }
 
       // Vocabulaire
-      const vocabDiv = document.getElementById('tab-vocab');
+            const vocabDiv = document.getElementById('tab-vocab');
       if (page.vocabulaire && page.vocabulaire.length > 0) {
-        vocabDiv.innerHTML = page.vocabulaire.map((v, vi) => {
-          const fullText = [v.mot, v.traduction, v.exemple].filter(Boolean).join('. ').replace(/'/g, "\\'");
+        vocabDiv.innerHTML = page.vocabulaire.map((v) => {
+          // Construit le texte complet : mot . traduction . مرادفات: ... . exemple
+          const parts = [];
+          if (v.mot) parts.push(v.mot);
+          if (v.traduction) parts.push(v.traduction);
+          if (v.synonymes && v.synonymes.length) parts.push('مرادفات: ' + v.synonymes.join('، '));
+          if (v.exemple) parts.push(v.exemple);
+          const fullText = parts.join('. ').replace(/'/g, "\\'");
+
           return `
           <div class="vocab-item">
             <div class="vocab-word">
-              <button class="btn-listen" onclick="speakText('${(v.mot || '').replace(/'/g, "\\'")}')" title="اسمع الكلمة">🔊</button>
+              <button class="btn-listen" onclick="speakText('${fullText}')" title="اسمع الشرح الكامل">🔊</button>
               ${v.mot || ''}
             </div>
             <div>${v.traduction || ''}</div>
-            ${v.synonymes && v.synonymes.length ? `<div class="vocab-syn">🔄 مرادفات: ${v.synonymes.join(', ')}</div>` : ''}
+            ${v.synonymes && v.synonymes.length ? `<div class="vocab-syn">🔄 مرادفات: ${v.synonymes.join('، ')}</div>` : ''}
             ${v.exemple ? `<div style="margin-top:5px; font-style:italic;">💬 ${v.exemple}</div>` : ''}
-            <button class="btn-listen" style="margin-top:8px;" onclick="speakText('${fullText}')" title="اسمع الشرح الكامل">📢</button>
           </div>`;
         }).join('');
       } else {
@@ -1095,7 +1101,7 @@
       });
     }
 
-    function creerExerciceATrous(exercice) {
+        function creerExerciceATrous(exercice) {
       const container = document.createElement('div');
       container.className = 'exercise-fillblank';
 
@@ -1117,12 +1123,25 @@
 
       const banqueDiv = document.createElement('div');
       banqueDiv.className = 'banque-mots';
-      const motsShuffled = [...(exercice.motsMelanges || exercice.reponses || [])];
-      for (let i = motsShuffled.length - 1; i > 0; i--) {
+
+      // Nettoyage : sépare sur virgule ASCII (,) ET virgule arabe (،)
+      const raw = exercice.motsMelanges || exercice.reponses || [];
+      const flat = [];
+      raw.forEach(m => {
+        if (typeof m !== 'string') return;
+        m.split(/[,،]/).map(s => s.trim()).filter(Boolean).forEach(p => flat.push(p));
+      });
+
+      // Dédoublonnage (au cas où une réponse apparaît aussi dans motsMelanges)
+      const uniq = [...new Set(flat)];
+
+      // Mélange Fisher-Yates
+      for (let i = uniq.length - 1; i > 0; i--) {
         const j = Math.floor(Math.random() * (i + 1));
-        [motsShuffled[i], motsShuffled[j]] = [motsShuffled[j], motsShuffled[i]];
+        [uniq[i], uniq[j]] = [uniq[j], uniq[i]];
       }
-      motsShuffled.forEach((mot, index) => {
+
+      uniq.forEach((mot, index) => {
         const motSpan = document.createElement('span');
         motSpan.className = 'mot-banque';
         motSpan.textContent = mot;
