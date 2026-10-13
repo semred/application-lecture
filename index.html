@@ -2,17 +2,22 @@
 <html lang="ar" dir="rtl">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
   <meta name="theme-color" content="#0d5c4a">
- <link rel="manifest" href="/application-lecture/manifest.json">
-<link rel="icon" href="/application-lecture/icon-192.png">
-<link rel="apple-touch-icon" href="/application-lecture/icon-192.png">
-
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <title>مكتبتي التفاعلية</title>
+  
+  <!-- Liens PWA (adaptés au dépôt : application-lecture) -->
+  <link rel="manifest" href="/application-lecture/manifest.json">
+  <link rel="icon" href="/application-lecture/icon-192.png">
+  <link rel="apple-touch-icon" href="/application-lecture/icon-192.png">
+  
   <style>
     :root { --primary: #0d5c4a; --secondary: #27ae60; --bg: #f4f7f6; --text: #333; }
-    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, sans-serif; }
-    body { background: var(--bg); color: var(--text); padding-bottom: 80px; }
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, sans-serif; -webkit-tap-highlight-color: transparent; }
+    body { background: var(--bg); color: var(--text); padding-bottom: 80px; touch-action: manipulation; user-select: none; }
     
     header { background: var(--primary); color: white; padding: 20px; text-align: center; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
     header h1 { font-size: 1.5em; margin-bottom: 5px; }
@@ -22,34 +27,51 @@
     .screen.active { display: block; }
     .card { background: white; border-radius: 15px; padding: 20px; margin-bottom: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); }
 
-    .book-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 15px; }
+    .book-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 15px; }
     .book-card { cursor: pointer; transition: transform 0.2s; }
-    .book-card:hover { transform: translateY(-5px); }
+    .book-card:active { transform: scale(0.98); }
     .book-card img { width: 100%; height: 200px; object-fit: cover; border-radius: 10px; }
     .book-card h3 { font-size: 1em; margin: 10px 0 5px; color: var(--primary); }
     .book-card .level { font-size: 0.8em; background: #e0f2f1; color: var(--primary); padding: 3px 8px; border-radius: 10px; display: inline-block; }
 
     .reader-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
-    .btn-back { background: none; border: none; font-size: 1.5em; cursor: pointer; color: var(--primary); }
+    .btn-back { background: none; border: none; font-size: 1.5em; cursor: pointer; color: var(--primary); padding: 10px; }
     .page-image { width: 100%; max-height: 250px; object-fit: cover; border-radius: 10px; margin-bottom: 15px; }
     .page-title { font-size: 1.4em; color: var(--primary); margin-bottom: 15px; text-align: center; }
     
-    .text-container { font-size: 1.5em; line-height: 2.2; text-align: justify; margin-bottom: 20px; }
-    .word { padding: 2px 4px; border-radius: 4px; cursor: pointer; transition: background 0.2s; display: inline-block; margin: 2px; }
-    .word:hover { background: #e0f2f1; }
-    .word.active { background: #ffd54f; font-weight: bold; }
+    .text-container { font-size: 1.6em; line-height: 2.4; text-align: justify; margin-bottom: 20px; padding: 15px 10px; }
+    
+    /* Mots cliquables - Optimisé pour Android Tactile */
+    .word { 
+      padding: 6px 8px; 
+      border-radius: 8px; 
+      cursor: pointer; 
+      transition: all 0.2s; 
+      display: inline-block; 
+      margin: 3px;
+      touch-action: manipulation;
+      user-select: none;
+    }
+    .word:active { background: #e0f2f1; transform: scale(0.95); }
+    .word.active { 
+      background: #ffd54f; 
+      font-weight: bold;
+      box-shadow: 0 2px 8px rgba(255, 213, 79, 0.6);
+      transform: scale(1.05);
+    }
 
     .audio-controls { display: flex; justify-content: center; gap: 20px; margin: 20px 0; }
-    .btn-control { width: 60px; height: 60px; border-radius: 50%; border: none; background: var(--primary); color: white; font-size: 1.5em; cursor: pointer; box-shadow: 0 4px 10px rgba(0,0,0,0.2); }
+    .btn-control { width: 60px; height: 60px; border-radius: 50%; border: none; background: var(--primary); color: white; font-size: 1.5em; cursor: pointer; box-shadow: 0 4px 10px rgba(0,0,0,0.2); display: flex; align-items: center; justify-content: center; }
+    .btn-control:active { transform: scale(0.95); }
     .btn-control.play { width: 75px; height: 75px; font-size: 1.8em; background: var(--secondary); }
 
-    .tabs { display: flex; gap: 10px; margin-bottom: 15px; overflow-x: auto; }
-    .tab-btn { padding: 10px 20px; border: none; background: #e0e0e0; border-radius: 20px; cursor: pointer; white-space: nowrap; }
+    .tabs { display: flex; gap: 10px; margin-bottom: 15px; overflow-x: auto; padding-bottom: 5px; }
+    .tab-btn { padding: 10px 20px; border: none; background: #e0e0e0; border-radius: 20px; cursor: pointer; white-space: nowrap; font-size: 0.95em; }
     .tab-btn.active { background: var(--primary); color: white; }
     .tab-content { display: none; }
     .tab-content.active { display: block; }
 
-    .vocab-item { border-right: 4px solid var(--secondary); padding: 10px 15px; background: #f9f9f9; margin-bottom: 10px; border-radius: 8px; }
+    .vocab-item { border-right: 4px solid var(--secondary); padding: 12px 15px; background: #f9f9f9; margin-bottom: 10px; border-radius: 8px; }
     .vocab-word { font-weight: bold; font-size: 1.2em; color: var(--primary); }
     .vocab-syn { color: #666; font-size: 0.9em; margin-top: 5px; }
 
@@ -57,24 +79,20 @@
     .exercise-fillblank { background: #f0f8ff; padding: 20px; border-radius: 12px; margin-bottom: 20px; border: 2px solid var(--primary); }
     .exercise-fillblank h4 { color: var(--primary); margin-bottom: 15px; text-align: center; font-size: 1.2em; }
     .texte-avec-trous { font-size: 1.5em; line-height: 2.5; text-align: center; margin: 20px 0; padding: 15px; background: white; border-radius: 10px; }
-    .trou { display: inline-block; min-width: 120px; height: 50px; border: 3px dashed var(--primary); border-radius: 8px; margin: 0 8px; vertical-align: middle; background: #fff9e6; cursor: pointer; transition: all 0.3s; }
-    .trou:hover { background: #fff3cd; border-color: #ef6c00; }
+    .trou { display: inline-block; min-width: 100px; height: 50px; border: 3px dashed var(--primary); border-radius: 8px; margin: 0 5px; vertical-align: middle; background: #fff9e6; cursor: pointer; transition: all 0.3s; }
+    .trou:active { background: #fff3cd; }
     .trou.correct { border: 3px solid var(--secondary); background: #d4edda; cursor: default; }
     .trou.incorrect { animation: shake 0.5s; border-color: #e74c3c; background: #f8d7da; }
     @keyframes shake { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-10px); } 75% { transform: translateX(10px); } }
     .trou .mot-place { display: block; padding: 8px 12px; font-size: 0.9em; color: var(--primary); font-weight: bold; }
     .banque-mots { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; margin-top: 20px; padding: 15px; background: white; border-radius: 10px; min-height: 60px; }
     .mot-banque { padding: 10px 20px; background: var(--primary); color: white; border-radius: 20px; cursor: pointer; font-size: 1.1em; transition: all 0.2s; user-select: none; }
-    .mot-banque:hover { background: #0a4a3c; transform: scale(1.05); }
+    .mot-banque:active { transform: scale(0.95); }
     .mot-banque.selected { background: #ef6c00; transform: scale(1.1); box-shadow: 0 4px 10px rgba(239, 108, 0, 0.3); }
     .mot-banque.used { opacity: 0.3; cursor: not-allowed; transform: scale(0.9); }
     .message-success { text-align: center; color: var(--secondary); font-size: 1.3em; font-weight: bold; margin-top: 15px; padding: 10px; background: #d4edda; border-radius: 8px; display: none; }
     .message-success.show { display: block; animation: fadeIn 0.5s; }
     @keyframes fadeIn { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
-
-    .bottom-nav { position: fixed; bottom: 0; left: 0; right: 0; background: white; padding: 15px; display: flex; justify-content: space-around; box-shadow: 0 -2px 10px rgba(0,0,0,0.1); }
-    .nav-btn { background: none; border: none; font-size: 1.2em; color: var(--primary); cursor: pointer; }
-    .nav-btn:disabled { color: #ccc; }
 
     .loading { text-align: center; padding: 50px; color: #666; }
   </style>
@@ -96,7 +114,7 @@
   <!-- ÉCRAN 2 : LECTEUR -->
   <div id="screen-reader" class="screen">
     <div class="reader-header">
-      <button class="btn-back" onclick="showScreen('library')">🏠</button>
+      <button class="btn-back" onclick="showScreen('library')"></button>
       <span id="reader-page-info" style="font-weight:bold; color:var(--primary);"></span>
     </div>
 
@@ -113,11 +131,10 @@
       </div>
     </div>
 
-    <!-- Onglets interactifs -->
     <div class="tabs">
-      <button class="tab-btn active" onclick="switchTab('vocab')">📖 Vocabulaire</button>
-      <button class="tab-btn" onclick="switchTab('exercises')">🎮 Exercices</button>
-      <button class="tab-btn" onclick="switchTab('notes')">📌 Notes</button>
+      <button class="tab-btn active" onclick="switchTab('vocab', this)">📖 Vocabulaire</button>
+      <button class="tab-btn" onclick="switchTab('exercises', this)">🎮 Exercices</button>
+      <button class="tab-btn" onclick="switchTab('notes', this)">📌 Notes</button>
     </div>
 
     <div id="tab-vocab" class="tab-content active card"></div>
@@ -143,33 +160,37 @@
     const GITHUB_BASE = 'https://raw.githubusercontent.com/semred/livre_alphabetisation/main';
     const CATALOGUE_URL = `${GITHUB_BASE}/livres/catalogue.json`;
     
-    // ============ ÉTAT GLOBAL ============
     let catalogue = [];
     let currentBook = null;
     let currentPageIndex = 0;
     let audio = new Audio();
     let isPlaying = false;
-    let ttsUtterance = null;
 
-    // ============ INITIALISATION ============
-    document.addEventListener('DOMContentLoaded', loadCatalogue);
+    document.addEventListener('DOMContentLoaded', () => {
+      loadCatalogue();
+      registerSW();
+    });
+
+    function registerSW() {
+      if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.register('/application-lecture/service-worker.js')
+          .then(reg => console.log('✅ SW enregistré'))
+          .catch(err => console.log('❌ Erreur SW:', err));
+      }
+    }
 
     async function loadCatalogue() {
       try {
-        console.log('Chargement du catalogue depuis:', CATALOGUE_URL);
         const response = await fetch(CATALOGUE_URL);
         if (!response.ok) throw new Error(`HTTP ${response.status}`);
         const data = await response.json();
         catalogue = data.livres || [];
-        console.log('Catalogue chargé:', catalogue);
         renderLibrary();
       } catch (error) {
-        console.error('Erreur chargement catalogue:', error);
         document.getElementById('library-content').innerHTML = `
           <div class="card" style="text-align:center; color:red;">
-            ❌ Erreur de chargement du catalogue.<br>
-            <small>${error.message}</small><br>
-            <button onclick="loadCatalogue()" style="margin-top:10px;">🔄 Réessayer</button>
+            ❌ Erreur de chargement.<br><small>${error.message}</small><br>
+            <button onclick="loadCatalogue()" style="margin-top:10px; padding:10px 20px; background:var(--primary); color:white; border:none; border-radius:8px;">🔄 Réessayer</button>
           </div>`;
       }
     }
@@ -179,7 +200,6 @@
         document.getElementById('library-content').innerHTML = '<div class="card" style="text-align:center;">Aucun livre disponible</div>';
         return;
       }
-      
       let html = '<div class="book-grid">';
       catalogue.forEach(book => {
         const cover = book.couverture ? `${GITHUB_BASE}/${book.couverture}` : 'https://via.placeholder.com/150/0d5c4a/ffffff?text=كتاب';
@@ -196,25 +216,19 @@
       document.getElementById('library-content').innerHTML = html;
     }
 
-    // ============ CHARGEMENT DU LIVRE ============
     async function loadBook(jsonPath) {
       try {
-        const fullUrl = `${GITHUB_BASE}/${jsonPath}`;
-        console.log('Chargement du livre:', fullUrl);
-        const response = await fetch(fullUrl);
+        const response = await fetch(`${GITHUB_BASE}/${jsonPath}`);
         if (!response.ok) throw new Error(`HTTP ${response.status}`);
         currentBook = await response.json();
-        console.log('Livre chargé:', currentBook);
         currentPageIndex = 0;
         showScreen('reader');
         renderPage();
       } catch (error) {
-        console.error('Erreur chargement livre:', error);
-        alert(`Erreur lors du chargement du livre: ${error.message}`);
+        alert(`Erreur: ${error.message}`);
       }
     }
 
-    // ============ AFFICHAGE DE LA PAGE ============
     function renderPage() {
       const page = currentBook.pages[currentPageIndex];
       if (!page) return;
@@ -222,7 +236,6 @@
       document.getElementById('reader-page-info').textContent = `صفحة ${currentPageIndex + 1} / ${currentBook.pages.length}`;
       document.getElementById('page-title').textContent = page.titreSection || '';
       
-      // Image
       const imgEl = document.getElementById('page-img');
       if (page.image) {
         imgEl.src = `${GITHUB_BASE}/${page.image}`;
@@ -232,22 +245,20 @@
         imgEl.style.display = 'none';
       }
 
-      // Texte avec mots cliquables
       const textContainer = document.getElementById('page-text');
       textContainer.innerHTML = '';
       
       if (page.mots && page.mots.length > 0) {
-        // Mode avec synchronisation WebMAUS
         page.mots.forEach((mot, index) => {
           const span = document.createElement('span');
           span.className = 'word';
           span.textContent = mot.texte + ' ';
           span.dataset.index = index;
+          // Gestion unifiée clic/tactile
           span.onclick = () => playFromWord(index);
           textContainer.appendChild(span);
         });
       } else {
-        // Mode TTS sans timings - afficher le texte complet
         const texteDiv = document.createElement('div');
         texteDiv.style.fontSize = '1.5em';
         texteDiv.style.lineHeight = '2.2';
@@ -264,52 +275,36 @@
           <div class="vocab-item">
             <div class="vocab-word">${v.mot || ''}</div>
             <div>${v.traduction || ''}</div>
-            ${v.synonymes && v.synonymes.length ? `<div class="vocab-syn">🔄 Synonymes: ${v.synonymes.join(', ')}</div>` : ''}
+            ${v.synonymes && v.synonymes.length ? `<div class="vocab-syn">🔄 ${v.synonymes.join(', ')}</div>` : ''}
             ${v.exemple ? `<div style="margin-top:5px; font-style:italic;">💬 ${v.exemple}</div>` : ''}
           </div>
         `).join('');
       } else {
-        vocabDiv.innerHTML = '<p style="text-align:center; color:#999;">Aucun vocabulaire pour cette page.</p>';
+        vocabDiv.innerHTML = '<p style="text-align:center; color:#999;">Aucun vocabulaire.</p>';
       }
 
-      // Exercices
       renderExercises(page.exercices);
-
-      // Notes
       document.getElementById('tab-notes').innerHTML = page.notes ? `<p style="line-height:1.6;">${page.notes}</p>` : '<p style="text-align:center; color:#999;">Aucune note.</p>';
 
-      // Reset audio
       stopAudio();
-      
-      // Configurer l'audio
       if (page.audioMode === 'mp3' && page.audioPage) {
         audio.src = `${GITHUB_BASE}/${page.audioPage}`;
         audio.onerror = () => {
-          console.error('Erreur chargement audio:', audio.src);
-          // Fallback sur TTS si MP3 indisponible
-          if (page.texteAffiche) {
-            playTTS(page.texteAffiche);
-          }
+          if (page.texteAffiche) playTTS(page.texteAffiche);
         };
-      } else if (page.texteAffiche) {
-        // Mode TTS
-        playTTS(page.texteAffiche);
       }
     }
 
-    // ============ SYNCHRONISATION AUDIO / MOTS (WebMAUS) ============
+    // ============ AUDIO & SYNCHRONISATION ============
     audio.ontimeupdate = () => {
       if (!isPlaying || !currentBook || !currentBook.pages[currentPageIndex]) return;
       const currentTime = audio.currentTime;
       const page = currentBook.pages[currentPageIndex];
-      
       if (!page.mots || page.mots.length === 0) return;
       
-      // Trouver le mot actuel
       const currentWord = page.mots.find(m => currentTime >= m.debut && currentTime < m.fin);
-      
-      // Mettre à jour le surlignage
       document.querySelectorAll('.word').forEach(w => w.classList.remove('active'));
+      
       if (currentWord) {
         const index = page.mots.indexOf(currentWord);
         const el = document.querySelector(`.word[data-index="${index}"]`);
@@ -320,135 +315,79 @@
       }
     };
 
-    audio.onended = () => { 
-      isPlaying = false; 
-      updatePlayButton(); 
-      document.querySelectorAll('.word').forEach(w => w.classList.remove('active'));
-    };
+    audio.onended = () => { isPlaying = false; updatePlayButton(); document.querySelectorAll('.word').forEach(w => w.classList.remove('active')); };
 
     function togglePlay() {
       const page = currentBook.pages[currentPageIndex];
       if (!page) return;
       
       if (page.audioMode === 'mp3' && page.audioPage) {
-        // Mode MP3
-        if (isPlaying) {
-          audio.pause();
-          isPlaying = false;
-        } else {
-          audio.play().catch(e => console.error('Erreur lecture audio:', e));
-          isPlaying = true;
-        }
+        if (isPlaying) { audio.pause(); isPlaying = false; } 
+        else { audio.play().catch(e => console.error(e)); isPlaying = true; }
       } else if (page.texteAffiche) {
-        // Mode TTS
-        if (isPlaying) {
-          window.speechSynthesis.cancel();
-          isPlaying = false;
-        } else {
-          playTTS(page.texteAffiche);
-        }
+        if (isPlaying) { window.speechSynthesis.cancel(); isPlaying = false; } 
+        else { playTTS(page.texteAffiche); }
       }
       updatePlayButton();
     }
-
-   function playTTS(texte) {
-  // 1. Annuler toute lecture en cours
-  window.speechSynthesis.cancel();
-  
-  // 2. Fonction qui configure et lance la lecture
-  const lancerLecture = () => {
-    const ttsUtterance = new SpeechSynthesisUtterance(texte);
-    
-    // Forcer la langue arabe (algérienne ou saoudienne selon disponibilité)
-    ttsUtterance.lang = 'ar-DZ'; 
-    
-    // Chercher explicitement une voix arabe dans la liste du navigateur
-    const voices = window.speechSynthesis.getVoices();
-    const voixArabe = voices.find(voice => voice.lang.startsWith('ar'));
-    
-    if (voixArabe) {
-      ttsUtterance.voice = voixArabe;
-      console.log("Voix arabe sélectionnée :", voixArabe.name);
-    } else {
-      console.warn("Aucune voix arabe trouvée, utilisation de la voix par défaut.");
-    }
-    
-    // Vitesse légèrement ralentie pour une meilleure clarté pédagogique
-    ttsUtterance.rate = 0.85; 
-    ttsUtterance.pitch = 1.0;
-
-    ttsUtterance.onend = () => {
-      isPlaying = false;
-      updatePlayButton();
-    };
-    
-    ttsUtterance.onerror = (event) => {
-      console.error("Erreur TTS :", event);
-      isPlaying = false;
-      updatePlayButton();
-    };
-
-    window.speechSynthesis.speak(ttsUtterance);
-    isPlaying = true;
-    updatePlayButton();
-  };
-
-  // 3. Astuce cruciale : Sur Chrome, les voix se chargent de manière asynchrone.
-  // Si la liste est vide, on attend l'événement 'onvoiceschanged' avant de lancer.
-  if (window.speechSynthesis.getVoices().length === 0) {
-    window.speechSynthesis.onvoiceschanged = lancerLecture;
-  } else {
-    lancerLecture();
-  }
-}
 
     function playFromWord(index) {
       const page = currentBook.pages[currentPageIndex];
       if (!page || !page.mots) return;
-      
       const mot = page.mots[index];
+      
+      document.querySelectorAll('.word').forEach(w => w.classList.remove('active'));
+      const el = document.querySelector(`.word[data-index="${index}"]`);
+      if (el) { el.classList.add('active'); el.scrollIntoView({ behavior: 'smooth', block: 'center' }); }
+      
       if (page.audioMode === 'mp3' && page.audioPage) {
         audio.currentTime = mot.debut;
-        audio.play();
+        audio.play().catch(e => { if (page.texteAffiche) playTTS(mot.texte); });
+        isPlaying = true;
+      } else if (page.texteAffiche) {
+        playTTS(mot.texte);
+      }
+      updatePlayButton();
+    }
+
+    function playTTS(texte) {
+      window.speechSynthesis.cancel();
+      const lancerLecture = () => {
+        const utterance = new SpeechSynthesisUtterance(texte);
+        const voices = window.speechSynthesis.getVoices();
+        const voixArabe = voices.find(v => v.lang.startsWith('ar'));
+        if (voixArabe) { utterance.voice = voixArabe; utterance.lang = voixArabe.lang; }
+        else { utterance.lang = 'ar-SA'; }
+        utterance.rate = 0.85;
+        utterance.onend = () => { isPlaying = false; updatePlayButton(); };
+        utterance.onerror = (e) => { console.error('TTS Error:', e); isPlaying = false; updatePlayButton(); };
+        window.speechSynthesis.speak(utterance);
         isPlaying = true;
         updatePlayButton();
-      } else if (page.texteAffiche) {
-        // Pour TTS, on ne peut pas démarrer à un mot précis
-        playTTS(page.texteAffiche);
+      };
+      if (window.speechSynthesis.getVoices().length === 0) {
+        window.speechSynthesis.onvoiceschanged = lancerLecture;
+      } else {
+        lancerLecture();
       }
     }
 
     function stopAudio() {
-      audio.pause();
-      audio.currentTime = 0;
+      audio.pause(); audio.currentTime = 0;
       window.speechSynthesis.cancel();
-      isPlaying = false;
-      updatePlayButton();
+      isPlaying = false; updatePlayButton();
       document.querySelectorAll('.word').forEach(w => w.classList.remove('active'));
     }
 
-    function updatePlayButton() {
-      const btn = document.getElementById('btn-play');
-      btn.textContent = isPlaying ? '⏸' : '▶';
-    }
+    function updatePlayButton() { document.getElementById('btn-play').textContent = isPlaying ? '⏸' : '▶'; }
 
     // ============ NAVIGATION ============
     function nextPage() {
-      if (currentPageIndex < currentBook.pages.length - 1) {
-        currentPageIndex++;
-        renderPage();
-      } else {
-        showSummary();
-      }
+      if (currentPageIndex < currentBook.pages.length - 1) { currentPageIndex++; renderPage(); } 
+      else { showSummary(); }
     }
-
-    function prevPage() {
-      if (currentPageIndex > 0) {
-        currentPageIndex--;
-        renderPage();
-      }
-    }
-
+    function prevPage() { if (currentPageIndex > 0) { currentPageIndex--; renderPage(); } }
+    
     function showSummary() {
       if (!currentBook || !currentBook.resume) return;
       document.getElementById('summary-text').textContent = currentBook.resume.texte || '';
@@ -456,162 +395,103 @@
       if (currentBook.resume.modeAudio === 'mp3' && currentBook.resume.audio) {
         sumAudio.src = `${GITHUB_BASE}/${currentBook.resume.audio}`;
         sumAudio.style.display = 'block';
-      } else {
-        sumAudio.style.display = 'none';
-      }
+      } else { sumAudio.style.display = 'none'; }
       showScreen('summary');
     }
 
-    // ============ UTILITAIRES ============
-    function showScreen(screenName) {
+    function showScreen(name) {
       document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-      document.getElementById(`screen-${screenName}`).classList.add('active');
-      if (screenName !== 'reader') stopAudio();
+      document.getElementById(`screen-${name}`).classList.add('active');
+      if (name !== 'reader') stopAudio();
     }
 
-    function switchTab(tabName) {
+    function switchTab(tabName, btn) {
       document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
       document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
       document.getElementById(`tab-${tabName}`).classList.add('active');
-      event.target.classList.add('active');
+      btn.classList.add('active');
     }
 
-    // ============ EXERCICES À TROUS (CLIC POUR PLACER) ============
+    // ============ EXERCICES ============
     function renderExercises(exercices) {
       const container = document.getElementById('tab-exercises');
-      if (!exercices || exercices.length === 0) {
-        container.innerHTML = '<p style="text-align:center; color:#999;">Aucun exercice pour cette page.</p>';
-        return;
-      }
-      
+      if (!exercices || exercices.length === 0) { container.innerHTML = '<p style="text-align:center; color:#999;">Aucun exercice.</p>'; return; }
       container.innerHTML = '';
-      
       exercices.forEach(ex => {
-        if (ex.type === 'fillblank') {
-          const exerciceEl = creerExerciceATrous(ex);
-          container.appendChild(exerciceEl);
-        }
+        if (ex.type === 'fillblank') container.appendChild(creerExerciceATrous(ex));
       });
     }
 
     function creerExerciceATrous(exercice) {
       const container = document.createElement('div');
       container.className = 'exercise-fillblank';
-      
-      const titre = document.createElement('h4');
-      titre.textContent = '✍️ أكمل الفراغات بالضغط على الكلمة ثم على الفراغ:';
-      container.appendChild(titre);
+      container.innerHTML = `<h4>✍️ أكمل الفراغات:</h4>`;
       
       const texteDiv = document.createElement('div');
       texteDiv.className = 'texte-avec-trous';
-      
       let indexTrou = 0;
-      const texteHTML = exercice.texte.replace(/___/g, () => {
-        const trouId = `trou-${Date.now()}-${indexTrou}`;
-        indexTrou++;
-        return `<span class="trou" id="${trouId}" data-index="${indexTrou - 1}" onclick="placerMotDansTrou(this, ${indexTrou - 1})"></span>`;
+      texteDiv.innerHTML = exercice.texte.replace(/___/g, () => {
+        const id = `trou-${Date.now()}-${indexTrou}`;
+        return `<span class="trou" id="${id}" data-index="${indexTrou++}" onclick="placerMotDansTrou(this)"></span>`;
       });
-      
-      texteDiv.innerHTML = texteHTML;
       container.appendChild(texteDiv);
       
       const banqueDiv = document.createElement('div');
       banqueDiv.className = 'banque-mots';
-      banqueDiv.id = `banque-mots-${Date.now()}`;
-      
-      (exercice.motsMelanges || []).forEach((mot, index) => {
-        const motSpan = document.createElement('span');
-        motSpan.className = 'mot-banque';
-        motSpan.textContent = mot;
-        motSpan.dataset.mot = mot;
-        motSpan.dataset.index = index;
-        motSpan.onclick = () => selectionnerMot(motSpan, container);
-        banqueDiv.appendChild(motSpan);
+      (exercice.motsMelanges || []).forEach((mot, i) => {
+        const span = document.createElement('span');
+        span.className = 'mot-banque';
+        span.textContent = mot;
+        span.dataset.mot = mot;
+        span.onclick = () => selectionnerMot(span, container);
+        banqueDiv.appendChild(span);
       });
-      
       container.appendChild(banqueDiv);
       
-      const messageSuccess = document.createElement('div');
-      messageSuccess.className = 'message-success';
-      messageSuccess.id = `message-success-${Date.now()}`;
-      messageSuccess.textContent = '🎉 ممتاز! أحسنت!';
-      container.appendChild(messageSuccess);
+      const msg = document.createElement('div');
+      msg.className = 'message-success';
+      msg.textContent = '🎉 ممتاز! أحسنت!';
+      container.appendChild(msg);
       
       container.dataset.trousRemplis = '0';
       container.dataset.totalTrous = indexTrou;
       container.dataset.reponses = JSON.stringify(exercice.reponses || []);
-      
       return container;
     }
 
-    function selectionnerMot(element, container) {
-      if (element.classList.contains('used')) return;
-      
+    function selectionnerMot(el, container) {
+      if (el.classList.contains('used')) return;
       document.querySelectorAll('.mot-banque').forEach(m => m.classList.remove('selected'));
-      element.classList.add('selected');
-      
-      container.dataset.selectedMot = element.dataset.mot;
-      container.dataset.selectedElementIndex = element.dataset.index;
+      el.classList.add('selected');
+      container.dataset.selectedMot = el.dataset.mot;
     }
 
-    function placerMotDansTrou(trouElement, indexTrou) {
-      const container = trouElement.closest('.exercise-fillblank');
-      const motSelectionne = container.dataset.selectedMot;
+    function placerMotDansTrou(trou) {
+      const container = trou.closest('.exercise-fillblank');
+      const mot = container.dataset.selectedMot;
       const reponses = JSON.parse(container.dataset.reponses);
-      const bonneReponse = reponses[indexTrou];
+      const bonneReponse = reponses[trou.dataset.index];
       
-      if (!motSelectionne) {
-        const banque = container.querySelector('.banque-mots');
-        if (banque) {
-          banque.style.animation = 'shake 0.5s';
-          setTimeout(() => banque.style.animation = '', 500);
-        }
-        return;
-      }
+      if (!mot) return;
+      if (trou.classList.contains('correct')) return;
       
-      if (trouElement.classList.contains('correct')) return;
-      
-      if (motSelectionne === bonneReponse) {
-        trouElement.innerHTML = `<span class="mot-place">${motSelectionne}</span>`;
-        trouElement.classList.add('correct');
-        trouElement.classList.remove('incorrect');
-        
-        const motElement = container.querySelector(`.mot-banque[data-mot="${motSelectionne}"]:not(.used)`);
-        if (motElement) {
-          motElement.classList.add('used');
-          motElement.classList.remove('selected');
-        }
-        
-        let trousRemplis = parseInt(container.dataset.trousRemplis) + 1;
-        container.dataset.trousRemplis = trousRemplis;
-        
+      if (mot === bonneReponse) {
+        trou.innerHTML = `<span class="mot-place">${mot}</span>`;
+        trou.classList.add('correct');
+        const el = container.querySelector(`.mot-banque[data-mot="${mot}"]:not(.used)`);
+        if (el) { el.classList.add('used'); el.classList.remove('selected'); }
+        container.dataset.trousRemplis = parseInt(container.dataset.trousRemplis) + 1;
         container.dataset.selectedMot = '';
-        
-        const totalTrous = parseInt(container.dataset.totalTrous);
-        if (trousRemplis === totalTrous) {
-          const msgId = container.querySelector('.message-success').id;
-          document.getElementById(msgId).classList.add('show');
+        if (parseInt(container.dataset.trousRemplis) === parseInt(container.dataset.totalTrous)) {
+          container.querySelector('.message-success').classList.add('show');
         }
       } else {
-        trouElement.classList.add('incorrect');
-        setTimeout(() => {
-          trouElement.classList.remove('incorrect');
-        }, 500);
-        
+        trou.classList.add('incorrect');
+        setTimeout(() => trou.classList.remove('incorrect'), 500);
         document.querySelectorAll('.mot-banque').forEach(m => m.classList.remove('selected'));
         container.dataset.selectedMot = '';
       }
     }
   </script>
-  <script>
-  // Enregistrement du Service Worker pour le mode hors ligne
-  if ('serviceWorker' in navigator) {
-    window.addEventListener('load', () => {
-      navigator.serviceWorker.register('/app-alphabetisation/service-worker.js')
-        .then(reg => console.log('✅ Service Worker enregistré', reg))
-        .catch(err => console.log('❌ Erreur SW:', err));
-    });
-  }
-</script>
 </body>
 </html>
