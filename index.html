@@ -652,69 +652,114 @@
     }
 
     // ============ TTS : LECTURE COMPLÈTE MOT PAR MOT ============
-    function playTTSFullText(startIndex = 0) {
-      if (!currentWords || currentWords.length === 0) return;
+    // ============ TTS : LECTURE EN LOTS (SILENCES RÉDUITS) ============
+function playTTSFullText(startIndex = 0) {
+  if (!currentWords || currentWords.length === 0) return;
 
-      const mySession = ++ttsSessionId;
-      window.speechSynthesis.cancel();
-      isPlaying = true;
+  const mySession = ++ttsSessionId;
+  window.speechSynthesis.cancel();
+  isPlaying = true;
+  updatePlayButton();
+  clearAllHighlight();
+
+  const voices = window.speechSynthesis.getVoices();
+  const arVoice = voices.find(v => v.lang && v.lang.startsWith('ar'));
+
+  // ⚙️ Taille du lot : 2 ou 3 = bon compromis (réduire encore = plus de silences,
+  //    augmenter = surlignage plus grossier). Modifiable via userSettings si besoin.
+  const BATCH_SIZE = userSettings.ttsBatchSize || 3;
+
+  // Construire les lots
+  const batches = [];
+  for (let i = startIndex; i < currentWords.length; i += BATCH_SIZE) {
+    batches.push({
+      startIdx: i,
+      words: currentWords.slice(i, Math.min(i + BATCH_SIZE, currentWords.length))
+    });
+  }
+
+  let batchPos = 0;
+
+  const speakNextBatch = () => {
+    if (mySession !== ttsSessionId) return;
+    if (batchPos >= batches.length) {
+      isPlaying = false;
+      ttsCurrentIndex = -1;
       updatePlayButton();
       clearAllHighlight();
-
-      const voices = window.speechSynthesis.getVoices();
-      const arVoice = voices.find(v => v.lang && v.lang.startsWith('ar'));
-
-      let idx = startIndex;
-      ttsCurrentIndex = idx;
-
-      const speakNext = () => {
-        if (mySession !== ttsSessionId) return;
-        if (idx >= currentWords.length) {
-          isPlaying = false;
-          ttsCurrentIndex = -1;
-          updatePlayButton();
-          clearAllHighlight();
-          return;
-        }
-        ttsCurrentIndex = idx;
-
-        clearAllHighlight();
-        const span = currentWordSpans[idx];
-        if (span) {
-          span.classList.add('active');
-          span.scrollIntoView({ behavior: 'smooth', block: 'center', inline: 'center' });
-        }
-
-        const utt = new SpeechSynthesisUtterance(currentWords[idx]);
-        utt.lang = 'ar-DZ';
-        if (arVoice) utt.voice = arVoice;
-        utt.rate = userSettings.speed;
-        utt.pitch = 0.5;
-
-        utt.onend = () => {
-          if (mySession !== ttsSessionId) return;
-          idx++;
-          speakNext();
-        };
-        utt.onerror = (e) => {
-          if (mySession !== ttsSessionId) return;
-          if (e.error === 'interrupted' || e.error === 'canceled') return;
-          idx++;
-          speakNext();
-        };
-
-        window.speechSynthesis.speak(utt);
-      };
-
-      if (window.speechSynthesis.getVoices().length === 0) {
-        window.speechSynthesis.onvoiceschanged = () => {
-          window.speechSynthesis.onvoiceschanged = null;
-          speakNext();
-        };
-      } else {
-        speakNext();
-      }
+      return;
     }
+
+    const batch = batches[batchPos];
+    const batchText = batch.words.join(' ');
+
+    // Offsets (en caractères) du début de chaque mot dans le texte du lot
+    const offsets = [];
+    let off = 0;
+    batch.words.forEach(w => { offsets.push(off); off += w.length + 1; });
+
+    // --- Surlignage initial du 1er mot du lot ---
+    ttsCurrentIndex = batch.startIdx;
+    clearAllHighlight();
+    const firstSpan = currentWordSpans[batch.startIdx];
+    if (firstSpan) {
+      firstSpan.classList.add('active');
+      firstSpan.scrollIntoView({ behavior: 'smooth', block: 'center', inline: 'center' });
+    }
+
+    const utt = new SpeechSynthesisUtterance(batchText);
+    utt.lang = 'ar-DZ';
+    if (arVoice) utt.voice = arVoice;
+    utt.rate = userSettings.speed;
+    utt.pitch = 1.0;
+
+    // --- Surlignage fin dans le lot (si onboundary est supporté) ---
+    utt.onboundary = (e) => {
+      if (mySession !== ttsSessionId) return;
+      if (e.name && e.name !== 'word') return;
+
+      let localIdx = 0;
+      for (let i = 0; i < offsets.length; i++) {
+        if (offsets[i] <= e.charIndex) localIdx = i;
+        else break;
+      }
+      const globalIdx = batch.startIdx + localIdx;
+      if (globalIdx === ttsCurrentIndex) return;
+
+      ttsCurrentIndex = globalIdx;
+      clearAllHighlight();
+      const s = currentWordSpans[globalIdx];
+      if (s) {
+        s.classList.add('active');
+        s.scrollIntoView({ behavior: 'smooth', block: 'center', inline: 'center' });
+      }
+    };
+
+    utt.onend = () => {
+      if (mySession !== ttsSessionId) return;
+      batchPos++;
+      speakNextBatch();
+    };
+
+    utt.onerror = (e) => {
+      if (mySession !== ttsSessionId) return;
+      if (e.error === 'interrupted' || e.error === 'canceled') return;
+      batchPos++;
+      speakNextBatch();
+    };
+
+    window.speechSynthesis.speak(utt);
+  };
+
+  if (window.speechSynthesis.getVoices().length === 0) {
+    window.speechSynthesis.onvoiceschanged = () => {
+      window.speechSynthesis.onvoiceschanged = null;
+      speakNextBatch();
+    };
+  } else {
+    speakNextBatch();
+  }
+}
 
     // ============ TTS : LECTURE D'UN SEUL MOT ============
     function playWordTTS(word, span) {
