@@ -651,160 +651,70 @@
       updatePlayButton();
     }
 
-  
-   // ============ TTS : LECTURE COMPLÈTE (UTTERANCE UNIQUE + ONBOUNDARY) ============
-function playTTSFullText(startIndex = 0) {
-  if (!currentWords || currentWords.length === 0) return;
+    // ============ TTS : LECTURE COMPLÈTE MOT PAR MOT ============
+    function playTTSFullText(startIndex = 0) {
+      if (!currentWords || currentWords.length === 0) return;
 
-  const mySession = ++ttsSessionId;
-  window.speechSynthesis.cancel();
-  isPlaying = true;
-  updatePlayButton();
-  clearAllHighlight();
-
-  const voices = window.speechSynthesis.getVoices();
-  const arVoice = voices.find(v => v.lang && v.lang.startsWith('ar'));
-
-  const wordsToRead = currentWords.slice(startIndex);
-  const fullText = wordsToRead.join(' ');
-
-  // Calcul des positions (en caractères) du début de chaque mot dans fullText
-  const wordCharOffsets = [];
-  let offset = 0;
-  wordsToRead.forEach(w => {
-    wordCharOffsets.push(offset);
-    offset += w.length + 1;
-  });
-
-  const utt = new SpeechSynthesisUtterance(fullText);
-  utt.lang = 'ar-DZ';
-  if (arVoice) utt.voice = arVoice;
-  utt.rate = userSettings.speed;
-  utt.pitch = 1.0;
-
-  let boundaryWorked = false;
-  let lastGlobalIdx = -1;
-
-  const highlightWord = (globalIdx) => {
-    if (globalIdx === lastGlobalIdx) return;
-    lastGlobalIdx = globalIdx;
-    ttsCurrentIndex = globalIdx;
-    clearAllHighlight();
-    const span = currentWordSpans[globalIdx];
-    if (span) {
-      span.classList.add('active');
-      span.scrollIntoView({ behavior: 'smooth', block: 'center', inline: 'center' });
-    }
-  };
-
-  utt.onboundary = (e) => {
-    if (mySession !== ttsSessionId) return;
-    if (e.name && e.name !== 'word') return;
-    boundaryWorked = true;
-    const charIdx = e.charIndex;
-    let localIdx = 0;
-    for (let i = 0; i < wordCharOffsets.length; i++) {
-      if (wordCharOffsets[i] <= charIdx) localIdx = i;
-      else break;
-    }
-    highlightWord(startIndex + localIdx);
-  };
-
-  utt.onend = () => {
-    if (mySession !== ttsSessionId) return;
-    isPlaying = false;
-    ttsCurrentIndex = -1;
-    updatePlayButton();
-    clearAllHighlight();
-  };
-
-  utt.onerror = () => {
-    if (mySession !== ttsSessionId) return;
-    isPlaying = false;
-    ttsCurrentIndex = -1;
-    updatePlayButton();
-    clearAllHighlight();
-  };
-
-  const start = () => {
-    if (mySession !== ttsSessionId) return;
-    highlightWord(startIndex);
-    window.speechSynthesis.speak(utt);
-
-    // Fallback : si onboundary n'a pas répondu au bout de 2,5 s → mode mot-à-mot
-    setTimeout(() => {
-      if (mySession !== ttsSessionId) return;
-      if (boundaryWorked) return;
-      if (!isPlaying) return;
-      console.log('⚠️ onboundary non supporté par ce moteur, basculement en mot-à-mot');
-      playTTSWordByWord(startIndex); // cette fonction incrémente ttsSessionId et annule l'utterance en cours
-    }, 2500);
-  };
-
-  if (window.speechSynthesis.getVoices().length === 0) {
-    window.speechSynthesis.onvoiceschanged = () => {
-      window.speechSynthesis.onvoiceschanged = null;
-      start();
-    };
-  } else {
-    start();
-  }
-}
-
-// ============ TTS : FALLBACK PRÉ-FILÉ (pause minimale) ============
-function playTTSWordByWord(startIndex = 0) {
-  const mySession = ++ttsSessionId;
-  window.speechSynthesis.cancel();
-  isPlaying = true;
-  updatePlayButton();
-  clearAllHighlight();
-
-  const voices = window.speechSynthesis.getVoices();
-  const arVoice = voices.find(v => v.lang && v.lang.startsWith('ar'));
-
-  // ⚡ On pré-file TOUTES les utterances d'un coup : le moteur les enchaîne
-  //    sans repasser par la boucle d'événements JS → pause fortement réduite.
-  for (let i = startIndex; i < currentWords.length; i++) {
-    const wordIndex = i;
-    const u = new SpeechSynthesisUtterance(currentWords[i]);
-    u.lang = 'ar-DZ';
-    if (arVoice) u.voice = arVoice;
-    u.rate = userSettings.speed;
-    u.pitch = 1.0;
-
-    u.onstart = () => {
-      if (mySession !== ttsSessionId) return;
-      ttsCurrentIndex = wordIndex;
+      const mySession = ++ttsSessionId;
+      window.speechSynthesis.cancel();
+      isPlaying = true;
+      updatePlayButton();
       clearAllHighlight();
-      const s = currentWordSpans[wordIndex];
-      if (s) {
-        s.classList.add('active');
-        s.scrollIntoView({ behavior: 'smooth', block: 'center', inline: 'center' });
-      }
-    };
 
-    if (i === currentWords.length - 1) {
-      u.onend = () => {
+      const voices = window.speechSynthesis.getVoices();
+      const arVoice = voices.find(v => v.lang && v.lang.startsWith('ar'));
+
+      let idx = startIndex;
+      ttsCurrentIndex = idx;
+
+      const speakNext = () => {
         if (mySession !== ttsSessionId) return;
-        isPlaying = false;
-        ttsCurrentIndex = -1;
-        updatePlayButton();
+        if (idx >= currentWords.length) {
+          isPlaying = false;
+          ttsCurrentIndex = -1;
+          updatePlayButton();
+          clearAllHighlight();
+          return;
+        }
+        ttsCurrentIndex = idx;
+
         clearAllHighlight();
+        const span = currentWordSpans[idx];
+        if (span) {
+          span.classList.add('active');
+          span.scrollIntoView({ behavior: 'smooth', block: 'center', inline: 'center' });
+        }
+
+        const utt = new SpeechSynthesisUtterance(currentWords[idx]);
+        utt.lang = 'ar-DZ';
+        if (arVoice) utt.voice = arVoice;
+        utt.rate = userSettings.speed;
+        utt.pitch = 0.5;
+
+        utt.onend = () => {
+          if (mySession !== ttsSessionId) return;
+          idx++;
+          speakNext();
+        };
+        utt.onerror = (e) => {
+          if (mySession !== ttsSessionId) return;
+          if (e.error === 'interrupted' || e.error === 'canceled') return;
+          idx++;
+          speakNext();
+        };
+
+        window.speechSynthesis.speak(utt);
       };
+
+      if (window.speechSynthesis.getVoices().length === 0) {
+        window.speechSynthesis.onvoiceschanged = () => {
+          window.speechSynthesis.onvoiceschanged = null;
+          speakNext();
+        };
+      } else {
+        speakNext();
+      }
     }
-
-    u.onerror = (e) => {
-      if (e.error === 'interrupted' || e.error === 'canceled') return;
-      // sinon on ignore et on laisse la file continuer
-    };
-
-    window.speechSynthesis.speak(u);
-  }
-
-  // Surligner immédiatement le premier mot (au cas où onstart tarde)
-  const firstSpan = currentWordSpans[startIndex];
-  if (firstSpan) firstSpan.classList.add('active');
-}
 
     // ============ TTS : LECTURE D'UN SEUL MOT ============
     function playWordTTS(word, span) {
