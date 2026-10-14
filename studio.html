@@ -1,1179 +1,1438 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>استوديو المؤلف — تصميم ونشر الكتب التفاعلية (للحاسوب)</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Cairo:wght@400;600;700;800;900&display=swap" rel="stylesheet">
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
-  <style>
-    :root {
-      --primary: #0d5c4a;
-      --primary-hover: #084336;
-      --secondary: #27ae60;
-      --accent: #ef6c00;
-      --bg: #f8fafc;
-      --card-bg: #ffffff;
-      --text: #1e293b;
-      --border: #e2e8f0;
-    }
-    * { box-sizing: border-box; margin: 0; padding: 0; }
-    body {
-      font-family: 'Cairo', 'Segoe UI', Tahoma, sans-serif;
-      background: var(--bg);
-      color: var(--text);
-      line-height: 1.6;
-      padding-bottom: 80px;
-    }
-    .container { max-width: 1200px; margin: 0 auto; padding: 20px; }
-    
-    header {
-      background: linear-gradient(135deg, #0d5c4a 0%, #15735d 100%);
-      color: white;
-      padding: 24px;
-      border-radius: 20px;
-      box-shadow: 0 10px 25px -5px rgba(13, 92, 74, 0.2);
-      margin-bottom: 25px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      flex-wrap: wrap;
-      gap: 15px;
-    }
-    header h1 { font-size: 1.8em; font-weight: 900; display: flex; align-items: center; gap: 10px; }
-    header p { opacity: 0.9; font-size: 0.95em; }
-    .badge-desktop {
-      background: rgba(255, 255, 255, 0.2);
-      border: 1px solid rgba(255, 255, 255, 0.3);
-      padding: 6px 14px;
-      border-radius: 30px;
-      font-size: 0.85em;
-      font-weight: bold;
-    }
-    
-    .card {
-      background: var(--card-bg);
-      border-radius: 18px;
-      padding: 25px;
-      margin-bottom: 25px;
-      border: 1px solid var(--border);
-      box-shadow: 0 4px 12px rgba(0,0,0,0.03);
-    }
-    .card h2 {
-      font-size: 1.3em;
-      color: var(--primary);
-      margin-bottom: 18px;
-      padding-bottom: 10px;
-      border-bottom: 2px solid #e0f2f1;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-    
-    .form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 18px; margin-bottom: 15px; }
-    label { display: block; margin-bottom: 6px; font-weight: 700; font-size: 0.9em; color: #334155; }
-    input[type="text"], input[type="password"], textarea, select {
-      width: 100%;
-      padding: 10px 14px;
-      border: 1.5px solid var(--border);
-      border-radius: 10px;
-      font-family: inherit;
-      font-size: 0.95em;
-      transition: all 0.2s;
-      background: white;
-    }
-    input:focus, textarea:focus, select:focus {
-      outline: none;
-      border-color: var(--primary);
-      box-shadow: 0 0 0 3px rgba(13, 92, 74, 0.15);
-    }
-    textarea.arabic-text {
-      font-family: 'Amiri', serif;
-      font-size: 1.3em;
-      line-height: 2.2;
-      min-height: 120px;
-    }
-    
-    .btn {
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      padding: 10px 20px;
-      border-radius: 10px;
-      border: none;
-      font-weight: 700;
-      font-size: 0.9em;
-      cursor: pointer;
-      transition: all 0.2s;
-      color: white;
-    }
-    .btn:hover { transform: translateY(-1px); box-shadow: 0 4px 12px rgba(0,0,0,0.15); }
-    .btn:active { transform: translateY(0); }
-    .btn-primary { background: var(--primary); }
-    .btn-secondary { background: #0284c7; }
-    .btn-success { background: var(--secondary); }
-    .btn-warning { background: var(--accent); }
-    .btn-dark { background: #0f172a; }
-    .btn-danger { background: #ef4444; }
-    .btn-outline { background: white; color: var(--text); border: 1.5px solid var(--border); }
-    .btn-outline:hover { background: #f1f5f9; color: var(--text); }
-    
-    .toolbar-sticky {
-      background: white;
-      border: 1.5px solid var(--border);
-      border-radius: 16px;
-      padding: 15px 20px;
-      margin-bottom: 25px;
-      display: flex;
-      flex-wrap: wrap;
-      justify-content: space-between;
-      align-items: center;
-      gap: 12px;
-      box-shadow: 0 4px 15px rgba(0,0,0,0.05);
-      position: sticky;
-      top: 15px;
-      z-index: 100;
-    }
-    
-    .page-nav { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 5px; margin-bottom: 20px; }
-    .page-tab {
-      padding: 8px 16px;
-      border-radius: 10px;
-      background: #f1f5f9;
-      border: 1px solid var(--border);
-      cursor: pointer;
-      font-weight: 700;
-      font-size: 0.9em;
-      white-space: nowrap;
-      transition: all 0.2s;
-    }
-    .page-tab.active { background: var(--primary); color: white; border-color: var(--primary); }
-    
-    .subcard { background: #f8fafc; border: 1.5px solid var(--border); border-radius: 14px; padding: 18px; margin-bottom: 15px; }
-    .subcard-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
-    
-    .preview-box {
-      width: 100px;
-      height: 100px;
-      border-radius: 10px;
-      border: 1.5px dashed #cbd5e1;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      overflow: hidden;
-      background: #f1f5f9;
-      margin-top: 5px;
-    }
-    .preview-box img { width: 100%; height: 100%; object-fit: contain; }
-    
-    .log-box {
-      background: #0f172a;
-      color: #38bdf8;
-      font-family: monospace;
-      direction: ltr;
-      text-align: left;
-      padding: 15px;
-      border-radius: 10px;
-      max-height: 250px;
-      overflow-y: auto;
-      font-size: 0.85em;
-      margin-top: 12px;
-    }
-    .progress-bar-container { background: #e2e8f0; border-radius: 20px; overflow: hidden; height: 20px; margin: 12px 0; }
-    .progress-bar-fill { background: linear-gradient(90deg, var(--primary), var(--secondary)); height: 100%; width: 0%; transition: width 0.3s; color: white; font-size: 0.75em; font-weight: bold; display: flex; align-items: center; justify-content: center; }
-
-    .toast {
-      position: fixed;
-      top: 20px;
-      left: 50%;
-      transform: translateX(-50%);
-      background: #0d5c4a;
-      color: white;
-      padding: 12px 25px;
-      border-radius: 30px;
-      box-shadow: 0 10px 30px rgba(0,0,0,0.2);
-      font-weight: 700;
-      z-index: 1000;
-      display: none;
-      animation: fadeIn 0.3s;
-    }
-    @keyframes fadeIn { from { opacity: 0; transform: translate(-50%, -10px); } to { opacity: 1; transform: translate(-50%, 0); } }
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>استوديو المؤلف — الإصدار المكتبي</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Cairo:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+<style>
+:root{--primary:#0d5c4a;--primary-hover:#084336;--secondary:#27ae60;--accent:#ef6c00;--bg:#f8fafc;--card-bg:#fff;--text:#1e293b;--border:#e2e8f0;--danger:#ef4444}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Cairo','Segoe UI',Tahoma,sans-serif;background:var(--bg);color:var(--text);line-height:1.6;padding-bottom:80px}
+.container{max-width:1500px;margin:0 auto;padding:20px}
+header{background:linear-gradient(135deg,#0d5c4a 0%,#15735d 100%);color:#fff;padding:20px 24px;border-radius:18px;box-shadow:0 10px 25px -5px rgba(13,92,74,.2);margin-bottom:20px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px}
+header h1{font-size:1.5em;font-weight:900;display:flex;align-items:center;gap:8px}
+header p{opacity:.9;font-size:.85em}
+.badge-desktop{background:rgba(255,255,255,.2);border:1px solid rgba(255,255,255,.3);padding:5px 12px;border-radius:30px;font-size:.8em;font-weight:bold}
+.card{background:var(--card-bg);border-radius:16px;padding:20px;margin-bottom:18px;border:1px solid var(--border);box-shadow:0 4px 12px rgba(0,0,0,.03)}
+.card h2{font-size:1.15em;color:var(--primary);margin-bottom:15px;padding-bottom:8px;border-bottom:2px solid #e0f2f1;display:flex;align-items:center;gap:6px}
+.form-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:14px;margin-bottom:12px}
+label{display:block;margin-bottom:5px;font-weight:700;font-size:.88em;color:#334155}
+input[type=text],input[type=password],input[type=number],textarea,select{width:100%;padding:9px 12px;border:1.5px solid var(--border);border-radius:9px;font-family:inherit;font-size:.92em;transition:all .2s;background:#fff}
+input:focus,textarea:focus,select:focus{outline:none;border-color:var(--primary);box-shadow:0 0 0 3px rgba(13,92,74,.15)}
+textarea.arabic-text{font-family:'Amiri',serif;font-size:1.15em;line-height:2;min-height:100px}
+.btn{display:inline-flex;align-items:center;gap:6px;padding:9px 16px;border-radius:9px;border:none;font-weight:700;font-size:.85em;cursor:pointer;transition:all .2s;color:#fff;font-family:inherit;text-decoration:none}
+.btn:hover{transform:translateY(-1px);box-shadow:0 4px 12px rgba(0,0,0,.15)}
+.btn-primary{background:var(--primary)}.btn-secondary{background:#0284c7}.btn-success{background:var(--secondary)}
+.btn-warning{background:var(--accent)}.btn-dark{background:#0f172a}.btn-danger{background:var(--danger)}
+.btn-outline{background:#fff;color:var(--text);border:1.5px solid var(--border)}
+.btn-outline:hover{background:#f1f5f9;color:var(--text)}
+.btn-sm{padding:4px 10px;font-size:.75em}
+.toolbar-sticky{background:#fff;border:1.5px solid var(--border);border-radius:14px;padding:12px 16px;margin-bottom:18px;display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:10px;box-shadow:0 4px 15px rgba(0,0,0,.05);position:sticky;top:10px;z-index:100}
+.app-layout{display:flex;gap:18px;align-items:flex-start}
+.sidebar{width:340px;flex-shrink:0;position:sticky;top:90px;max-height:calc(100vh - 110px);overflow-y:auto;padding:14px}
+.main-area{flex:1;min-width:0}
+@media(max-width:900px){.app-layout{flex-direction:column}.sidebar{width:100%;position:static;max-height:340px}}
+.tree-root,.tree-children{list-style:none;padding:0;margin:0}
+.tree-children{padding-right:14px;border-right:1px dashed #cbd5e1;margin-right:8px;margin-top:2px}
+.tree-node{user-select:none}
+.tree-row{display:flex;align-items:center;gap:4px;padding:4px 8px;border-radius:6px;cursor:pointer;transition:background .15s}
+.tree-row:hover{background:#f1f5f9}
+.tree-row.active{background:#d1fae5;font-weight:700}
+.tree-toggle{display:inline-block;width:14px;text-align:center;color:#64748b;font-size:.75em;transition:transform .15s}
+.tree-node.collapsed>.tree-children{display:none}
+.tree-node.collapsed>.tree-row .tree-toggle{transform:rotate(-90deg)}
+.tree-label{flex:1;font-size:.85em;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.tree-action{background:transparent;border:none;color:var(--primary);font-size:.7em;cursor:pointer;padding:2px 5px;border-radius:4px;font-family:inherit}
+.tree-action:hover{background:var(--primary);color:#fff}
+.subcard{background:#f8fafc;border:1.5px solid var(--border);border-radius:12px;padding:14px;margin-bottom:12px}
+.subcard-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;flex-wrap:wrap;gap:6px}
+.preview-box{width:90px;height:90px;border-radius:8px;border:1.5px dashed #cbd5e1;display:flex;align-items:center;justify-content:center;overflow:hidden;background:#f1f5f9;margin-top:4px}
+.preview-box img{width:100%;height:100%;object-fit:contain}
+.log-box{background:#0f172a;color:#38bdf8;font-family:monospace;direction:ltr;text-align:left;padding:12px;border-radius:8px;max-height:220px;overflow-y:auto;font-size:.8em;margin-top:10px}
+.progress-bar-container{background:#e2e8f0;border-radius:20px;overflow:hidden;height:18px;margin:10px 0}
+.progress-bar-fill{background:linear-gradient(90deg,var(--primary),var(--secondary));height:100%;width:0%;transition:width .3s;color:#fff;font-size:.7em;font-weight:bold;display:flex;align-items:center;justify-content:center}
+.toast{position:fixed;top:16px;left:50%;transform:translateX(-50%);background:var(--primary);color:#fff;padding:10px 22px;border-radius:30px;box-shadow:0 10px 30px rgba(0,0,0,.2);font-weight:700;z-index:3000;display:none;animation:fadeIn .3s;font-size:.9em}
+@keyframes fadeIn{from{opacity:0;transform:translate(-50%,-10px)}to{opacity:1;transform:translate(-50%,0)}}
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:2000;align-items:center;justify-content:center;padding:20px}
+.modal-overlay.show{display:flex}
+.modal{background:#fff;border-radius:16px;width:100%;max-width:750px;max-height:90vh;overflow:hidden;display:flex;flex-direction:column;box-shadow:0 25px 70px rgba(0,0,0,.35);animation:popIn .2s ease-out}
+@keyframes popIn{from{opacity:0;transform:scale(.95)}to{opacity:1;transform:scale(1)}}
+.modal-header{background:var(--primary);color:#fff;padding:14px 20px;display:flex;justify-content:space-between;align-items:center}
+.modal-header h3{font-size:1.05em}
+.modal-body{padding:20px;overflow-y:auto;flex:1}
+.modal-footer{padding:14px 20px;border-top:1px solid var(--border);display:flex;gap:8px;justify-content:flex-end;flex-wrap:wrap}
+.modal-close{background:none;border:none;color:#fff;font-size:1.3em;cursor:pointer;padding:0 6px;line-height:1}
+.import-tabs{display:flex;gap:4px;margin-bottom:18px;border-bottom:2px solid var(--border)}
+.import-tab{padding:9px 14px;border:none;background:none;cursor:pointer;font-family:inherit;font-weight:700;color:#64748b;border-bottom:3px solid transparent;margin-bottom:-2px;font-size:.85em}
+.import-tab.active{color:var(--primary);border-bottom-color:var(--primary)}
+.import-pane{display:none}
+.import-pane.active{display:block}
+.json-viewer{font-family:monospace;font-size:.8em;background:#0f172a;color:#e2e8f0;padding:14px;border-radius:10px;max-height:60vh;overflow:auto;white-space:pre;direction:ltr;text-align:left}
+.zone-row{display:grid;grid-template-columns:1fr 1fr auto;gap:8px;margin-bottom:6px;align-items:end}
+.pair-row{display:grid;grid-template-columns:1fr 1fr auto;gap:8px;margin-bottom:6px;align-items:end}
+.nav-tabs{display:flex;gap:6px;margin-bottom:15px;border-bottom:2px solid var(--border);overflow-x:auto}
+.nav-tab{padding:8px 14px;border:none;background:none;cursor:pointer;font-family:inherit;font-weight:700;color:#64748b;border-bottom:3px solid transparent;margin-bottom:-2px;white-space:nowrap;font-size:.85em}
+.nav-tab.active{color:var(--primary);border-bottom-color:var(--primary)}
+</style>
 </head>
 <body>
+<div id="toast" class="toast"></div>
 
-  <div id="toast" class="toast">✅ تم الحفظ بنجاح</div>
-
-  <div class="container">
-    <header>
-      <div>
-        <h1>💻 استوديو المؤلف — الإصدار المكتبي</h1>
-        <p>بيئة متكاملة لتأليف الكتب الموجهة لمحو الأمية وتصديرها مباشرة إلى مستودع GitHub أو حزم ZIP</p>
-      </div>
-      <div class="badge-desktop">
-        🖥️ مخصص لحاسوب المصمم والمعلم
-      </div>
-    </header>
-
-    <!-- BARRE D'ACTION PRINCIPALE (SAUVEGARDE SUR PC & GITHUB) -->
-    <div class="toolbar-sticky">
-      <div style="display:flex; align-items:center; gap:10px; flex-wrap:wrap;">
-        <span style="font-weight:800; color:var(--primary);">📦 إدارة الحزم والمشروع:</span>
-        <button class="btn btn-success" onclick="exportFullZip()">💾 تحميل كتاب (.ZIP)</button>
-        <button class="btn btn-secondary" onclick="exportBundleJson()">📄 حفظ المشروع (.JSON)</button>
-        <label class="btn btn-outline" style="margin:0;">
-          📂 استيراد مشروع (ZIP أو JSON)
-          <input type="file" accept=".zip,.json" style="display:none;" onchange="importProjectFile(this)">
-        </label>
-        <a href="/package-github-pages.zip" download="package-github-pages.zip" class="btn btn-warning" style="text-decoration:none;">
-          ⚡ تحميل حزمة GitHub Pages الجاهزة (.ZIP)
-        </a>
-      </div>
-      <div>
-        <button class="btn btn-dark" onclick="scrollToSection('github-section')">🚀 رفع الحزمة إلى GitHub</button>
-      </div>
+<div class="container">
+  <header>
+    <div>
+      <h1>💻 استوديو المؤلف</h1>
+      <p>بيئة متكاملة لتأليف الكتب التفاعلية ونشرها</p>
     </div>
+    <div class="badge-desktop">🖥️ مخصص للحاسوب</div>
+  </header>
 
-    <!-- INFOS GÉNÉRALES DU LIVRE -->
-    <div class="card">
-      <h2>📖 1. المعلومات العامة للكتاب</h2>
-      <div class="form-grid">
-        <div>
-          <label>عنوان الكتاب بالتشكيل *</label>
-          <input type="text" id="bookTitle" value="التَّغْذِيَةُ السَّلِيمَةُ لِلطِّفْلِ">
-        </div>
-        <div>
-          <label>معرّف المجلد بالإنجليزية (ID) * (مثال: taghdia-tifl)</label>
-          <input type="text" id="bookId" value="taghdia-tifl" dir="ltr">
-        </div>
-        <div>
-          <label>اسم المؤلف / فريق العمل</label>
-          <input type="text" id="bookAuthor" value="فَرِيقُ التَّوْعِيَةِ الصِّحِّيَّةِ">
-        </div>
-        <div>
-          <label>مستوى الصعوبة</label>
-          <select id="bookLevel">
-            <option value="debutant">مبتدئ (كلمات وحروف أولية)</option>
-            <option value="moyen" selected>متوسط (جمل وفقرات مشكولة)</option>
-            <option value="avance">متقدم (نصوص كاملة)</option>
-          </select>
-        </div>
-      </div>
-
-      <div class="form-grid">
-        <div>
-          <label>صورة الغلاف (Couverture)</label>
-          <input type="file" id="bookCoverFile" accept="image/*" onchange="handleCoverChange(this)">
-          <div class="preview-box" id="coverPreviewBox">
-            <span style="font-size:0.8em; color:#94a3b8;">لا توجد صورة</span>
-          </div>
-        </div>
-        <div>
-          <label>ملف صوتي شامل للكتاب (MP3 - اختياري)</label>
-          <input type="file" id="bookAudioFile" accept="audio/*">
-          <small style="color:#64748b;">يستخدم لتشغيل تسجيل الكتاب كاملاً</small>
-        </div>
-      </div>
-
-      <div>
-        <label>وصف الكتاب والهدف التعليمي *</label>
-        <textarea id="bookDescription" style="height:80px;">كِتَابٌ مُيَسَّرٌ لِلْآبَاءِ وَالْأُمَّهَاتِ، يَشْرَحُ أُسُسَ التَّغْذِيَةِ الصِّحِّيَّةِ لِلْأَطْفَالِ بِأُسْلُوبٍ بَسِيطٍ.</textarea>
-      </div>
+  <!-- BARRE OUTILS -->
+  <div class="toolbar-sticky">
+    <div style="display:flex;gap:8px;flex-wrap:wrap;">
+      <button class="btn btn-outline" onclick="openImportModal()">📂 استيراد</button>
+      <button class="btn btn-success" onclick="openExportModal()">💾 تصدير / حفظ</button>
+      <button class="btn btn-secondary" onclick="openJsonViewer()">{ } عرض JSON</button>
     </div>
-
-    <!-- GESTION DES PAGES DU LIVRE -->
-    <div class="card">
-      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
-        <h2>📄 2. صفحات ومحتوى الكتاب</h2>
-        <button class="btn btn-primary" onclick="addNewPage()">➕ إضافة صفحة جديدة</button>
-      </div>
-
-      <div class="page-nav" id="pageTabsContainer"></div>
-
-      <div id="currentPageEditor"></div>
-    </div>
-
-    <!-- RÉSUMÉ DU LIVRE -->
-    <div class="card">
-      <h2>📝 3. ملخص الكتاب (الخاتمة)</h2>
-      <label>نص الملخص العام (مع الحركات والتشكيل)</label>
-      <textarea id="bookSummary" class="arabic-text" placeholder="اكتب ملخص الكتاب هنا..."></textarea>
-      
-      <div class="form-grid" style="margin-top:15px;">
-        <div>
-          <label>وضع صوت الملخص</label>
-          <select id="summaryAudioMode" onchange="toggleSummaryAudio()">
-            <option value="tts">🤖 نطق آلي ذكي (TTS)</option>
-            <option value="mp3">🎵 تسجيل صوتي MP3</option>
-          </select>
-        </div>
-        <div id="summaryMp3Box" style="display:none;">
-          <label>ملف MP3 للملخص</label>
-          <input type="file" id="summaryAudioFile" accept="audio/*">
-        </div>
-      </div>
-    </div>
-
-    <!-- EXPORT VERS LE DÉPÔT GITHUB -->
-    <div class="card" id="github-section">
-      <h2>🚀 4. تصدير الحزمة المباشر إلى مستودع GitHub</h2>
-      <div style="background:#e0f2f1; padding:15px; border-radius:12px; margin-bottom:18px; border-right:4px solid var(--primary); font-size:0.9em; color:#004d40; line-height:1.7;">
-        <strong>📌 طريقتان لنشر العمل على GitHub:</strong><br>
-        1. <strong>نشر تطبيق القارئ PWA :</strong> حمل ملف <a href="/package-github-pages.zip" download="package-github-pages.zip" style="color:#0d5c4a; font-weight:bold; text-decoration:underline;">package-github-pages.zip (اضغط هنا للتحميل المباشر)</a>، فك ضغطه على جهازك، وضع محتوياته (ملف index.html ومجلد assets...) في مستودعك <code>application-lecture</code> على GitHub.<br>
-        2. <strong>تحديث الكتب والدروس :</strong> أدخل بيانات المستودع أدناه واضغط على "رفع الحزمة كاملة إلى GitHub الآن" لرفع الكتب وتحديث <code>catalogue.json</code> تلقائياً.
-      </div>
-
-      <div class="form-grid">
-        <div>
-          <label>GitHub Personal Access Token (مع صلاحية repo) *</label>
-          <input type="password" id="ghToken" placeholder="ghp_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx" dir="ltr">
-        </div>
-        <div>
-          <label>اسم المالك على GitHub (Owner) *</label>
-          <input type="text" id="ghOwner" placeholder="مثال: semred" dir="ltr">
-        </div>
-        <div>
-          <label>اسم المستودع (Repository) *</label>
-          <input type="text" id="ghRepo" placeholder="livre_alphabetisation" dir="ltr">
-        </div>
-        <div>
-          <label>الفرع (Branch)</label>
-          <input type="text" id="ghBranch" value="main" dir="ltr">
-        </div>
-      </div>
-
-      <div style="display:flex; gap:10px; margin-top:15px; flex-wrap:wrap;">
-        <button class="btn btn-dark" onclick="exportFullPackageToGitHub()" id="btnGhExport">🚀 رفع الحزمة كاملة إلى GitHub الآن</button>
-        <button class="btn btn-outline" onclick="saveGhConfig()">💾 حفظ إعدادات GitHub محلياً</button>
-      </div>
-
-      <div id="ghProgressSection" style="display:none; margin-top:20px;">
-        <label>حالة الرفع:</label>
-        <div class="progress-bar-container">
-          <div class="progress-bar-fill" id="ghProgressBar">0%</div>
-        </div>
-        <div class="log-box" id="ghLogBox"></div>
-      </div>
-
-      <div id="ghUrlsSection" style="display:none; margin-top:20px; background:#f0fdf4; border:1px solid #bbf7d0; padding:15px; border-radius:12px;">
-        <h4 style="color:#166534; margin-bottom:10px;">✅ تم الرفع بنجاح!</h4>
-        <label>رابط الفهرس لتطبيق الهاتف (PWA Catalogue URL):</label>
-        <input type="text" id="finalCatalogUrl" readonly style="background:#fff; font-family:monospace; font-size:0.85em;" dir="ltr">
-      </div>
+    <div style="display:flex;gap:8px;align-items:center;">
+      <span id="draftStatus" style="font-size:.75em;color:#94a3b8;"></span>
+      <button class="btn btn-outline" onclick="newBook()">✨ كتاب جديد</button>
     </div>
   </div>
 
-  <script>
-    // ============ ÉTAT DU PROJET ============
-    let book = {
-      id: 'taghdia-tifl',
-      titre: 'التَّغْذِيَةُ السَّلِيمَةُ لِلطِّفْلِ',
-      couverture: '',
-      couvertureData: null,
-      description: 'كِتَابٌ مُيَسَّرٌ لِلْآبَاءِ وَالْأُمَّهَاتِ، يَشْرَحُ أُسُسَ التَّغْذِيَةِ الصِّحِّيَّةِ لِلْأَطْفَالِ.',
-      auteur: 'فَرِيقُ التَّوْعِيَةِ الصِّحِّيَّةِ',
-      niveau: 'moyen',
-      pages: [],
-      resume: { texte: '', modeAudio: 'tts', audio: '', audioData: null }
-    };
+  <!-- LAYOUT PRINCIPAL : ARBRE + PANNEAU -->
+  <div class="app-layout">
+    <aside class="sidebar card">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
+        <strong style="color:var(--primary);font-size:.95em;">🌳 هيكل الكتاب</strong>
+      </div>
+      <div id="tree"></div>
+    </aside>
+    <main class="main-area">
+      <div id="contextPanel"></div>
+    </main>
+  </div>
+</div>
 
-    let activePageIndex = 0;
+<!-- ============ MODAL IMPORT ============ -->
+<div class="modal-overlay" id="importModal">
+  <div class="modal">
+    <div class="modal-header">
+      <h3>📂 استيراد كتاب</h3>
+      <button class="modal-close" onclick="closeModal('importModal')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="import-tabs">
+        <button class="import-tab active" onclick="switchImportTab('pc',event)">📁 من الحاسوب (ZIP أو JSON)</button>
+        <button class="import-tab" onclick="switchImportTab('github',event)">🌐 من GitHub</button>
+      </div>
+      <div class="import-pane active" id="importPane-pc">
+        <p style="color:#64748b;margin-bottom:14px;font-size:.9em;">اختر ملف حزمة ZIP أو ملف JSON مُصدَّر سابقاً. سيتم استعادة جميع الصور والأصوات إذا كان الملف ZIP.</p>
+        <input type="file" id="importFileInput" accept=".zip,.json" onchange="importFromPc(this)" style="padding:10px;border:2px dashed var(--border);border-radius:10px;width:100%;">
+      </div>
+      <div class="import-pane" id="importPane-github">
+        <div class="form-grid">
+          <div><label>المالك (Owner)</label><input type="text" id="impOwner" dir="ltr" placeholder="semred"></div>
+          <div><label>المستودع (Repo)</label><input type="text" id="impRepo" dir="ltr" placeholder="livre_alphabetisation"></div>
+          <div><label>الفرع (Branch)</label><input type="text" id="impBranch" value="main" dir="ltr"></div>
+          <div><label>Token (اختياري للمستودعات العامة)</label><input type="password" id="impToken" dir="ltr" placeholder="ghp_..."></div>
+        </div>
+        <button class="btn btn-primary" onclick="loadGithubCatalogue()">📥 تحميل قائمة الكتب</button>
+        <div id="githubBookList" style="margin-top:14px;"></div>
+      </div>
+    </div>
+  </div>
+</div>
 
-    // ============ INITIALISATION ============
-    document.addEventListener('DOMContentLoaded', () => {
-      loadGhConfig();
-      // Initialize with 2 default sample pages
-      book.pages = [
-        {
-          numero: 1,
-          titreSection: 'مَفْهُومُ الغِذَاءِ الصِّحِّيِّ',
-          image: '',
-          imageData: null,
-          texteAffiche: 'الغِذَاءُ الصِّحِّيُّ هُوَ الدِّرْعُ الوَاقِي لِجِسْمِ الإِنْسَانِ. يَمُدُّنَا بِالطَّاقَةِ اللَّازِمَةِ لِلْعَمَلِ وَالدِّرَاسَةِ، وَيَحْمِينَا مِنَ الأَمْرَاضِ.',
-          audioMode: 'tts',
-          audioPage: '',
-          audioData: null,
-          mots: [],
-          vocabulaire: [
-            { mot: 'الغِذَاءُ', traduction: 'الطعام الذي يتناوله الإنسان ليقوى جسمه', synonymes: ['الطَّعَامُ', 'القُوتُ'], exemple: 'الغذاء المتوازن يقوي البدن' }
-          ],
-          exercices: [
-            {
-              id: 'ex-1',
-              type: 'fillblank',
-              titre: '✍️ تمرين ملء الفراغات:',
-              texte: 'الغِذَاءُ الصِّحِّيُّ هُوَ ___ الوَاقِي لِجِسْمِ الإِنْسَانِ.',
-              reponses: ['الدِّرْعُ'],
-              leurres: ['السَّيْفُ', 'البَابُ'],
-              motsMelanges: ['الدِّرْعُ', 'السَّيْفُ', 'البَابُ']
-            }
-          ],
-          notes: ''
-        }
-      ];
-      renderPageTabs();
-      renderCurrentPage();
+<!-- ============ MODAL EXPORT ============ -->
+<div class="modal-overlay" id="exportModal">
+  <div class="modal">
+    <div class="modal-header">
+      <h3>💾 تصدير الكتاب</h3>
+      <button class="modal-close" onclick="closeModal('exportModal')">✕</button>
+    </div>
+    <div class="modal-body">
+      <p style="color:#64748b;margin-bottom:16px;font-size:.9em;">اختر وجهة التصدير :</p>
+      <div style="display:grid;gap:12px;">
+        <button class="btn btn-success" style="padding:16px;font-size:1em;text-align:right;justify-content:flex-start;" onclick="exportToPc()">
+          <div>💾 حفظ على الحاسوب (ملف ZIP)<br><small style="display:block;font-weight:normal;font-size:.78em;opacity:.85;margin-top:4px;">يشمل JSON + جميع الصور والأصوات</small></div>
+        </button>
+        <button class="btn btn-dark" style="padding:16px;font-size:1em;text-align:right;justify-content:flex-start;" onclick="openGithubPush()">
+          <div>🚀 رفع إلى GitHub<br><small style="display:block;font-weight:normal;font-size:.78em;opacity:.85;margin-top:4px;">رفع الكتاب وتحديث الفهرس مباشرة</small></div>
+        </button>
+        <button class="btn btn-outline" style="padding:14px;text-align:right;justify-content:flex-start;" onclick="exportBundleJson()">
+          <div>📄 حفظ المشروع فقط (JSON)<br><small style="display:block;font-weight:normal;font-size:.78em;opacity:.7;margin-top:4px;">يشمل كل شيء بما فيه الصور بصيغة base64</small></div>
+        </button>
+      </div>
+      <div id="githubPushForm" style="display:none;margin-top:20px;border-top:1px solid var(--border);padding-top:16px;">
+        <div class="form-grid">
+          <div><label>Token *</label><input type="password" id="ghToken" dir="ltr"></div>
+          <div><label>Owner *</label><input type="text" id="ghOwner" dir="ltr"></div>
+          <div><label>Repo *</label><input type="text" id="ghRepo" dir="ltr"></div>
+          <div><label>Branch</label><input type="text" id="ghBranch" value="main" dir="ltr"></div>
+        </div>
+        <div style="display:flex;gap:8px;margin-top:10px;">
+          <button class="btn btn-dark" onclick="exportFullPackageToGitHub()" id="btnGhExport">🚀 رفع الآن</button>
+          <button class="btn btn-outline" onclick="saveGhConfig()">💾 حفظ الإعدادات</button>
+        </div>
+        <div id="ghProgressSection" style="display:none;margin-top:15px;">
+          <div class="progress-bar-container"><div class="progress-bar-fill" id="ghProgressBar">0%</div></div>
+          <div class="log-box" id="ghLogBox"></div>
+        </div>
+        <div id="ghUrlsSection" style="display:none;margin-top:14px;background:#f0fdf4;border:1px solid #bbf7d0;padding:12px;border-radius:10px;">
+          <h4 style="color:#166534;margin-bottom:8px;font-size:.9em;">✅ تم الرفع بنجاح!</h4>
+          <label style="font-size:.8em;">رابط الفهرس PWA :</label>
+          <input type="text" id="finalCatalogUrl" readonly style="background:#fff;font-family:monospace;font-size:.8em;" dir="ltr">
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ============ MODAL JSON ============ -->
+<div class="modal-overlay" id="jsonModal">
+  <div class="modal">
+    <div class="modal-header">
+      <h3>{ } عرض JSON</h3>
+      <button class="modal-close" onclick="closeModal('jsonModal')">✕</button>
+    </div>
+    <div class="modal-body">
+      <pre class="json-viewer" id="jsonViewerContent"></pre>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="copyJsonToClipboard()">📋 نسخ</button>
+      <button class="btn btn-primary" onclick="downloadJson()">💾 تنزيل</button>
+      <button class="btn btn-secondary" onclick="refreshJsonViewer()">🔄 تحديث</button>
+      <button class="btn btn-outline" onclick="closeModal('jsonModal')">إغلاق</button>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ============ ÉTAT GLOBAL ============ */
+const DRAFT_KEY = 'studio_draft_v1';
+const GH_KEY = 'studio_gh_config';
+let book = makeEmptyBook();
+let activeNode = { type: 'book-info', params: {} };
+
+function makeEmptyBook() {
+  return {
+    id: 'mon-livre',
+    titre: '',
+    couverture: '',
+    couvertureData: null,
+    description: '',
+    auteur: '',
+    niveau: 'moyen',
+    pages: [makeEmptyPage(1)],
+    resume: { texte: '', modeAudio: 'tts', audio: '', audioData: null }
+  };
+}
+
+function makeEmptyPage(num) {
+  return {
+    numero: num, titreSection: '', image: '', imageData: null,
+    texteAffiche: '', audioMode: 'tts', audioPage: '', audioData: null,
+    mots: [], vocabulaire: [], exercices: [], notes: ''
+  };
+}
+
+function escapeAttr(s) {
+  return String(s == null ? '' : s).replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+function escapeHtml(s) {
+  return String(s == null ? '' : s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+function splitMots(val) {
+  return String(val || '').split(/[,،]/).map(s => s.trim()).filter(Boolean);
+}
+function showToast(msg, color) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.style.background = color || 'var(--primary)';
+  t.style.display = 'block';
+  clearTimeout(t._tid);
+  t._tid = setTimeout(() => { t.style.display = 'none'; }, 2500);
+}
+function closeModal(id) { document.getElementById(id).classList.remove('show'); }
+function openModal(id) { document.getElementById(id).classList.add('show'); }
+
+/* ============ AUTO-SAVE ============ */
+let saveTimeout = null;
+function scheduleAutoSave() {
+  clearTimeout(saveTimeout);
+  saveTimeout = setTimeout(doAutoSave, 800);
+}
+function doAutoSave() {
+  try {
+    localStorage.setItem(DRAFT_KEY, JSON.stringify(book));
+    const st = document.getElementById('draftStatus');
+    st.textContent = '✅ محفوظ تلقائياً ' + new Date().toLocaleTimeString('ar-DZ');
+  } catch (e) {
+    console.warn('Auto-save failed:', e.message);
+    document.getElementById('draftStatus').textContent = '⚠️ مساحة التخزين ممتلئة';
+  }
+}
+function loadDraft() {
+  try {
+    const raw = localStorage.getItem(DRAFT_KEY);
+    if (!raw) return false;
+    const parsed = JSON.parse(raw);
+    if (!parsed || !parsed.pages) return false;
+    book = parsed;
+    return true;
+  } catch { return false; }
+}
+
+/* ============ TREE ============ */
+function nodeKey(type, params) {
+  return [type, params.pageIndex ?? '', params.vocabIndex ?? '', params.exIndex ?? ''].join('-');
+}
+
+function renderTree() {
+  const tree = document.getElementById('tree');
+  tree.innerHTML = '';
+  const ul = document.createElement('ul');
+  ul.className = 'tree-root';
+
+  // Racine livre
+  ul.appendChild(makeTreeNode({
+    label: '📖 ' + (book.titre || 'كتاب بدون عنوان'),
+    type: 'book-info', params: {}
+  }));
+
+  // Pages
+  const pagesNode = makeTreeNode({
+    label: '📄 الصفحات (' + book.pages.length + ')',
+    type: 'pages-list', params: {},
+    actions: [{ label: '+', title: 'إضافة صفحة', action: () => addNewPage() }]
+  });
+  const pagesChildren = pagesNode.querySelector('.tree-children');
+  book.pages.forEach((page, i) => {
+    const pageNode = makeTreeNode({
+      label: '📄 ' + (i + 1) + '. ' + (page.titreSection || 'صفحة'),
+      type: 'page', params: { pageIndex: i }
     });
+    const pChildren = pageNode.querySelector('.tree-children');
 
-    function showToast(msg) {
-      const t = document.getElementById('toast');
-      t.textContent = msg;
-      t.style.display = 'block';
-      setTimeout(() => { t.style.display = 'none'; }, 3000);
-    }
-
-    function scrollToSection(id) {
-      document.getElementById(id).scrollIntoView({ behavior: 'smooth' });
-    }
-
-    // ============ GESTION DES PAGES ============
-    function renderPageTabs() {
-      const container = document.getElementById('pageTabsContainer');
-      container.innerHTML = '';
-      book.pages.forEach((p, idx) => {
-        const btn = document.createElement('button');
-        btn.className = `page-tab ${activePageIndex === idx ? 'active' : ''}`;
-        btn.textContent = `صفحة ${idx + 1}`;
-        btn.onclick = () => {
-          saveCurrentPageInputs();
-          activePageIndex = idx;
-          renderPageTabs();
-          renderCurrentPage();
-        };
-        container.appendChild(btn);
-      });
-    }
-
-    function addNewPage() {
-      saveCurrentPageInputs();
-      const num = book.pages.length + 1;
-      book.pages.push({
-        numero: num,
-        titreSection: `درس ${num}`,
-        image: '',
-        imageData: null,
-        texteAffiche: '',
-        audioMode: 'tts',
-        audioPage: '',
-        audioData: null,
-        mots: [],
-        vocabulaire: [],
-        exercices: [],
-        notes: ''
-      });
-      activePageIndex = book.pages.length - 1;
-      renderPageTabs();
-      renderCurrentPage();
-      showToast('✅ تمت إضافة صفحة جديدة');
-    }
-
-    function deleteCurrentPage() {
-      if (book.pages.length <= 1) {
-        alert('يجب الإبقاء على صفحة واحدة على الأقل');
-        return;
-      }
-      if (!confirm(`هل أنت متأكد من حذف الصفحة ${activePageIndex + 1}؟`)) return;
-      book.pages.splice(activePageIndex, 1);
-      book.pages.forEach((p, i) => p.numero = i + 1);
-      activePageIndex = Math.max(0, activePageIndex - 1);
-      renderPageTabs();
-      renderCurrentPage();
-      showToast('🗑️ تم حذف الصفحة');
-    }
-
-    function renderCurrentPage() {
-      const page = book.pages[activePageIndex];
-      if (!page) return;
-
-      const container = document.getElementById('currentPageEditor');
-      container.innerHTML = `
-        <div class="subcard">
-          <div class="subcard-header">
-            <h3 style="color:var(--primary);">تعديل الصفحة رقم ${activePageIndex + 1}</h3>
-            <button class="btn btn-danger" style="padding:6px 12px; font-size:0.8em;" onclick="deleteCurrentPage()">🗑️ حذف هذه الصفحة</button>
-          </div>
-
-          <div class="form-grid">
-            <div>
-              <label>عنوان المقطع أو الدرس</label>
-              <input type="text" id="pageTitle" value="${page.titreSection || ''}">
-            </div>
-            <div>
-              <label>صورة الصفحة</label>
-              <input type="file" accept="image/*" onchange="handlePageImage(this)">
-              <div class="preview-box" id="pageImgPreviewBox">
-                ${page.imageData ? `<img src="${page.imageData}">` : '<span style="font-size:0.8em; color:#94a3b8;">بدون صورة</span>'}
-              </div>
-            </div>
-          </div>
-
-          <div class="subcard" style="background:#fff; margin-top:15px;">
-            <label style="color:var(--primary); font-weight:800;">وضع الصوت لهذه الصفحة:</label>
-            <div style="display:flex; gap:20px; margin-bottom:10px;">
-              <label><input type="radio" name="pageAudioMode" value="tts" ${page.audioMode === 'tts' ? 'checked' : ''} onchange="togglePageAudioMode('tts')"> 🤖 نطق آلي ذكي (TTS)</label>
-              <label><input type="radio" name="pageAudioMode" value="mp3" ${page.audioMode === 'mp3' ? 'checked' : ''} onchange="togglePageAudioMode('mp3')"> 🎵 تسجيل MP3 مع CSV WebMAUS</label>
-            </div>
-
-            <div id="mp3ToolsBox" style="display:${page.audioMode === 'mp3' ? 'block' : 'none'}; padding-top:10px; border-top:1px solid #e2e8f0;">
-              <div class="form-grid">
-                <div>
-                  <label>ملف MP3</label>
-                  <input type="file" accept="audio/*" onchange="handlePageAudio(this)">
-                </div>
-                <div>
-                  <label>ملف توقيتات WebMAUS (.CSV)</label>
-                  <input type="file" accept=".csv" onchange="handleWebMausCsv(this)">
-                </div>
-              </div>
-              <div id="webmausStats" style="font-size:0.85em; color:var(--primary); font-weight:bold; margin-top:5px;">
-                ${page.mots?.length ? `✅ تم ربط ${page.mots.length} كلمة بتوقيتاتها` : ''}
-              </div>
-            </div>
-          </div>
-
-          <div style="margin-top:15px;">
-            <label>النص المعروض (مع التشكيل الكامل بالحركات) *</label>
-            <textarea id="pageText" class="arabic-text">${page.texteAffiche || ''}</textarea>
-          </div>
-
-          <!-- VOCABULAIRE -->
-          <div class="subcard" style="background:#fff; margin-top:15px;">
-            <div class="subcard-header">
-              <label style="font-weight:800; color:var(--primary);">📖 المفردات المشروحة (${page.vocabulaire?.length || 0}):</label>
-              <button class="btn btn-primary" style="padding:4px 10px; font-size:0.8em;" onclick="addVocabItem()">+ إضافة كلمة</button>
-            </div>
-            <div id="vocabListContainer"></div>
-          </div>
-
-          <!-- EXERCICES -->
-          <div class="subcard" style="background:#fff; margin-top:15px;">
-            <div class="subcard-header">
-              <label style="font-weight:800; color:var(--primary);">🎮 التمارين التفاعلية (${page.exercices?.length || 0}):</label>
-              <div style="display:flex; gap:6px; flex-wrap:wrap;">
-                <button class="btn btn-outline" style="font-size:0.75em; padding:4px 8px;" onclick="addExercise('fillblank')">+ تمرين ملء الفراغات</button>
-                <button class="btn btn-outline" style="font-size:0.75em; padding:4px 8px;" onclick="addExercise('qcm')">+ سؤال QCM</button>
-                <button class="btn btn-outline" style="font-size:0.75em; padding:4px 8px;" onclick="addExercise('image_click')">+ اختيار الصورة</button>
-                <button class="btn btn-outline" style="font-size:0.75em; padding:4px 8px;" onclick="addExercise('word_order')">+ ترتيب الكلمات</button>
-              </div>
-            </div>
-            <div id="exosListContainer"></div>
-          </div>
-
-          <!-- NOTES -->
-          <div style="margin-top:15px;">
-            <label>ملاحظات وإرشادات تربوية إضافية لهذه الصفحة</label>
-            <textarea id="pageNotes" style="height:60px;">${page.notes || ''}</textarea>
-          </div>
-        </div>
-      `;
-
-      renderVocabList();
-      renderExosList();
-    }
-
-    function saveCurrentPageInputs() {
-      const page = book.pages[activePageIndex];
-      if (!page) return;
-      const titleEl = document.getElementById('pageTitle');
-      if (titleEl) page.titreSection = titleEl.value;
-      const textEl = document.getElementById('pageText');
-      if (textEl) page.texteAffiche = textEl.value;
-      const notesEl = document.getElementById('pageNotes');
-      if (notesEl) page.notes = notesEl.value;
-    }
-
-    function togglePageAudioMode(mode) {
-      const page = book.pages[activePageIndex];
-      if (page) page.audioMode = mode;
-      document.getElementById('mp3ToolsBox').style.display = mode === 'mp3' ? 'block' : 'none';
-    }
-
-    // ============ GESTION MÉDIAS ============
-    function handleCoverChange(input) {
-      if (input.files && input.files[0]) {
-        const file = input.files[0];
-        const reader = new FileReader();
-        reader.onload = (e) => {
-          book.couvertureData = e.target.result;
-          document.getElementById('coverPreviewBox').innerHTML = `<img src="${e.target.result}">`;
-          showToast('✅ تم تحميل صورة الغلاف');
-        };
-        reader.readAsDataURL(file);
-      }
-    }
-
-    function handlePageImage(input) {
-      if (input.files && input.files[0]) {
-        const file = input.files[0];
-        const reader = new FileReader();
-        reader.onload = (e) => {
-          const page = book.pages[activePageIndex];
-          if (page) {
-            page.imageData = e.target.result;
-            document.getElementById('pageImgPreviewBox').innerHTML = `<img src="${e.target.result}">`;
-            showToast('✅ تم تحميل صورة الصفحة');
-          }
-        };
-        reader.readAsDataURL(file);
-      }
-    }
-
-    function handlePageAudio(input) {
-      if (input.files && input.files[0]) {
-        const file = input.files[0];
-        const reader = new FileReader();
-        reader.onload = (e) => {
-          const page = book.pages[activePageIndex];
-          if (page) {
-            page.audioData = e.target.result;
-            showToast('✅ تم تحميل صوت الصفحة');
-          }
-        };
-        reader.readAsDataURL(file);
-      }
-    }
-
-    function handleWebMausCsv(input) {
-      if (!input.files || !input.files[0]) return;
-      const file = input.files[0];
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        const text = e.target.result;
-        const lines = text.trim().split('\n');
-        const sampleRate = 44100;
-        const mots = [];
-        const texteBrut = [];
-
-        for (let i = 1; i < lines.length; i++) {
-          const cols = lines[i].split(';');
-          if (cols.length < 6) continue;
-          const token = parseInt(cols[2]);
-          const ort = cols[5]?.trim();
-          if (token >= 0 && ort !== '' && ort !== '<usb>') {
-            const begin = parseInt(cols[0]);
-            const duration = parseInt(cols[1]);
-            const debut = parseFloat((begin / sampleRate).toFixed(3));
-            const fin = parseFloat(((begin + duration) / sampleRate).toFixed(3));
-            mots.push({ texte: ort, debut, fin });
-            texteBrut.push(ort);
-          }
-        }
-
-        const page = book.pages[activePageIndex];
-        if (page) {
-          page.mots = mots;
-          if (!page.texteAffiche) {
-            page.texteAffiche = texteBrut.join(' ');
-            document.getElementById('pageText').value = page.texteAffiche;
-          }
-          document.getElementById('webmausStats').innerHTML = `✅ تم ربط ${mots.length} كلمة بتوقيتاتها`;
-          showToast(`✅ تم استخراج ${mots.length} كلمة وتوقيت من WebMAUS`);
-        }
-      };
-      reader.readAsText(file);
-    }
-
-    // ============ VOCABULAIRE ============
-    function renderVocabList() {
-      const page = book.pages[activePageIndex];
-      const box = document.getElementById('vocabListContainer');
-      if (!page || !box) return;
-
-      box.innerHTML = page.vocabulaire.map((v, i) => `
-        <div style="background:#f8fafc; border:1px solid #cbd5e1; border-radius:10px; padding:10px; margin-bottom:8px;">
-          <div style="display:flex; justify-content:space-between; margin-bottom:5px;">
-            <strong>الكلمة (${i + 1})</strong>
-            <button class="btn btn-danger" style="padding:2px 8px; font-size:0.75em;" onclick="deleteVocabItem(${i})">حذف</button>
-          </div>
-          <div class="form-grid">
-            <input type="text" placeholder="الكلمة" value="${v.mot || ''}" onchange="updateVocab(${i}, 'mot', this.value)">
-            <input type="text" placeholder="الشرح / المعنى" value="${v.traduction || ''}" onchange="updateVocab(${i}, 'traduction', this.value)">
-          </div>
-          <div class="form-grid" style="margin-top:6px;">
-            <input type="text" placeholder="مرادفات (مفصولة بفواصل)" value="${(v.synonymes || []).join(', ')}" onchange="updateVocab(${i}, 'synonymes', this.value)">
-            <input type="text" placeholder="مثال في جملة" value="${v.exemple || ''}" onchange="updateVocab(${i}, 'exemple', this.value)">
-          </div>
-        </div>
-      `).join('');
-    }
-
-    function addVocabItem() {
-      const page = book.pages[activePageIndex];
-      if (!page) return;
-      page.vocabulaire.push({ mot: '', traduction: '', synonymes: [], exemple: '' });
-      renderVocabList();
-    }
-
-    function deleteVocabItem(idx) {
-      const page = book.pages[activePageIndex];
-      if (!page) return;
-      page.vocabulaire.splice(idx, 1);
-      renderVocabList();
-    }
-
-    function updateVocab(idx, key, val) {
-      const page = book.pages[activePageIndex];
-      if (!page || !page.vocabulaire[idx]) return;
-      if (key === 'synonymes') {
-        page.vocabulaire[idx][key] = val.split(',').map(s => s.trim()).filter(Boolean);
-      } else {
-        page.vocabulaire[idx][key] = val;
-      }
-    }
-
-    // ============ EXERCICES ============
-    function renderExosList() {
-      const page = book.pages[activePageIndex];
-      const box = document.getElementById('exosListContainer');
-      if (!page || !box) return;
-
-      box.innerHTML = page.exercices.map((ex, i) => {
-        let formHTML = '';
-        if (ex.type === 'fillblank') {
-          formHTML = `
-            <label>النص مع الفراغات (استخدم ___ لكل فراغ):</label>
-            <input type="text" value="${ex.texte || ''}" onchange="updateExo(${i}, 'texte', this.value)">
-            <div class="form-grid" style="margin-top:6px;">
-              <div>
-                <label>الكلمات الصحيحة بالترتيب (مفصولة بفواصل):</label>
-                <input type="text" value="${(ex.reponses || []).join(', ')}" onchange="updateExoFillReponses(${i}, this.value)">
-              </div>
-              <div>
-                <label>كلمات للتمويه (مفصولة بفواصل):</label>
-                <input type="text" value="${(ex.leurres || []).join(', ')}" onchange="updateExoFillLeurres(${i}, this.value)">
-              </div>
-            </div>
-          `;
-        } else if (ex.type === 'qcm') {
-          formHTML = `
-            <label>نص السؤال:</label>
-            <input type="text" value="${ex.question || ''}" onchange="updateExo(${i}, 'question', this.value)">
-            <label style="margin-top:6px;">الخيارات (مفصولة بفواصل):</label>
-            <input type="text" value="${(ex.options || []).join(', ')}" onchange="updateExoQcmOptions(${i}, this.value)">
-            <label style="margin-top:6px;">رقم الخيار الصحيح (1 أو 2 أو 3):</label>
-            <input type="number" min="1" max="5" value="${(ex.bonneReponseIndex || 0) + 1}" onchange="updateExo(${i}, 'bonneReponseIndex', parseInt(this.value)-1)">
-          `;
-        } else if (ex.type === 'image_click') {
-          formHTML = `
-            <label>التعليمة الصوتية / المكتوبة:</label>
-            <input type="text" value="${ex.instruction || ''}" onchange="updateExo(${i}, 'instruction', this.value)">
-          `;
-        } else if (ex.type === 'word_order') {
-          formHTML = `
-            <label>الجملة الصحيحة (سيتم خلط كلماتها آلياً في التطبيق):</label>
-            <input type="text" value="${ex.phraseCorrecte || ''}" onchange="updateExoWordOrder(${i}, this.value)">
-          `;
-        }
-
-        return `
-          <div style="background:#f8fafc; border:1px solid #cbd5e1; border-radius:10px; padding:12px; margin-bottom:10px;">
-            <div style="display:flex; justify-content:space-between; margin-bottom:8px;">
-              <strong>تمرين ${i + 1} (${ex.type})</strong>
-              <button class="btn btn-danger" style="padding:2px 8px; font-size:0.75em;" onclick="deleteExoItem(${i})">حذف</button>
-            </div>
-            ${formHTML}
-          </div>
-        `;
-      }).join('');
-    }
-
-    function addExercise(type) {
-      const page = book.pages[activePageIndex];
-      if (!page) return;
-      const id = `exo-${Date.now()}`;
-      if (type === 'fillblank') {
-        page.exercices.push({ id, type, texte: 'الغِذَاءُ الصِّحِّيُّ هُوَ ___ الوَاقِي.', reponses: ['الدِّرْعُ'], leurres: ['السَّيْفُ'], motsMelanges: ['الدِّرْعُ', 'السَّيْفُ'] });
-      } else if (type === 'qcm') {
-        page.exercices.push({ id, type, question: 'ما هو الغذاء الصحي؟', options: ['المفيد للجسم', 'المضر'], bonneReponseIndex: 0 });
-      } else if (type === 'image_click') {
-        page.exercices.push({ id, type, instruction: 'إضغط على صورة الفاكهة', images: [], bonneImageId: '' });
-      } else if (type === 'word_order') {
-        page.exercices.push({ id, type, phraseCorrecte: 'نَغْسِلُ الفَاكِهَةَ قَبْلَ أَكْلِهَا', motsMelanges: ['أَكْلِهَا', 'نَغْسِلُ', 'قَبْلَ', 'الفَاكِهَةَ'] });
-      }
-      renderExosList();
-    }
-
-    function deleteExoItem(idx) {
-      const page = book.pages[activePageIndex];
-      if (!page) return;
-      page.exercices.splice(idx, 1);
-      renderExosList();
-    }
-
-    function updateExo(idx, key, val) {
-      const page = book.pages[activePageIndex];
-      if (!page || !page.exercices[idx]) return;
-      page.exercices[idx][key] = val;
-    }
-
-    function updateExoFillReponses(idx, val) {
-      const page = book.pages[activePageIndex];
-      if (!page || !page.exercices[idx]) return;
-      const reps = val.split(',').map(s => s.trim()).filter(Boolean);
-      page.exercices[idx].reponses = reps;
-      page.exercices[idx].motsMelanges = [...reps, ...(page.exercices[idx].leurres || [])].sort(() => Math.random() - 0.5);
-    }
-
-    function updateExoFillLeurres(idx, val) {
-      const page = book.pages[activePageIndex];
-      if (!page || !page.exercices[idx]) return;
-      const dists = val.split(',').map(s => s.trim()).filter(Boolean);
-      page.exercices[idx].leurres = dists;
-      page.exercices[idx].motsMelanges = [...(page.exercices[idx].reponses || []), ...dists].sort(() => Math.random() - 0.5);
-    }
-
-    function updateExoQcmOptions(idx, val) {
-      const page = book.pages[activePageIndex];
-      if (!page || !page.exercices[idx]) return;
-      page.exercices[idx].options = val.split(',').map(s => s.trim()).filter(Boolean);
-    }
-
-    function updateExoWordOrder(idx, val) {
-      const page = book.pages[activePageIndex];
-      if (!page || !page.exercices[idx]) return;
-      page.exercices[idx].phraseCorrecte = val;
-      page.exercices[idx].motsMelanges = val.trim().split(/\s+/).filter(Boolean).sort(() => Math.random() - 0.5);
-    }
-
-    function toggleSummaryAudio() {
-      const mode = document.getElementById('summaryAudioMode').value;
-      document.getElementById('summaryMp3Box').style.display = mode === 'mp3' ? 'block' : 'none';
-    }
-
-    // ============ COMPILATION DU MODÈLE ============
-    function collectCompleteBook() {
-      saveCurrentPageInputs();
-      book.titre = document.getElementById('bookTitle').value;
-      book.id = document.getElementById('bookId').value || 'mon-livre';
-      book.auteur = document.getElementById('bookAuthor').value;
-      book.niveau = document.getElementById('bookLevel').value;
-      book.description = document.getElementById('bookDescription').value;
-      book.resume = {
-        texte: document.getElementById('bookSummary').value,
-        modeAudio: document.getElementById('summaryAudioMode').value,
-        audio: '',
-        audioData: null
-      };
-      return book;
-    }
-
-    // ============ EXPORT 1 : PACKAGE ZIP COMPLET ============
-    async function exportFullZip() {
-      const currentBook = collectCompleteBook();
-      const zip = new JSZip();
-      const folderName = currentBook.id;
-      const root = zip.folder(folderName) || zip;
-
-      // 1. JSON propre pour le déploiement
-      const cleanBookJSON = {
-        ...currentBook,
-        couverture: currentBook.couvertureData ? `livres/${folderName}/couverture.jpg` : currentBook.couverture,
-        pages: currentBook.pages.map((p, i) => ({
-          ...p,
-          image: p.imageData ? `livres/${folderName}/page${i + 1}.jpg` : p.image,
-          audioPage: p.audioData ? `livres/${folderName}/page${i + 1}.mp3` : p.audioPage,
-          imageData: undefined,
-          audioData: undefined
-        })),
-        couvertureData: undefined
-      };
-
-      root.file('livre.json', JSON.stringify(cleanBookJSON, null, 2));
-
-      // 2. Images et Audios
-      if (currentBook.couvertureData && currentBook.couvertureData.includes('base64,')) {
-        root.file('couverture.jpg', currentBook.couvertureData.split('base64,')[1], { base64: true });
-      }
-
-      currentBook.pages.forEach((p, idx) => {
-        const pageNum = idx + 1;
-        if (p.imageData && p.imageData.includes('base64,')) {
-          root.file(`page${pageNum}.jpg`, p.imageData.split('base64,')[1], { base64: true });
-        }
-        if (p.audioData && p.audioData.includes('base64,')) {
-          root.file(`page${pageNum}.mp3`, p.audioData.split('base64,')[1], { base64: true });
-        }
-      });
-
-      // 3. Catalogue sample
-      const cat = {
-        derniereMAJ: new Date().toISOString(),
-        livres: [
-          {
-            id: currentBook.id,
-            titre: currentBook.titre,
-            description: currentBook.description,
-            couverture: `livres/${folderName}/couverture.jpg`,
-            resume: currentBook.resume?.texte?.substring(0, 150) || '',
-            niveau: currentBook.niveau,
-            auteur: currentBook.auteur,
-            nombrePages: currentBook.pages.length,
-            fichierJSON: `livres/${folderName}/livre.json`
-          }
-        ]
-      };
-      root.file('catalogue.json', JSON.stringify(cat, null, 2));
-
-      // 4. Instructions
-      root.file('اقرأني_تعليمات.txt', `حزمة الكتاب: ${currentBook.titre}\nمعرف: ${folderName}\nجاهز للنشر على GitHub بمجلد livres/${folderName}/`);
-
-      const content = await zip.generateAsync({ type: 'blob' });
-      const a = document.createElement('a');
-      a.href = URL.createObjectURL(content);
-      a.download = `${folderName}_package_complet.zip`;
-      a.click();
-      showToast('✅ تم تنزيل حزمة ZIP كاملة بنجاح!');
-    }
-
-    // ============ EXPORT 2 : PROJET JSON PORTABLE ============
-    function exportBundleJson() {
-      const currentBook = collectCompleteBook();
-      const blob = new Blob([JSON.stringify(currentBook, null, 2)], { type: 'application/json' });
-      const a = document.createElement('a');
-      a.href = URL.createObjectURL(blob);
-      a.download = `${currentBook.id}.projet.json`;
-      a.click();
-      showToast('✅ تم تنزيل ملف المشروع JSON');
-    }
-
-    // ============ IMPORTATION UNIVERSELLE (ZIP OU JSON) ============
-    async function importProjectFile(input) {
-      if (!input.files || !input.files[0]) return;
-      const file = input.files[0];
-      const name = file.name.toLowerCase();
-
-      try {
-        if (name.endsWith('.json')) {
-          const text = await file.text();
-          const parsed = JSON.parse(text);
-          loadImportedBook(parsed);
-          showToast('✅ تم استيراد مشروع JSON');
-        } else if (name.endsWith('.zip')) {
-          const zip = await JSZip.loadAsync(file);
-          let jsonFile = null;
-          zip.forEach((path, entry) => {
-            if (!entry.dir && path.endsWith('livre.json')) jsonFile = entry;
-          });
-          if (!jsonFile) throw new Error('لم يتم العثور على livre.json داخل الأرشيف');
-
-          const jsonText = await jsonFile.async('text');
-          const parsed = JSON.parse(jsonText);
-          loadImportedBook(parsed);
-          showToast('✅ تم استيراد حزمة ZIP بنجاح');
-        }
-      } catch (e) {
-        alert('خطأ أثناء الاستيراد: ' + e.message);
-      }
-    }
-
-    function loadImportedBook(data) {
-      book = data;
-      document.getElementById('bookTitle').value = book.titre || '';
-      document.getElementById('bookId').value = book.id || '';
-      document.getElementById('bookAuthor').value = book.auteur || '';
-      document.getElementById('bookLevel').value = book.niveau || 'moyen';
-      document.getElementById('bookDescription').value = book.description || '';
-      document.getElementById('bookSummary').value = book.resume?.texte || '';
-      if (book.couvertureData) {
-        document.getElementById('coverPreviewBox').innerHTML = `<img src="${book.couvertureData}">`;
-      }
-      activePageIndex = 0;
-      renderPageTabs();
-      renderCurrentPage();
-    }
-
-    // ============ EXPORT DIRECT VERS GITHUB ============
-    function saveGhConfig() {
-      localStorage.setItem('studio_gh_config', JSON.stringify({
-        token: document.getElementById('ghToken').value,
-        owner: document.getElementById('ghOwner').value,
-        repo: document.getElementById('ghRepo').value,
-        branch: document.getElementById('ghBranch').value
+    // Vocabulaire
+    const vocabNode = makeTreeNode({
+      label: '📖 المفردات (' + (page.vocabulaire?.length || 0) + ')',
+      type: 'vocab-list', params: { pageIndex: i },
+      actions: [{ label: '+', title: 'إضافة كلمة', action: () => addVocabItem(i) }]
+    });
+    const vChildren = vocabNode.querySelector('.tree-children');
+    (page.vocabulaire || []).forEach((v, vi) => {
+      vChildren.appendChild(makeTreeNode({
+        label: '📌 ' + (v.mot || 'كلمة'),
+        type: 'vocab-item', params: { pageIndex: i, vocabIndex: vi }
       }));
-      showToast('✅ تم حفظ إعدادات GitHub');
-    }
+    });
+    pChildren.appendChild(vocabNode);
 
-    function loadGhConfig() {
-      try {
-        const saved = JSON.parse(localStorage.getItem('studio_gh_config') || '{}');
-        if (saved.token) document.getElementById('ghToken').value = saved.token;
-        if (saved.owner) document.getElementById('ghOwner').value = saved.owner;
-        if (saved.repo) document.getElementById('ghRepo').value = saved.repo;
-        if (saved.branch) document.getElementById('ghBranch').value = saved.branch;
-      } catch {}
-    }
+    // Exercices
+    const exNode = makeTreeNode({
+      label: '🎮 التمارين (' + (page.exercices?.length || 0) + ')',
+      type: 'exercises-list', params: { pageIndex: i },
+      actions: [{ label: '+', title: 'إضافة تمرين', action: () => openAddExerciseMenu(i) }]
+    });
+    const eChildren = exNode.querySelector('.tree-children');
+    (page.exercices || []).forEach((ex, ei) => {
+      eChildren.appendChild(makeTreeNode({
+        label: '🎯 ' + labelOfType(ex.type),
+        type: 'exercise', params: { pageIndex: i, exIndex: ei }
+      }));
+    });
+    pChildren.appendChild(exNode);
 
-    function addGhLog(msg) {
-      const box = document.getElementById('ghLogBox');
-      box.innerHTML += `<div>[${new Date().toLocaleTimeString()}] ${msg}</div>`;
-      box.scrollTop = box.scrollHeight;
-    }
+    // Notes
+    pChildren.appendChild(makeTreeNode({
+      label: '📌 ملاحظات',
+      type: 'notes', params: { pageIndex: i }
+    }));
 
-    async function exportFullPackageToGitHub() {
-      const token = document.getElementById('ghToken').value.trim();
-      const owner = document.getElementById('ghOwner').value.trim();
-      const repo = document.getElementById('ghRepo').value.trim();
-      const branch = document.getElementById('ghBranch').value.trim() || 'main';
+    pagesChildren.appendChild(pageNode);
+  });
+  ul.appendChild(pagesNode);
 
-      if (!token || !owner || !repo) {
-        alert('يرجى ملء جميع بيانات GitHub (Token, Owner, Repo)');
-        return;
+  // Résumé
+  ul.appendChild(makeTreeNode({
+    label: '📝 الملخص',
+    type: 'summary', params: {}
+  }));
+
+  tree.appendChild(ul);
+  highlightActiveNode();
+}
+
+function makeTreeNode(opts) {
+  const li = document.createElement('li');
+  li.className = 'tree-node';
+  li.dataset.key = nodeKey(opts.type, opts.params);
+
+  const row = document.createElement('div');
+  row.className = 'tree-row';
+
+  const toggle = document.createElement('span');
+  toggle.className = 'tree-toggle';
+  toggle.textContent = '▾';
+  row.appendChild(toggle);
+
+  const label = document.createElement('span');
+  label.className = 'tree-label';
+  label.textContent = opts.label;
+  row.appendChild(label);
+
+  (opts.actions || []).forEach(a => {
+    const btn = document.createElement('button');
+    btn.className = 'tree-action';
+    btn.textContent = a.label;
+    btn.title = a.title || '';
+    btn.onclick = (e) => { e.stopPropagation(); a.action(); };
+    row.appendChild(btn);
+  });
+
+  row.onclick = (e) => {
+    if (e.target.closest('.tree-action') || e.target === toggle) return;
+    selectNode(opts.type, opts.params);
+  };
+
+  toggle.onclick = (e) => {
+    e.stopPropagation();
+    li.classList.toggle('collapsed');
+  };
+
+  li.appendChild(row);
+
+  const children = document.createElement('div');
+  children.className = 'tree-children';
+  li.appendChild(children);
+
+  return li;
+}
+
+function highlightActiveNode() {
+  document.querySelectorAll('.tree-row.active').forEach(r => r.classList.remove('active'));
+  const key = nodeKey(activeNode.type, activeNode.params);
+  const el = document.querySelector(`.tree-node[data-key="${key}"] > .tree-row`);
+  if (el) el.classList.add('active');
+}
+
+function selectNode(type, params) {
+  activeNode = { type, params };
+  renderContextPanel();
+  highlightActiveNode();
+}
+
+/* ============ PANNEAU CONTEXTUEL ============ */
+function renderContextPanel() {
+  const panel = document.getElementById('contextPanel');
+  const { type, params } = activeNode;
+  let html = '';
+
+  if (type === 'book-info') html = getBookInfoFormHTML();
+  else if (type === 'pages-list') html = getPagesListFormHTML();
+  else if (type === 'page') html = getPageFormHTML(params.pageIndex);
+  else if (type === 'vocab-list') html = getVocabListFormHTML(params.pageIndex);
+  else if (type === 'vocab-item') html = getVocabItemFormHTML(params.pageIndex, params.vocabIndex);
+  else if (type === 'exercises-list') html = getExercisesListFormHTML(params.pageIndex);
+  else if (type === 'exercise') html = getExerciseFormHTML(params.pageIndex, params.exIndex);
+  else if (type === 'notes') html = getNotesFormHTML(params.pageIndex);
+  else if (type === 'summary') html = getSummaryFormHTML();
+  else html = '<div class="card">اختر عنصراً من القائمة</div>';
+
+  panel.innerHTML = html;
+}
+
+/* ---------- FORMULAIRES ---------- */
+function getBookInfoFormHTML() {
+  return `
+  <div class="card">
+    <h2>📖 معلومات الكتاب</h2>
+    <div class="form-grid">
+      <div><label>عنوان الكتاب بالتشكيل *</label>
+        <input type="text" value="${escapeAttr(book.titre)}" oninput="updateBookField('titre',this.value)"></div>
+      <div><label>معرّف المجلد (ID بالإنجليزية)</label>
+        <input type="text" value="${escapeAttr(book.id)}" dir="ltr" oninput="updateBookField('id',this.value)"></div>
+      <div><label>المؤلف / فريق العمل</label>
+        <input type="text" value="${escapeAttr(book.auteur)}" oninput="updateBookField('auteur',this.value)"></div>
+      <div><label>المستوى</label>
+        <select onchange="updateBookField('niveau',this.value)">
+          <option value="debutant" ${book.niveau==='debutant'?'selected':''}>مبتدئ</option>
+          <option value="moyen" ${book.niveau==='moyen'?'selected':''}>متوسط</option>
+          <option value="avance" ${book.niveau==='avance'?'selected':''}>متقدم</option>
+        </select></div>
+    </div>
+    <div class="form-grid">
+      <div><label>صورة الغلاف</label>
+        <input type="file" accept="image/*" onchange="handleCoverChange(this)">
+        <div class="preview-box">${book.couvertureData ? `<img src="${book.couvertureData}">` : '<span style="font-size:.75em;color:#94a3b8;">بدون صورة</span>'}</div>
+      </div>
+      <div><label>ملف صوتي شامل (اختياري)</label>
+        <input type="file" accept="audio/*" onchange="handleBookAudio(this)">
+        <small style="color:#94a3b8;font-size:.78em;">${book.audioData ? '✅ محمّل' : 'لم يُحمَّل'}</small>
+      </div>
+    </div>
+    <div><label>وصف الكتاب *</label>
+      <textarea style="height:80px;" oninput="updateBookField('description',this.value)">${escapeHtml(book.description)}</textarea>
+    </div>
+  </div>`;
+}
+
+function getPagesListFormHTML() {
+  return `
+  <div class="card">
+    <h2>📄 كل الصفحات (${book.pages.length})</h2>
+    <div style="display:grid;gap:8px;">
+      ${book.pages.map((p, i) => `
+        <div class="subcard" style="display:flex;justify-content:space-between;align-items:center;">
+          <div>
+            <strong>صفحة ${i + 1} : ${escapeHtml(p.titreSection || '(بدون عنوان)')}</strong>
+            <div style="font-size:.8em;color:#94a3b8;">${(p.texteAffiche||'').substring(0,80)}${p.texteAffiche && p.texteAffiche.length>80?'...':''}</div>
+          </div>
+          <div style="display:flex;gap:6px;">
+            <button class="btn btn-outline btn-sm" onclick="selectNode('page',{pageIndex:${i}})">✏️ تعديل</button>
+            <button class="btn btn-danger btn-sm" onclick="deletePage(${i})">🗑️</button>
+          </div>
+        </div>
+      `).join('')}
+    </div>
+    <button class="btn btn-primary" style="margin-top:12px;" onclick="addNewPage()">➕ إضافة صفحة جديدة</button>
+  </div>`;
+}
+
+function getPageFormHTML(i) {
+  const p = book.pages[i];
+  if (!p) return '';
+  return `
+  <div class="card">
+    <h2>📄 صفحة ${i + 1}</h2>
+    <div class="form-grid">
+      <div><label>عنوان المقطع / الدرس</label>
+        <input type="text" value="${escapeAttr(p.titreSection)}" oninput="updatePageField(${i},'titreSection',this.value)"></div>
+      <div><label>صورة الصفحة</label>
+        <input type="file" accept="image/*" onchange="handlePageImage(${i},this)">
+        <div class="preview-box">${p.imageData ? `<img src="${p.imageData}">` : '<span style="font-size:.75em;color:#94a3b8;">بدون صورة</span>'}</div>
+      </div>
+    </div>
+
+    <div class="subcard">
+      <label style="color:var(--primary);font-weight:800;">وضع الصوت :</label>
+      <div style="display:flex;gap:16px;margin-bottom:10px;">
+        <label><input type="radio" name="amode-${i}" value="tts" ${p.audioMode==='tts'?'checked':''} onchange="updatePageField(${i},'audioMode','tts')"> 🤖 نطق آلي (TTS)</label>
+        <label><input type="radio" name="amode-${i}" value="mp3" ${p.audioMode==='mp3'?'checked':''} onchange="updatePageField(${i},'audioMode','mp3')"> 🎵 MP3 مع WebMAUS</label>
+      </div>
+      <div id="mp3Tools-${i}" style="display:${p.audioMode==='mp3'?'block':'none'};">
+        <div class="form-grid">
+          <div><label>ملف MP3</label><input type="file" accept="audio/*" onchange="handlePageAudio(${i},this)"></div>
+          <div><label>ملف توقيتات WebMAUS (.CSV)</label><input type="file" accept=".csv" onchange="handleWebMausCsv(${i},this)"></div>
+        </div>
+        <div style="font-size:.82em;color:var(--primary);font-weight:bold;">
+          ${p.mots && p.mots.length ? `✅ ${p.mots.length} كلمة مرتبطة بتوقيتاتها` : ''}
+        </div>
+      </div>
+    </div>
+
+    <div><label>النص المعروض (مع التشكيل الكامل) *</label>
+      <textarea class="arabic-text" oninput="updatePageField(${i},'texteAffiche',this.value)">${escapeHtml(p.texteAffiche)}</textarea>
+    </div>
+
+    <div style="margin-top:12px;display:flex;gap:8px;flex-wrap:wrap;">
+      <button class="btn btn-outline btn-sm" onclick="selectNode('vocab-list',{pageIndex:${i}})">📖 المفردات (${p.vocabulaire?.length||0})</button>
+      <button class="btn btn-outline btn-sm" onclick="selectNode('exercises-list',{pageIndex:${i}})">🎮 التمارين (${p.exercices?.length||0})</button>
+      <button class="btn btn-outline btn-sm" onclick="selectNode('notes',{pageIndex:${i}})">📌 ملاحظات</button>
+      <button class="btn btn-danger btn-sm" style="margin-right:auto;" onclick="deletePage(${i})">🗑️ حذف الصفحة</button>
+    </div>
+  </div>`;
+}
+
+function getVocabListFormHTML(i) {
+  const p = book.pages[i];
+  return `
+  <div class="card">
+    <h2>📖 مفردات الصفحة ${i+1} (${p.vocabulaire?.length||0})</h2>
+    <div style="display:grid;gap:8px;">
+      ${(p.vocabulaire || []).map((v, vi) => `
+        <div class="subcard" style="display:flex;justify-content:space-between;align-items:center;">
+          <div>
+            <strong>${escapeHtml(v.mot || '(كلمة)')}</strong>
+            <div style="font-size:.82em;color:#64748b;">${escapeHtml(v.traduction || '')}</div>
+          </div>
+          <div style="display:flex;gap:6px;">
+            <button class="btn btn-outline btn-sm" onclick="selectNode('vocab-item',{pageIndex:${i},vocabIndex:${vi}})">✏️</button>
+            <button class="btn btn-danger btn-sm" onclick="deleteVocabItem(${i},${vi})">🗑️</button>
+          </div>
+        </div>
+      `).join('') || '<p style="color:#94a3b8;">لا توجد كلمات.</p>'}
+    </div>
+    <button class="btn btn-primary" style="margin-top:12px;" onclick="addVocabItem(${i})">➕ إضافة كلمة</button>
+  </div>`;
+}
+
+function getVocabItemFormHTML(pi, vi) {
+  const v = book.pages[pi].vocabulaire[vi];
+  if (!v) return '';
+  return `
+  <div class="card">
+    <h2>📌 كلمة ${vi+1} — صفحة ${pi+1}</h2>
+    <div class="form-grid">
+      <div><label>الكلمة</label>
+        <input type="text" value="${escapeAttr(v.mot)}" oninput="updateVocabField(${pi},${vi},'mot',this.value)"></div>
+      <div><label>الشرح / المعنى</label>
+        <input type="text" value="${escapeAttr(v.traduction)}" oninput="updateVocabField(${pi},${vi},'traduction',this.value)"></div>
+    </div>
+    <div class="form-grid">
+      <div><label>مرادفات (مفصولة بفواصل)</label>
+        <input type="text" value="${escapeAttr((v.synonymes||[]).join('، '))}" oninput="updateVocabSyn(${pi},${vi},this.value)"></div>
+      <div><label>مثال في جملة</label>
+        <input type="text" value="${escapeAttr(v.exemple)}" oninput="updateVocabField(${pi},${vi},'exemple',this.value)"></div>
+    </div>
+    <button class="btn btn-danger btn-sm" style="margin-top:8px;" onclick="deleteVocabItem(${pi},${vi})">🗑️ حذف</button>
+  </div>`;
+}
+
+function getExercisesListFormHTML(pi) {
+  const p = book.pages[pi];
+  return `
+  <div class="card">
+    <h2>🎮 تمارين الصفحة ${pi+1} (${p.exercices?.length||0})</h2>
+    <div style="display:grid;gap:8px;">
+      ${(p.exercices || []).map((ex, ei) => `
+        <div class="subcard" style="display:flex;justify-content:space-between;align-items:center;">
+          <div>
+            <strong>${ei+1}. ${labelOfType(ex.type)}</strong>
+            <div style="font-size:.82em;color:#64748b;">${escapeHtml(ex.titre || ex.question || ex.texte || ex.phraseCorrecte || ex.instruction || '')}</div>
+          </div>
+          <div style="display:flex;gap:6px;">
+            <button class="btn btn-outline btn-sm" onclick="selectNode('exercise',{pageIndex:${pi},exIndex:${ei}})">✏️</button>
+            <button class="btn btn-danger btn-sm" onclick="deleteExercise(${pi},${ei})">🗑️</button>
+          </div>
+        </div>
+      `).join('') || '<p style="color:#94a3b8;">لا توجد تمارين.</p>'}
+    </div>
+    <button class="btn btn-primary" style="margin-top:12px;" onclick="openAddExerciseMenu(${pi})">➕ إضافة تمرين</button>
+  </div>`;
+}
+
+function getNotesFormHTML(i) {
+  const p = book.pages[i];
+  return `
+  <div class="card">
+    <h2>📌 ملاحظات — صفحة ${i+1}</h2>
+    <textarea style="height:140px;" oninput="updatePageField(${i},'notes',this.value)">${escapeHtml(p.notes)}</textarea>
+  </div>`;
+}
+
+function getSummaryFormHTML() {
+  const r = book.resume || {};
+  return `
+  <div class="card">
+    <h2>📝 ملخص الكتاب</h2>
+    <label>نص الملخص (مع التشكيل)</label>
+    <textarea class="arabic-text" oninput="updateSummaryField('texte',this.value)">${escapeHtml(r.texte)}</textarea>
+    <div class="form-grid" style="margin-top:14px;">
+      <div><label>وضع صوت الملخص</label>
+        <select onchange="updateSummaryField('modeAudio',this.value)">
+          <option value="tts" ${r.modeAudio!=='mp3'?'selected':''}>🤖 TTS</option>
+          <option value="mp3" ${r.modeAudio==='mp3'?'selected':''}>🎵 MP3</option>
+        </select></div>
+      <div><label>ملف MP3 للملخص</label>
+        <input type="file" accept="audio/*" onchange="handleSummaryAudio(this)">
+        <small style="color:#94a3b8;font-size:.78em;">${r.audioData ? '✅ محمّل' : 'لم يُحمَّل'}</small>
+      </div>
+    </div>
+  </div>`;
+}
+
+/* ---------- FORMULAIRE EXERCICE ---------- */
+function labelOfType(t) {
+  return { fillblank:'ملء الفراغات', qcm:'اختيار متعدد', word_order:'ترتيب الكلمات',
+           image_click:'وسم الصورة', matching:'ربط الأزواج',
+           audio_choice:'اختيار صوتي', custom:'مخصص (متقدم)' }[t] || t;
+}
+
+function getExerciseFormHTML(pi, ei) {
+  const ex = book.pages[pi].exercices[ei];
+  if (!ex) return '';
+  let specific = '';
+
+  if (ex.type === 'fillblank') {
+    specific = `
+      <label>النص مع الفراغات (استخدم ___ لكل فراغ) :</label>
+      <input type="text" value="${escapeAttr(ex.texte)}" oninput="updateExerciseField(${pi},${ei},'texte',this.value)">
+      <div class="form-grid" style="margin-top:8px;">
+        <div><label>الإجابات الصحيحة بالترتيب (افصل بـ , أو ،) :</label>
+          <input type="text" value="${escapeAttr((ex.reponses||[]).join('، '))}" oninput="updateFillReponses(${pi},${ei},this.value)"></div>
+        <div><label>كلمات للتمويه :</label>
+          <input type="text" value="${escapeAttr((ex.leurres||[]).join('، '))}" oninput="updateFillLeurres(${pi},${ei},this.value)"></div>
+      </div>`;
+
+  } else if (ex.type === 'qcm') {
+    specific = `
+      <label>نص السؤال :</label>
+      <input type="text" value="${escapeAttr(ex.question)}" oninput="updateExerciseField(${pi},${ei},'question',this.value)">
+      <label style="margin-top:8px;">الخيارات (افصل بـ , أو ،) :</label>
+      <input type="text" value="${escapeAttr((ex.options||[]).join('، '))}" oninput="updateQcmOptions(${pi},${ei},this.value)">
+      <div style="margin-top:8px;">
+        <label>رقم الخيار الصحيح :</label>
+        <select onchange="updateExerciseField(${pi},${ei},'bonneReponseIndex',parseInt(this.value))">
+          ${(ex.options||[]).map((o, i) => `<option value="${i}" ${ex.bonneReponseIndex===i?'selected':''}>${i+1}. ${escapeHtml(o)}</option>`).join('')}
+        </select>
+      </div>`;
+
+  } else if (ex.type === 'word_order') {
+    specific = `
+      <label>الجملة الصحيحة (سيتم خلط كلماتها في التطبيق) :</label>
+      <input type="text" value="${escapeAttr(ex.phraseCorrecte)}" oninput="updateExerciseField(${pi},${ei},'phraseCorrecte',this.value)">`;
+
+  } else if (ex.type === 'image_click') {
+    specific = `
+      <label>التعليمة :</label>
+      <input type="text" value="${escapeAttr(ex.instruction)}" oninput="updateExerciseField(${pi},${ei},'instruction',this.value)">
+      <div style="margin-top:10px;">
+        <label>صورة التمرين :</label>
+        <input type="file" accept="image/*" onchange="handleExImage(${pi},${ei},this)">
+        <div class="preview-box">${ex.imageData ? `<img src="${ex.imageData}">` : ''}</div>
+      </div>
+      <div style="margin-top:12px;">
+        <label style="font-weight:800;">المناطق (label + الكلمة الصحيحة) :</label>
+        <div id="zones-${pi}-${ei}">
+          ${(ex.zones||[]).map((z, zi) => `
+            <div class="zone-row">
+              <input type="text" placeholder="التسمية (مثال: فاكهة)" value="${escapeAttr(z.label)}" oninput="updateZone(${pi},${ei},${zi},'label',this.value)">
+              <input type="text" placeholder="الكلمة الصحيحة" value="${escapeAttr(z.reponse)}" oninput="updateZone(${pi},${ei},${zi},'reponse',this.value)">
+              <button class="btn btn-danger btn-sm" onclick="deleteZone(${pi},${ei},${zi})">🗑️</button>
+            </div>
+          `).join('')}
+        </div>
+        <button class="btn btn-outline btn-sm" style="margin-top:6px;" onclick="addZone(${pi},${ei})">➕ إضافة منطقة</button>
+      </div>`;
+
+  } else if (ex.type === 'matching') {
+    specific = `
+      <label>التعليمة :</label>
+      <input type="text" value="${escapeAttr(ex.instruction)}" oninput="updateExerciseField(${pi},${ei},'instruction',this.value)">
+      <div style="margin-top:12px;">
+        <label style="font-weight:800;">الأزواج (يسار ↔ يمين) :</label>
+        <div id="pairs-${pi}-${ei}">
+          ${(ex.pairs||[]).map((p, pIdx) => `
+            <div class="pair-row">
+              <input type="text" placeholder="العنصر الأيسر" value="${escapeAttr(p.left)}" oninput="updatePair(${pi},${ei},${pIdx},'left',this.value)">
+              <input type="text" placeholder="العنصر الأيمن" value="${escapeAttr(p.right)}" oninput="updatePair(${pi},${ei},${pIdx},'right',this.value)">
+              <button class="btn btn-danger btn-sm" onclick="deletePair(${pi},${ei},${pIdx})">🗑️</button>
+            </div>
+          `).join('')}
+        </div>
+        <button class="btn btn-outline btn-sm" style="margin-top:6px;" onclick="addPair(${pi},${ei})">➕ إضافة زوج</button>
+      </div>`;
+
+  } else if (ex.type === 'audio_choice') {
+    specific = `
+      <label>التعليمة :</label>
+      <input type="text" value="${escapeAttr(ex.instruction)}" oninput="updateExerciseField(${pi},${ei},'instruction',this.value)">
+      <label style="margin-top:8px;">الكلمة المنطوقة (سيقرأها التطبيق صوتياً) :</label>
+      <input type="text" value="${escapeAttr(ex.wordToSpeak)}" oninput="updateExerciseField(${pi},${ei},'wordToSpeak',this.value)">
+      <label style="margin-top:8px;">الخيارات (افصل بـ , أو ،) :</label>
+      <input type="text" value="${escapeAttr((ex.options||[]).join('، '))}" oninput="updateQcmOptions(${pi},${ei},this.value)">
+      <div style="margin-top:8px;">
+        <label>الخيار الصحيح :</label>
+        <select onchange="updateExerciseField(${pi},${ei},'bonneReponseIndex',parseInt(this.value))">
+          ${(ex.options||[]).map((o, i) => `<option value="${i}" ${ex.bonneReponseIndex===i?'selected':''}>${i+1}. ${escapeHtml(o)}</option>`).join('')}
+        </select>
+      </div>`;
+
+  } else if (ex.type === 'custom') {
+    specific = `
+      <div style="background:#fef3c7;border:1px solid #fbbf24;padding:12px;border-radius:10px;font-size:.85em;color:#78350f;margin-bottom:12px;">
+        ⚠️ <strong>وضع متقدم :</strong> يُنفَّذ داخل إطار معزول (iframe sandbox). لا يمكنه الوصول إلى التطبيق أو بيانات المستخدم. للتواصل : أرسل <code>parent.postMessage({type:'bravo'},'*')</code> أو <code>{type:'tryAgain'}</code> أو <code>{type:'complete', success:true}</code>.
+      </div>
+      <label>HTML :</label>
+      <textarea dir="ltr" style="font-family:monospace;height:100px;" oninput="updateExerciseField(${pi},${ei},'html',this.value)">${escapeHtml(ex.html||'')}</textarea>
+      <label style="margin-top:8px;">CSS :</label>
+      <textarea dir="ltr" style="font-family:monospace;height:80px;" oninput="updateExerciseField(${pi},${ei},'css',this.value)">${escapeHtml(ex.css||'')}</textarea>
+      <label style="margin-top:8px;">JavaScript :</label>
+      <textarea dir="ltr" style="font-family:monospace;height:120px;" oninput="updateExerciseField(${pi},${ei},'js',this.value)">${escapeHtml(ex.js||'')}</textarea>`;
+  }
+
+  return `
+  <div class="card">
+    <h2>🎯 تمرين ${ei+1} : ${labelOfType(ex.type)}</h2>
+    <label>عنوان التمرين (اختياري) :</label>
+    <input type="text" value="${escapeAttr(ex.titre)}" oninput="updateExerciseField(${pi},${ei},'titre',this.value)">
+    <div style="margin-top:12px;">${specific}</div>
+    <div style="margin-top:14px;">
+      <button class="btn btn-danger btn-sm" onclick="deleteExercise(${pi},${ei})">🗑️ حذف التمرين</button>
+    </div>
+  </div>`;
+}
+
+/* ---------- UPDATE HANDLERS ---------- */
+function updateBookField(k, v) { book[k] = v; renderTree(); scheduleAutoSave(); }
+function updateSummaryField(k, v) { book.resume[k] = v; scheduleAutoSave(); }
+function updatePageField(pi, k, v) {
+  book.pages[pi][k] = v;
+  if (k === 'titreSection') renderTree();
+  if (k === 'audioMode') {
+    const box = document.getElementById('mp3Tools-' + pi);
+    if (box) box.style.display = v === 'mp3' ? 'block' : 'none';
+  }
+  scheduleAutoSave();
+}
+function updateVocabField(pi, vi, k, v) {
+  book.pages[pi].vocabulaire[vi][k] = v;
+  if (k === 'mot') renderTree();
+  scheduleAutoSave();
+}
+function updateVocabSyn(pi, vi, v) {
+  book.pages[pi].vocabulaire[vi].synonymes = splitMots(v);
+  scheduleAutoSave();
+}
+function updateExerciseField(pi, ei, k, v) {
+  book.pages[pi].exercices[ei][k] = v;
+  scheduleAutoSave();
+}
+function updateFillReponses(pi, ei, v) {
+  const reps = splitMots(v);
+  book.pages[pi].exercices[ei].reponses = reps;
+  rebuildMotsMelanges(pi, ei);
+  scheduleAutoSave();
+}
+function updateFillLeurres(pi, ei, v) {
+  book.pages[pi].exercices[ei].leurres = splitMots(v);
+  rebuildMotsMelanges(pi, ei);
+  scheduleAutoSave();
+}
+function rebuildMotsMelanges(pi, ei) {
+  const ex = book.pages[pi].exercices[ei];
+  const all = [...(ex.reponses || []), ...(ex.leurres || [])];
+  ex.motsMelanges = [...new Set(all)];
+}
+function updateQcmOptions(pi, ei, v) {
+  book.pages[pi].exercices[ei].options = splitMots(v);
+  scheduleAutoSave();
+}
+
+/* Zones */
+function addZone(pi, ei) {
+  const ex = book.pages[pi].exercices[ei];
+  ex.zones = ex.zones || [];
+  ex.zones.push({ label: '', reponse: '' });
+  renderContextPanel();
+}
+function deleteZone(pi, ei, zi) {
+  book.pages[pi].exercices[ei].zones.splice(zi, 1);
+  renderContextPanel();
+  scheduleAutoSave();
+}
+function updateZone(pi, ei, zi, k, v) {
+  book.pages[pi].exercices[ei].zones[zi][k] = v;
+  scheduleAutoSave();
+}
+
+/* Pairs */
+function addPair(pi, ei) {
+  const ex = book.pages[pi].exercices[ei];
+  ex.pairs = ex.pairs || [];
+  ex.pairs.push({ left: '', right: '' });
+  renderContextPanel();
+}
+function deletePair(pi, ei, pIdx) {
+  book.pages[pi].exercices[ei].pairs.splice(pIdx, 1);
+  renderContextPanel();
+  scheduleAutoSave();
+}
+function updatePair(pi, ei, pIdx, k, v) {
+  book.pages[pi].exercices[ei].pairs[pIdx][k] = v;
+  scheduleAutoSave();
+}
+
+/* ---------- ACTIONS ---------- */
+function addNewPage() {
+  book.pages.push(makeEmptyPage(book.pages.length + 1));
+  renderTree();
+  selectNode('page', { pageIndex: book.pages.length - 1 });
+  showToast('✅ تمت إضافة صفحة');
+}
+function deletePage(i) {
+  if (book.pages.length <= 1) { alert('يجب الإبقاء على صفحة واحدة على الأقل'); return; }
+  if (!confirm(`حذف الصفحة ${i+1}؟`)) return;
+  book.pages.splice(i, 1);
+  book.pages.forEach((p, idx) => p.numero = idx + 1);
+  renderTree();
+  selectNode('pages-list', {});
+  scheduleAutoSave();
+}
+function addVocabItem(pi) {
+  book.pages[pi].vocabulaire = book.pages[pi].vocabulaire || [];
+  book.pages[pi].vocabulaire.push({ mot: '', traduction: '', synonymes: [], exemple: '' });
+  renderTree();
+  selectNode('vocab-item', { pageIndex: pi, vocabIndex: book.pages[pi].vocabulaire.length - 1 });
+}
+function deleteVocabItem(pi, vi) {
+  book.pages[pi].vocabulaire.splice(vi, 1);
+  renderTree();
+  selectNode('vocab-list', { pageIndex: pi });
+  scheduleAutoSave();
+}
+
+/* Menu exercice */
+function openAddExerciseMenu(pi) {
+  const types = [
+    ['fillblank', '✍️ ملء الفراغات'],
+    ['qcm', '❓ اختيار متعدد'],
+    ['word_order', '🔀 ترتيب الكلمات'],
+    ['image_click', '🖼️ وسم الصورة'],
+    ['matching', '🔗 ربط الأزواج'],
+    ['audio_choice', '🔊 اختيار صوتي'],
+    ['custom', '⚙️ مخصص (متقدم)']
+  ];
+  const choice = prompt(
+    'اختر نوع التمرين برقمه :\n' +
+    types.map((t, i) => `${i + 1}. ${t[1]}`).join('\n'),
+    '1'
+  );
+  if (!choice) return;
+  const idx = parseInt(choice) - 1;
+  if (idx < 0 || idx >= types.length) return;
+  addExercise(pi, types[idx][0]);
+}
+
+function addExercise(pi, type) {
+  const ex = { id: 'exo-' + Date.now(), type, titre: '' };
+  if (type === 'fillblank') Object.assign(ex, { texte: '___', reponses: ['كلمة'], leurres: [], motsMelanges: ['كلمة'] });
+  else if (type === 'qcm') Object.assign(ex, { question: '', options: ['', ''], bonneReponseIndex: 0 });
+  else if (type === 'word_order') Object.assign(ex, { phraseCorrecte: '', motsMelanges: [] });
+  else if (type === 'image_click') Object.assign(ex, { instruction: 'اضغط على الجزء المناسب', imageData: null, image: '', zones: [] });
+  else if (type === 'matching') Object.assign(ex, { instruction: 'اربط كل عنصر بما يناسبه', pairs: [{ left: '', right: '' }] });
+  else if (type === 'audio_choice') Object.assign(ex, { instruction: 'اسمع الكلمة واختر الكتابة الصحيحة', wordToSpeak: '', options: ['', ''], bonneReponseIndex: 0 });
+  else if (type === 'custom') Object.assign(ex, { html: '<h3>مرحباً</h3><p>اضغط الزر للتفاعل</p><button onclick="parent.postMessage({type:\'bravo\'},\'*\')">صحيح</button>', css: 'body{font-family:Cairo,sans-serif;text-align:center;padding:20px;background:#f4f7f6}', js: '' });
+  book.pages[pi].exercices = book.pages[pi].exercices || [];
+  book.pages[pi].exercices.push(ex);
+  renderTree();
+  selectNode('exercise', { pageIndex: pi, exIndex: book.pages[pi].exercices.length - 1 });
+  scheduleAutoSave();
+}
+
+function deleteExercise(pi, ei) {
+  book.pages[pi].exercices.splice(ei, 1);
+  renderTree();
+  selectNode('exercises-list', { pageIndex: pi });
+  scheduleAutoSave();
+}
+
+/* ---------- MÉDIAS ---------- */
+function handleCoverChange(input) {
+  if (!input.files?.[0]) return;
+  const reader = new FileReader();
+  reader.onload = e => {
+    book.couvertureData = e.target.result;
+    renderContextPanel();
+    scheduleAutoSave();
+    showToast('✅ صورة الغلاف');
+  };
+  reader.readAsDataURL(input.files[0]);
+}
+function handleBookAudio(input) {
+  if (!input.files?.[0]) return;
+  const reader = new FileReader();
+  reader.onload = e => { book.audioData = e.target.result; renderContextPanel(); scheduleAutoSave(); showToast('✅ صوت الكتاب'); };
+  reader.readAsDataURL(input.files[0]);
+}
+function handlePageImage(pi, input) {
+  if (!input.files?.[0]) return;
+  const reader = new FileReader();
+  reader.onload = e => { book.pages[pi].imageData = e.target.result; renderContextPanel(); scheduleAutoSave(); showToast('✅ صورة الصفحة'); };
+  reader.readAsDataURL(input.files[0]);
+}
+function handlePageAudio(pi, input) {
+  if (!input.files?.[0]) return;
+  const reader = new FileReader();
+  reader.onload = e => { book.pages[pi].audioData = e.target.result; scheduleAutoSave(); showToast('✅ صوت الصفحة'); };
+  reader.readAsDataURL(input.files[0]);
+}
+function handleExImage(pi, ei, input) {
+  if (!input.files?.[0]) return;
+  const reader = new FileReader();
+  reader.onload = e => { book.pages[pi].exercices[ei].imageData = e.target.result; renderContextPanel(); scheduleAutoSave(); };
+  reader.readAsDataURL(input.files[0]);
+}
+function handleSummaryAudio(input) {
+  if (!input.files?.[0]) return;
+  const reader = new FileReader();
+  reader.onload = e => { book.resume.audioData = e.target.result; renderContextPanel(); scheduleAutoSave(); };
+  reader.readAsDataURL(input.files[0]);
+}
+function handleWebMausCsv(pi, input) {
+  if (!input.files?.[0]) return;
+  const reader = new FileReader();
+  reader.onload = e => {
+    const lines = e.target.result.trim().split('\n');
+    const sampleRate = 44100;
+    const mots = []; const brut = [];
+    for (let i = 1; i < lines.length; i++) {
+      const cols = lines[i].split(';');
+      if (cols.length < 6) continue;
+      const token = parseInt(cols[2]);
+      const ort = cols[5]?.trim();
+      if (token >= 0 && ort && ort !== '<usb>') {
+        const begin = parseInt(cols[0]);
+        const duration = parseInt(cols[1]);
+        mots.push({ texte: ort, debut: +((begin / sampleRate).toFixed(3)), fin: +(((begin + duration) / sampleRate).toFixed(3)) });
+        brut.push(ort);
       }
-
-      saveGhConfig();
-      const currentBook = collectCompleteBook();
-      const bookId = currentBook.id;
-
-      const progressSec = document.getElementById('ghProgressSection');
-      const bar = document.getElementById('ghProgressBar');
-      const btn = document.getElementById('btnGhExport');
-
-      progressSec.style.display = 'block';
-      document.getElementById('ghUrlsSection').style.display = 'none';
-      document.getElementById('ghLogBox').innerHTML = '';
-      btn.disabled = true;
-
-      const headers = {
-        'Authorization': `token ${token}`,
-        'Accept': 'application/vnd.github.v3+json',
-        'Content-Type': 'application/json'
-      };
-
-      try {
-        addGhLog(`🚀 بدء رفع كتاب "${currentBook.titre}" إلى مستودع ${owner}/${repo}...`);
-
-        // 1. Upload livre.json
-        addLog('1/3 رفع ملف livre.json...');
-        const cleanJSON = {
-          ...currentBook,
-          couverture: currentBook.couvertureData ? `livres/${bookId}/couverture.jpg` : currentBook.couverture,
-          pages: currentBook.pages.map((p, i) => ({
-            ...p,
-            image: p.imageData ? `livres/${bookId}/page${i + 1}.jpg` : p.image,
-            audioPage: p.audioData ? `livres/${bookId}/page${i + 1}.mp3` : p.audioPage,
-            imageData: undefined,
-            audioData: undefined
-          })),
-          couvertureData: undefined
-        };
-
-        await uploadGhFile(headers, owner, repo, branch, `livres/${bookId}/livre.json`, 
-          btoa(unescape(encodeURIComponent(JSON.stringify(cleanJSON, null, 2)))));
-        bar.style.width = '40%';
-        bar.textContent = '40%';
-        addGhLog('✅ تم رفع livre.json بنجاح');
-
-        // 2. Upload Couverture
-        if (currentBook.couvertureData && currentBook.couvertureData.includes('base64,')) {
-          addGhLog('رفع صورة الغلاف...');
-          await uploadGhFile(headers, owner, repo, branch, `livres/${bookId}/couverture.jpg`, 
-            currentBook.couvertureData.split('base64,')[1]);
-        }
-
-        // 3. Upload Médias des Pages
-        for (let i = 0; i < currentBook.pages.length; i++) {
-          const p = currentBook.pages[i];
-          const pageNum = i + 1;
-          if (p.imageData && p.imageData.includes('base64,')) {
-            addGhLog(`رفع صورة الصفحة ${pageNum}...`);
-            await uploadGhFile(headers, owner, repo, branch, `livres/${bookId}/page${pageNum}.jpg`, p.imageData.split('base64,')[1]);
-          }
-          if (p.audioData && p.audioData.includes('base64,')) {
-            addGhLog(`رفع صوت الصفحة ${pageNum}...`);
-            await uploadGhFile(headers, owner, repo, branch, `livres/${bookId}/page${pageNum}.mp3`, p.audioData.split('base64,')[1]);
-          }
-        }
-        bar.style.width = '80%';
-        bar.textContent = '80%';
-
-        // 4. Mettre à jour catalogue.json sur GitHub
-        addGhLog('تحديث فهرس الكتب catalogue.json على GitHub...');
-        await updateGhCatalogue(headers, owner, repo, branch, currentBook);
-
-        bar.style.width = '100%';
-        bar.textContent = '100%';
-        addGhLog('🎉 اكتمل الرفع بنجاح لجميع الملفات والفهرس!');
-
-        const catalogUrl = `https://raw.githubusercontent.com/${owner}/${repo}/${branch}/livres/catalogue.json`;
-        document.getElementById('finalCatalogUrl').value = catalogUrl;
-        document.getElementById('ghUrlsSection').style.display = 'block';
-        showToast('🎉 تم نشر الكتاب وتحديث الفهرس على GitHub!');
-
-      } catch (err) {
-        addGhLog(`❌ خطأ: ${err.message}`);
-        alert('حدث خطأ أثناء الرفع: ' + err.message);
-      } finally {
-        btn.disabled = false;
-      }
     }
+    book.pages[pi].mots = mots;
+    if (!book.pages[pi].texteAffiche) book.pages[pi].texteAffiche = brut.join(' ');
+    renderContextPanel();
+    scheduleAutoSave();
+    showToast(`✅ ${mots.length} كلمة`);
+  };
+  reader.readAsText(input.files[0]);
+}
 
-    async function uploadGhFile(headers, owner, repo, branch, path, contentBase64) {
-      const url = `https://api.github.com/repos/${owner}/${repo}/contents/${path}`;
-      let sha = null;
-      try {
-        const res = await fetch(url, { headers });
-        if (res.ok) {
-          const data = await res.json();
-          sha = data.sha;
-        }
-      } catch {}
+/* ============ COMPILATION ============ */
+function buildCleanJson() {
+  const id = book.id || 'mon-livre';
+  return {
+    ...book,
+    couverture: book.couvertureData ? `livres/${id}/couverture.jpg` : book.couverture,
+    pages: book.pages.map((p, i) => ({
+      ...p,
+      image: p.imageData ? `livres/${id}/page${i+1}.jpg` : p.image,
+      audioPage: p.audioData ? `livres/${id}/page${i+1}.mp3` : p.audioPage,
+      imageData: undefined, audioData: undefined
+    })),
+    couvertureData: undefined,
+    audioData: undefined,
+    resume: book.resume ? {
+      texte: book.resume.texte,
+      modeAudio: book.resume.modeAudio,
+      audio: book.resume.audioData ? `livres/${id}/resume.mp3` : book.resume.audio,
+      audioData: undefined
+    } : book.resume
+  };
+}
 
-      const putRes = await fetch(url, {
-        method: 'PUT',
-        headers,
-        body: JSON.stringify({
-          message: `Update ${path}`,
-          content: contentBase64,
-          branch,
-          sha: sha || undefined
-        })
+/* ============ IMPORT ============ */
+function openImportModal() { openModal('importModal'); }
+function switchImportTab(tab, ev) {
+  document.querySelectorAll('.import-tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.import-pane').forEach(p => p.classList.remove('active'));
+  ev.target.classList.add('active');
+  document.getElementById('importPane-' + tab).classList.add('active');
+}
+
+async function importFromPc(input) {
+  if (!input.files?.[0]) return;
+  const file = input.files[0];
+  const name = file.name.toLowerCase();
+  try {
+    if (name.endsWith('.json')) {
+      const text = await file.text();
+      const parsed = JSON.parse(text);
+      loadImportedBook(parsed);
+      showToast('✅ تم الاستيراد من JSON');
+      closeModal('importModal');
+    } else if (name.endsWith('.zip')) {
+      const zip = await JSZip.loadAsync(file);
+      let jsonEntry = null;
+      const mediaEntries = {};
+      zip.forEach((path, entry) => {
+        if (entry.dir) return;
+        const base = path.split('/').pop();
+        if (base === 'livre.json') jsonEntry = entry;
+        else mediaEntries[base] = entry;
       });
+      if (!jsonEntry) throw new Error('livre.json غير موجود');
+      const parsed = JSON.parse(await jsonEntry.async('text'));
 
-      if (!putRes.ok) {
-        const err = await putRes.json();
-        throw new Error(err.message || `HTTP ${putRes.status}`);
-      }
-      return await putRes.json();
-    }
-
-    async function updateGhCatalogue(headers, owner, repo, branch, currentBook) {
-      const catPath = 'livres/catalogue.json';
-      const url = `https://api.github.com/repos/${owner}/${repo}/contents/${catPath}`;
-      let cat = { derniereMAJ: new Date().toISOString(), livres: [] };
-      let sha = null;
-
-      try {
-        const res = await fetch(url, { headers });
-        if (res.ok) {
-          const data = await res.json();
-          sha = data.sha;
-          cat = JSON.parse(decodeURIComponent(escape(atob(data.content))));
-        }
-      } catch {}
-
-      const entry = {
-        id: currentBook.id,
-        titre: currentBook.titre,
-        description: currentBook.description,
-        couverture: `livres/${currentBook.id}/couverture.jpg`,
-        resume: currentBook.resume?.texte?.substring(0, 150) || '',
-        niveau: currentBook.niveau,
-        auteur: currentBook.auteur,
-        nombrePages: currentBook.pages.length,
-        fichierJSON: `livres/${currentBook.id}/livre.json`,
-        dateMAJ: new Date().toISOString()
+      // Recharger les médias
+      const loadB64 = async (entry) => {
+        const b64 = await entry.async('base64');
+        return 'data:application/octet-stream;base64,' + b64;
       };
-
-      const existingIdx = cat.livres.findIndex(l => l.id === currentBook.id);
-      if (existingIdx !== -1) {
-        cat.livres[existingIdx] = entry;
-      } else {
-        cat.livres.push(entry);
+      if (mediaEntries['couverture.jpg']) parsed.couvertureData = await loadB64(mediaEntries['couverture.jpg']);
+      if (parsed.pages) {
+        for (let i = 0; i < parsed.pages.length; i++) {
+          const p = parsed.pages[i];
+          if (mediaEntries[`page${i+1}.jpg`]) p.imageData = await loadB64(mediaEntries[`page${i+1}.jpg`]);
+          if (mediaEntries[`page${i+1}.mp3`]) p.audioData = await loadB64(mediaEntries[`page${i+1}.mp3`]);
+        }
       }
-      cat.derniereMAJ = new Date().toISOString();
+      if (mediaEntries['resume.mp3']) parsed.resume = parsed.resume || {}, parsed.resume.audioData = await loadB64(mediaEntries['resume.mp3']);
 
-      await uploadGhFile(headers, owner, repo, branch, catPath, 
-        btoa(unescape(encodeURIComponent(JSON.stringify(cat, null, 2)))));
+      loadImportedBook(parsed);
+      showToast('✅ تم الاستيراد من ZIP مع المédias');
+      closeModal('importModal');
     }
+  } catch (e) {
+    alert('خطأ : ' + e.message);
+  } finally {
+    input.value = '';
+  }
+}
+
+async function loadGithubCatalogue() {
+  const owner = document.getElementById('impOwner').value.trim();
+  const repo = document.getElementById('impRepo').value.trim();
+  const branch = document.getElementById('impBranch').value.trim() || 'main';
+  const token = document.getElementById('impToken').value.trim();
+  if (!owner || !repo) { alert('املأ Owner و Repo'); return; }
+
+  const list = document.getElementById('githubBookList');
+  list.innerHTML = '<p>⏳ جاري التحميل...</p>';
+  const headers = {};
+  if (token) headers['Authorization'] = 'token ' + token;
+
+  try {
+    const url = `https://raw.githubusercontent.com/${owner}/${repo}/${branch}/livres/catalogue.json`;
+    const res = await fetch(url, { headers });
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    const cat = await res.json();
+    const livres = cat.livres || [];
+    if (!livres.length) { list.innerHTML = '<p>لا توجد كتب.</p>'; return; }
+    list.innerHTML = livres.map((l, i) => `
+      <div class="subcard" style="display:flex;justify-content:space-between;align-items:center;">
+        <div><strong>${escapeHtml(l.titre)}</strong>
+          <div style="font-size:.8em;color:#64748b;">${l.nombrePages || '?'} صفحة — ${l.niveau || ''}</div>
+        </div>
+        <button class="btn btn-primary btn-sm" onclick='importFromGithub("${owner}","${repo}","${branch}","${token}","${l.fichierJSON}")'>📥 استيراد</button>
+      </div>
+    `).join('');
+  } catch (e) {
+    list.innerHTML = `<p style="color:var(--danger);">❌ ${e.message}</p>`;
+  }
+}
+
+async function importFromGithub(owner, repo, branch, token, filePath) {
+  showToast('⏳ تحميل...');
+  try {
+    const base = `https://raw.githubusercontent.com/${owner}/${repo}/${branch}`;
+    const res = await fetch(`${base}/${filePath}`);
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    const parsed = await res.json();
+
+    // Essayer de recharger les médias
+    const tryFetchB64 = async (url) => {
+      try {
+        const r = await fetch(url);
+        if (!r.ok) return null;
+        const blob = await r.blob();
+        return await new Promise(res => {
+          const fr = new FileReader();
+          fr.onload = () => res(fr.result);
+          fr.readAsDataURL(blob);
+        });
+      } catch { return null; }
+    };
+    if (parsed.couverture) {
+      const b = await tryFetchB64(`${base}/${parsed.couverture}`);
+      if (b) parsed.couvertureData = b;
+    }
+    if (parsed.pages) {
+      for (const p of parsed.pages) {
+        if (p.image) { const b = await tryFetchB64(`${base}/${p.image}`); if (b) p.imageData = b; }
+        if (p.audioPage) { const b = await tryFetchB64(`${base}/${p.audioPage}`); if (b) p.audioData = b; }
+      }
+    }
+    if (parsed.resume?.audio) {
+      const b = await tryFetchB64(`${base}/${parsed.resume.audio}`);
+      if (b) parsed.resume.audioData = b;
+    }
+
+    loadImportedBook(parsed);
+    closeModal('importModal');
+    showToast('✅ تم الاستيراد من GitHub');
+  } catch (e) { alert('خطأ : ' + e.message); }
+}
+
+function loadImportedBook(data) {
+  // Compatibilité : s'assurer que tous les champs existent
+  book = {
+    id: data.id || 'mon-livre',
+    titre: data.titre || '',
+    couverture: data.couverture || '',
+    couvertureData: data.couvertureData || null,
+    description: data.description || '',
+    auteur: data.auteur || '',
+    niveau: data.niveau || 'moyen',
+    audioData: data.audioData || null,
+    pages: (data.pages || []).map((p, i) => ({
+      numero: p.numero ?? (i + 1),
+      titreSection: p.titreSection || '',
+      image: p.image || '',
+      imageData: p.imageData || null,
+      texteAffiche: p.texteAffiche || '',
+      audioMode: p.audioMode || 'tts',
+      audioPage: p.audioPage || '',
+      audioData: p.audioData || null,
+      mots: p.mots || [],
+      vocabulaire: p.vocabulaire || [],
+      exercices: p.exercices || [],
+      notes: p.notes || ''
+    })),
+    resume: {
+      texte: data.resume?.texte || '',
+      modeAudio: data.resume?.modeAudio || 'tts',
+      audio: data.resume?.audio || '',
+      audioData: data.resume?.audioData || null
+    }
+  };
+  if (!book.pages.length) book.pages = [makeEmptyPage(1)];
+  activeNode = { type: 'book-info', params: {} };
+  renderTree();
+  renderContextPanel();
+  scheduleAutoSave();
+}
+
+/* ============ EXPORT ============ */
+function openExportModal() { openModal('exportModal'); }
+function openGithubPush() {
+  const form = document.getElementById('githubPushForm');
+  form.style.display = form.style.display === 'none' ? 'block' : 'none';
+  loadGhConfig();
+}
+
+async function exportToPc() {
+  const zip = new JSZip();
+  const id = book.id || 'mon-livre';
+  const root = zip.folder(id) || zip;
+  const cleanJson = buildCleanJson();
+  root.file('livre.json', JSON.stringify(cleanJson, null, 2));
+
+  if (book.couvertureData?.includes('base64,'))
+    root.file('couverture.jpg', book.couvertureData.split('base64,')[1], { base64: true });
+
+  book.pages.forEach((p, i) => {
+    if (p.imageData?.includes('base64,'))
+      root.file(`page${i+1}.jpg`, p.imageData.split('base64,')[1], { base64: true });
+    if (p.audioData?.includes('base64,'))
+      root.file(`page${i+1}.mp3`, p.audioData.split('base64,')[1], { base64: true });
+  });
+  if (book.resume?.audioData?.includes('base64,'))
+    root.file('resume.mp3', book.resume.audioData.split('base64,')[1], { base64: true });
+
+  const cat = {
+    derniereMAJ: new Date().toISOString(),
+    livres: [{
+      id, titre: book.titre, description: book.description,
+      couverture: `livres/${id}/couverture.jpg`,
+      resume: (book.resume?.texte || '').substring(0, 150),
+      niveau: book.niveau, auteur: book.auteur,
+      nombrePages: book.pages.length,
+      fichierJSON: `livres/${id}/livre.json`
+    }]
+  };
+  root.file('catalogue.json', JSON.stringify(cat, null, 2));
+  root.file('اقرأني.txt', `حزمة الكتاب: ${book.titre}\nID: ${id}\nجاهز للنشر في livres/${id}/`);
+
+  const blob = await zip.generateAsync({ type: 'blob' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = `${id}_package.zip`;
+  a.click();
+  showToast('✅ تم التنزيل');
+  closeModal('exportModal');
+}
+
+function exportBundleJson() {
+  const blob = new Blob([JSON.stringify(book, null, 2)], { type: 'application/json' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = `${book.id || 'mon-livre'}.projet.json`;
+  a.click();
+  showToast('✅ تم تنزيل المشروع JSON');
+}
+
+/* GitHub push */
+function saveGhConfig() {
+  localStorage.setItem(GH_KEY, JSON.stringify({
+    token: document.getElementById('ghToken').value,
+    owner: document.getElementById('ghOwner').value,
+    repo: document.getElementById('ghRepo').value,
+    branch: document.getElementById('ghBranch').value
+  }));
+  showToast('✅ تم حفظ الإعدادات');
+}
+function loadGhConfig() {
+  try {
+    const c = JSON.parse(localStorage.getItem(GH_KEY) || '{}');
+    if (c.token) document.getElementById('ghToken').value = c.token;
+    if (c.owner) document.getElementById('ghOwner').value = c.owner;
+    if (c.repo) document.getElementById('ghRepo').value = c.repo;
+    if (c.branch) document.getElementById('ghBranch').value = c.branch;
+  } catch {}
+}
+function addGhLog(msg) {
+  const box = document.getElementById('ghLogBox');
+  box.innerHTML += `<div>[${new Date().toLocaleTimeString()}] ${msg}</div>`;
+  box.scrollTop = box.scrollHeight;
+}
+
+async function exportFullPackageToGitHub() {
+  const token = document.getElementById('ghToken').value.trim();
+  const owner = document.getElementById('ghOwner').value.trim();
+  const repo = document.getElementById('ghRepo').value.trim();
+  const branch = document.getElementById('ghBranch').value.trim() || 'main';
+  if (!token || !owner || !repo) { alert('املأ Token, Owner, Repo'); return; }
+
+  saveGhConfig();
+  const id = book.id || 'mon-livre';
+  const clean = buildCleanJson();
+
+  const sec = document.getElementById('ghProgressSection');
+  const bar = document.getElementById('ghProgressBar');
+  const btn = document.getElementById('btnGhExport');
+  sec.style.display = 'block';
+  document.getElementById('ghUrlsSection').style.display = 'none';
+  document.getElementById('ghLogBox').innerHTML = '';
+  btn.disabled = true;
+
+  const headers = {
+    'Authorization': `token ${token}`,
+    'Accept': 'application/vnd.github.v3+json',
+    'Content-Type': 'application/json'
+  };
+
+  const upload = async (path, contentB64) => {
+    const url = `https://api.github.com/repos/${owner}/${repo}/contents/${path}`;
+    let sha = null;
+    try {
+      const res = await fetch(url, { headers });
+      if (res.ok) sha = (await res.json()).sha;
+    } catch {}
+    const put = await fetch(url, {
+      method: 'PUT', headers,
+      body: JSON.stringify({ message: `Update ${path}`, content: contentB64, branch, sha: sha || undefined })
+    });
+    if (!put.ok) throw new Error((await put.json()).message || 'HTTP ' + put.status);
+  };
+
+  try {
+    addGhLog(`🚀 رفع "${book.titre}" إلى ${owner}/${repo}`);
+    await upload(`livres/${id}/livre.json`, btoa(unescape(encodeURIComponent(JSON.stringify(clean, null, 2)))));
+    bar.style.width = '40%'; bar.textContent = '40%';
+    addGhLog('✅ livre.json');
+
+    if (book.couvertureData?.includes('base64,')) {
+      addGhLog('صورة الغلاف...');
+      await upload(`livres/${id}/couverture.jpg`, book.couvertureData.split('base64,')[1]);
+    }
+    for (let i = 0; i < book.pages.length; i++) {
+      const p = book.pages[i];
+      if (p.imageData?.includes('base64,')) {
+        addGhLog(`صورة صفحة ${i+1}`);
+        await upload(`livres/${id}/page${i+1}.jpg`, p.imageData.split('base64,')[1]);
+      }
+      if (p.audioData?.includes('base64,')) {
+        addGhLog(`صوت صفحة ${i+1}`);
+        await upload(`livres/${id}/page${i+1}.mp3`, p.audioData.split('base64,')[1]);
+      }
+    }
+    if (book.resume?.audioData?.includes('base64,')) {
+      addGhLog('صوت الملخص');
+      await upload(`livres/${id}/resume.mp3`, book.resume.audioData.split('base64,')[1]);
+    }
+    bar.style.width = '80%'; bar.textContent = '80%';
+
+    // Mise à jour du catalogue
+    addGhLog('تحديث catalogue.json...');
+    const catUrl = `https://api.github.com/repos/${owner}/${repo}/contents/livres/catalogue.json`;
+    let cat = { derniereMAJ: new Date().toISOString(), livres: [] };
+    let catSha = null;
+    try {
+      const res = await fetch(catUrl, { headers });
+      if (res.ok) {
+        const d = await res.json();
+        catSha = d.sha;
+        cat = JSON.parse(decodeURIComponent(escape(atob(d.content))));
+      }
+    } catch {}
+
+    const entry = {
+      id, titre: book.titre, description: book.description,
+      couverture: `livres/${id}/couverture.jpg`,
+      resume: (book.resume?.texte || '').substring(0, 150),
+      niveau: book.niveau, auteur: book.auteur,
+      nombrePages: book.pages.length,
+      fichierJSON: `livres/${id}/livre.json`,
+      dateMAJ: new Date().toISOString()
+    };
+    const ex = cat.livres.findIndex(l => l.id === id);
+    if (ex !== -1) cat.livres[ex] = entry; else cat.livres.push(entry);
+    cat.derniereMAJ = new Date().toISOString();
+
+    const url = `https://api.github.com/repos/${owner}/${repo}/contents/livres/catalogue.json`;
+    const put = await fetch(url, {
+      method: 'PUT', headers,
+      body: JSON.stringify({
+        message: 'Update catalogue.json',
+        content: btoa(unescape(encodeURIComponent(JSON.stringify(cat, null, 2)))),
+        branch, sha: catSha || undefined
+      })
+    });
+    if (!put.ok) throw new Error('فشل تحديث الفهرس');
+
+    bar.style.width = '100%'; bar.textContent = '100%';
+    addGhLog('🎉 اكتمل');
+    const finalUrl = `https://raw.githubusercontent.com/${owner}/${repo}/${branch}/livres/catalogue.json`;
+    document.getElementById('finalCatalogUrl').value = finalUrl;
+    document.getElementById('ghUrlsSection').style.display = 'block';
+    showToast('🎉 تم النشر');
+  } catch (e) {
+    addGhLog('❌ ' + e.message);
+    alert('خطأ : ' + e.message);
+  } finally {
+    btn.disabled = false;
+  }
+}
+
+/* ============ JSON VIEWER ============ */
+function openJsonViewer() {
+  refreshJsonViewer();
+  openModal('jsonModal');
+}
+function refreshJsonViewer() {
+  const clean = buildCleanJson();
+  document.getElementById('jsonViewerContent').textContent = JSON.stringify(clean, null, 2);
+}
+function copyJsonToClipboard() {
+  const txt = document.getElementById('jsonViewerContent').textContent;
+  navigator.clipboard.writeText(txt).then(() => showToast('📋 تم النسخ'));
+}
+function downloadJson() {
+  const txt = document.getElementById('jsonViewerContent').textContent;
+  const blob = new Blob([txt], { type: 'application/json' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = `${book.id || 'livre'}.json`;
+  a.click();
+}
+
+/* ============ NEW BOOK ============ */
+function newBook() {
+  if (!confirm('سيتم حذف العمل الحالي. متابعة؟')) return;
+  book = makeEmptyBook();
+  activeNode = { type: 'book-info', params: {} };
+  renderTree();
+  renderContextPanel();
+  scheduleAutoSave();
+  showToast('✨ كتاب جديد');
+}
+
+/* ============ INIT ============ */
+document.addEventListener('DOMContentLoaded', () => {
+  const hasDraft = loadDraft();
+  renderTree();
+  renderContextPanel();
+  if (hasDraft) {
+    showToast('📂 تم استرجاع المسودة المحفوظة', '#0284c7');
+  }
+});
+</script>
+</body>
+</html>
