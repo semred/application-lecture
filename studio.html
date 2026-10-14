@@ -139,8 +139,7 @@ textarea.arabic-text{font-family:'Amiri',serif;font-size:1.15em;line-height:2;mi
           <div><label>المالك (Owner)</label><input type="text" id="impOwner" dir="ltr" placeholder="semred"></div>
           <div><label>المستودع (Repo)</label><input type="text" id="impRepo" dir="ltr" placeholder="livre_alphabetisation"></div>
           <div><label>الفرع (Branch)</label><input type="text" id="impBranch" value="main" dir="ltr"></div>
-          <div><label>Token (اختياري للمستودعات العامة)</label><input type="password" id="impToken" dir="ltr" placeholder="ghp_..."></div>
-        </div>
+         
         <button class="btn btn-primary" onclick="loadGithubCatalogue()">📥 تحميل قائمة الكتب</button>
         <div id="githubBookList" style="margin-top:14px;"></div>
       </div>
@@ -1080,32 +1079,48 @@ async function loadGithubCatalogue() {
   const owner = document.getElementById('impOwner').value.trim();
   const repo = document.getElementById('impRepo').value.trim();
   const branch = document.getElementById('impBranch').value.trim() || 'main';
-  const token = document.getElementById('impToken').value.trim();
   if (!owner || !repo) { alert('املأ Owner و Repo'); return; }
 
   const list = document.getElementById('githubBookList');
   list.innerHTML = '<p>⏳ جاري التحميل...</p>';
-  const headers = {};
-  if (token) headers['Authorization'] = 'token ' + token;
 
-  try {
-    const url = `https://raw.githubusercontent.com/${owner}/${repo}/${branch}/livres/catalogue.json`;
-    const res = await fetch(url, { headers });
-    if (!res.ok) throw new Error('HTTP ' + res.status);
-    const cat = await res.json();
-    const livres = cat.livres || [];
-    if (!livres.length) { list.innerHTML = '<p>لا توجد كتب.</p>'; return; }
-    list.innerHTML = livres.map((l, i) => `
-      <div class="subcard" style="display:flex;justify-content:space-between;align-items:center;">
-        <div><strong>${escapeHtml(l.titre)}</strong>
-          <div style="font-size:.8em;color:#64748b;">${l.nombrePages || '?'} صفحة — ${l.niveau || ''}</div>
-        </div>
-        <button class="btn btn-primary btn-sm" onclick='importFromGithub("${owner}","${repo}","${branch}","${token}","${l.fichierJSON}")'>📥 استيراد</button>
-      </div>
-    `).join('');
-  } catch (e) {
-    list.innerHTML = `<p style="color:var(--danger);">❌ ${e.message}</p>`;
+  // Deux sources en cascade (aucun header → aucun preflight CORS)
+  const urls = [
+    `https://raw.githubusercontent.com/${owner}/${repo}/${branch}/livres/catalogue.json`,
+    `https://cdn.jsdelivr.net/gh/${owner}/${repo}@${branch}/livres/catalogue.json`
+  ];
+
+  let cat = null, lastErr = '';
+  for (const url of urls) {
+    try {
+      const res = await fetch(url);   // ⚠️ aucun header
+      if (res.ok) { cat = await res.json(); break; }
+      lastErr = `HTTP ${res.status} (${url})`;
+    } catch (e) {
+      lastErr = `${e.message} (${url})`;
+    }
   }
+
+  if (!cat) {
+    list.innerHTML = `
+      <div style="background:#fee2e2;color:#991b1b;padding:12px;border-radius:10px;font-size:.9em;">
+        ❌ تعذّر تحميل الفهرس.<br>
+        <small style="direction:ltr;display:block;text-align:left;word-break:break-all;">${lastErr}</small>
+      </div>`;
+    return;
+  }
+
+  const livres = cat.livres || [];
+  if (!livres.length) { list.innerHTML = '<p>لا توجد كتب.</p>'; return; }
+
+  list.innerHTML = livres.map(l => `
+    <div class="subcard" style="display:flex;justify-content:space-between;align-items:center;">
+      <div><strong>${escapeHtml(l.titre)}</strong>
+        <div style="font-size:.8em;color:#64748b;">${l.nombrePages || '?'} صفحة — ${l.niveau || ''}</div>
+      </div>
+      <button class="btn btn-primary btn-sm" onclick='importFromGithub("${owner}","${repo}","${branch}","${l.fichierJSON}")'>📥 استيراد</button>
+    </div>
+  `).join('');
 }
 
 async function importFromGithub(owner, repo, branch, token, filePath) {
