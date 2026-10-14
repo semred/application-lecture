@@ -130,23 +130,24 @@ textarea.arabic-text{font-family:'Amiri',serif;font-size:1.15em;line-height:2;mi
         <button class="import-tab active" onclick="switchImportTab('pc',event)">📁 من الحاسوب (ZIP أو JSON)</button>
         <button class="import-tab" onclick="switchImportTab('github',event)">🌐 من GitHub</button>
       </div>
+
       <div class="import-pane active" id="importPane-pc">
         <p style="color:#64748b;margin-bottom:14px;font-size:.9em;">اختر ملف حزمة ZIP أو ملف JSON مُصدَّر سابقاً. سيتم استعادة جميع الصور والأصوات إذا كان الملف ZIP.</p>
         <input type="file" id="importFileInput" accept=".zip,.json" onchange="importFromPc(this)" style="padding:10px;border:2px dashed var(--border);border-radius:10px;width:100%;">
       </div>
+
       <div class="import-pane" id="importPane-github">
         <div class="form-grid">
           <div><label>المالك (Owner)</label><input type="text" id="impOwner" dir="ltr" placeholder="semred"></div>
           <div><label>المستودع (Repo)</label><input type="text" id="impRepo" dir="ltr" placeholder="livre_alphabetisation"></div>
           <div><label>الفرع (Branch)</label><input type="text" id="impBranch" value="main" dir="ltr"></div>
-         
+        </div>
         <button class="btn btn-primary" onclick="loadGithubCatalogue()">📥 تحميل قائمة الكتب</button>
         <div id="githubBookList" style="margin-top:14px;"></div>
       </div>
     </div>
   </div>
 </div>
-
 <!-- ============ MODAL EXPORT ============ -->
 <div class="modal-overlay" id="exportModal">
   <div class="modal">
