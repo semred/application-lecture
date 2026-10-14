@@ -949,9 +949,16 @@
     function speakTryAgain() { speakText('حاول مرة أخرى'); }
 
     // ============ TTS : LECTURE D'UN SEUL MOT ============
-    function playWordTTS(word, span) {
+        function playWordTTS(word, span) {
       const mySession = ++ttsSessionId;
       clearHighlightTimer();
+
+      // ⚡ Si un MP3 est en cours, on le met en pause
+      //    pour éviter la superposition voix humaine + voix TTS
+      if (!audio.paused) {
+        audio.pause();
+        playStopTime = null;
+      }
 
       window.speechSynthesis.cancel();
       clearAllHighlight();
@@ -995,19 +1002,16 @@
     }
 
     // ============ MP3 : LECTURE DEPUIS UN MOT ============
+        // ============ CLIC SUR UN MOT : TOUJOURS EN TTS ============
+    // (le MP3 est réservé à la lecture complète ; le TTS garantit la
+    //  prononciation exacte du mot affiché, sans dépendre du CSV WebMAUS)
     function playFromWord(index) {
       const page = currentBook.pages[currentPageIndex];
-      if (!page || !page.mots) return;
-      const mot = page.mots[index];
-      if (!mot) return;
+      if (!page || !page.mots || !page.mots[index]) return;
 
-      if (page.audioMode === 'mp3' && page.audioPage) {
-        audio.currentTime = mot.debut;
-        playStopTime = mot.fin;
-        audio.play().catch(e => console.error('Erreur lecture audio:', e));
-        isPlaying = true;
-        updatePlayButton();
-      }
+      const mot = page.mots[index];
+      const span = document.querySelector(`.word[data-index="${index}"]`);
+      playWordTTS(mot.texte, span);
     }
 
     function stopAudio() {
@@ -1171,13 +1175,12 @@
       container.dataset.selectedElementIndex = element.dataset.index;
     }
 
-        function placerMotDansTrou(trouElement, indexTrou) {
+    function placerMotDansTrou(trouElement, indexTrou) {
       const container = trouElement.closest('.exercise-fillblank');
       const motSelectionne = container.dataset.selectedMot;
       const reponses = JSON.parse(container.dataset.reponses);
       const bonneReponse = reponses[indexTrou];
 
-      // Pas de mot sélectionné → shake de la banque + son "réessaie"
       if (!motSelectionne) {
         const banque = container.querySelector('.banque-mots');
         if (banque) {
@@ -1187,26 +1190,18 @@
         speakTryAgain();
         return;
       }
-
-      // Trou déjà rempli correctement → on ignore
       if (trouElement.classList.contains('correct')) return;
 
-      // 1) Afficher le mot dans le trou, quel qu'il soit
-      trouElement.innerHTML = `<span class="mot-place">${motSelectionne}</span>`;
-      // Retirer la sélection visuelle dans la banque (temporairement)
-      document.querySelectorAll('.mot-banque').forEach(m => m.classList.remove('selected'));
-
       if (motSelectionne === bonneReponse) {
-        // ✅ BONNE RÉPONSE
+        trouElement.innerHTML = `<span class="mot-place">${motSelectionne}</span>`;
         trouElement.classList.add('correct');
         trouElement.classList.remove('incorrect');
 
-        // Marquer le mot comme utilisé dans la banque
         const motElement = container.querySelector(`.mot-banque[data-mot="${motSelectionne}"]:not(.used)`);
         if (motElement) {
           motElement.classList.add('used');
+          motElement.classList.remove('selected');
         }
-
         let trousRemplis = parseInt(container.dataset.trousRemplis) + 1;
         container.dataset.trousRemplis = trousRemplis;
         container.dataset.selectedMot = '';
@@ -1217,16 +1212,11 @@
           speakBravo();
         }
       } else {
-        // ❌ MAUVAISE RÉPONSE → le mot s'affiche, tremble, puis disparaît
         trouElement.classList.add('incorrect');
-        speakTryAgain();
-
-        setTimeout(() => {
-          trouElement.classList.remove('incorrect');
-          trouElement.innerHTML = '';   // on efface le mot
-        }, 700);
-
+        setTimeout(() => trouElement.classList.remove('incorrect'), 500);
+        document.querySelectorAll('.mot-banque').forEach(m => m.classList.remove('selected'));
         container.dataset.selectedMot = '';
+        speakTryAgain();
       }
     }
 
