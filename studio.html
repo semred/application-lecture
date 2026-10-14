@@ -1123,7 +1123,7 @@ async function loadGithubCatalogue() {
   `).join('');
 }
 
-async function importFromGithub(owner, repo, branch, token, filePath) {
+async function importFromGithub(owner, repo, branch, filePath) {
   showToast('⏳ تحميل...');
   try {
     const base = `https://raw.githubusercontent.com/${owner}/${repo}/${branch}`;
