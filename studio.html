@@ -77,6 +77,22 @@ textarea.arabic-text{font-family:'Amiri',serif;font-size:1.15em;line-height:2;mi
 .nav-tabs{display:flex;gap:6px;margin-bottom:15px;border-bottom:2px solid var(--border);overflow-x:auto}
 .nav-tab{padding:8px 14px;border:none;background:none;cursor:pointer;font-family:inherit;font-weight:700;color:#64748b;border-bottom:3px solid transparent;margin-bottom:-2px;white-space:nowrap;font-size:.85em}
 .nav-tab.active{color:var(--primary);border-bottom-color:var(--primary)}
+
+/* ===== QCM : ligne avec case à cocher ===== */
+.qcm-opt-row{display:grid;grid-template-columns:30px 1fr auto;gap:8px;margin-bottom:6px;align-items:center}
+.qcm-cb{width:22px;height:22px;cursor:pointer;accent-color:var(--primary)}
+
+/* ===== وسم الصورة : conteneur + marqueurs ===== */
+.img-zones-container{position:relative;display:inline-block;max-width:100%;cursor:crosshair;outline:2px dashed #cbd5e1;outline-offset:-2px;border-radius:10px;overflow:hidden;line-height:0}
+.img-zones-container img{display:block;max-width:100%;height:auto;pointer-events:none;border-radius:10px}
+.img-zone-marker{position:absolute;width:34px;height:34px;transform:translate(-50%,-50%);border-radius:50%;background:rgba(13,92,74,.78);color:#fff;font-weight:bold;font-size:.85em;display:flex;align-items:center;justify-content:center;border:2px solid #fff;box-shadow:0 2px 8px rgba(0,0,0,.35);pointer-events:auto;user-select:none}
+
+/* ===== وسم عدة صور ===== */
+.img-labels-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:12px;margin-top:10px}
+.img-label-item{background:#f8fafc;border:1.5px solid var(--border);border-radius:10px;padding:10px;text-align:center}
+.img-label-item img{width:100%;height:100px;object-fit:cover;border-radius:8px;display:block;margin-bottom:8px;border:1px solid #e2e8f0}
+.img-label-item .lbl-preview{width:100%;height:100px;border:2px dashed #cbd5e1;border-radius:8px;display:flex;align-items:center;justify-content:center;color:#94a3b8;font-size:.8em;margin-bottom:8px;background:#fff}
+.zone-badge{display:inline-flex;width:26px;height:26px;border-radius:50%;background:var(--primary);color:#fff;font-size:.8em;font-weight:bold;align-items:center;justify-content:center}
 </style>
 </head>
 <body>
@@ -104,7 +120,7 @@ textarea.arabic-text{font-family:'Amiri',serif;font-size:1.15em;line-height:2;mi
     </div>
   </div>
 
-  <!-- LAYOUT PRINCIPAL : ARBRE + PANNEAU -->
+  <!-- LAYOUT PRINCIPAL -->
   <div class="app-layout">
     <aside class="sidebar card">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
@@ -148,6 +164,7 @@ textarea.arabic-text{font-family:'Amiri',serif;font-size:1.15em;line-height:2;mi
     </div>
   </div>
 </div>
+
 <!-- ============ MODAL EXPORT ============ -->
 <div class="modal-overlay" id="exportModal">
   <div class="modal">
@@ -299,13 +316,11 @@ function renderTree() {
   const ul = document.createElement('ul');
   ul.className = 'tree-root';
 
-  // Racine livre
   ul.appendChild(makeTreeNode({
     label: '📖 ' + (book.titre || 'كتاب بدون عنوان'),
     type: 'book-info', params: {}
   }));
 
-  // Pages
   const pagesNode = makeTreeNode({
     label: '📄 الصفحات (' + book.pages.length + ')',
     type: 'pages-list', params: {},
@@ -319,7 +334,6 @@ function renderTree() {
     });
     const pChildren = pageNode.querySelector('.tree-children');
 
-    // Vocabulaire
     const vocabNode = makeTreeNode({
       label: '📖 المفردات (' + (page.vocabulaire?.length || 0) + ')',
       type: 'vocab-list', params: { pageIndex: i },
@@ -334,7 +348,6 @@ function renderTree() {
     });
     pChildren.appendChild(vocabNode);
 
-    // Exercices
     const exNode = makeTreeNode({
       label: '🎮 التمارين (' + (page.exercices?.length || 0) + ')',
       type: 'exercises-list', params: { pageIndex: i },
@@ -349,7 +362,6 @@ function renderTree() {
     });
     pChildren.appendChild(exNode);
 
-    // Notes
     pChildren.appendChild(makeTreeNode({
       label: '📌 ملاحظات',
       type: 'notes', params: { pageIndex: i }
@@ -359,7 +371,6 @@ function renderTree() {
   });
   ul.appendChild(pagesNode);
 
-  // Résumé
   ul.appendChild(makeTreeNode({
     label: '📝 الملخص',
     type: 'summary', params: {}
@@ -651,7 +662,9 @@ function getSummaryFormHTML() {
 /* ---------- FORMULAIRE EXERCICE ---------- */
 function labelOfType(t) {
   return { fillblank:'ملء الفراغات', qcm:'اختيار متعدد', word_order:'ترتيب الكلمات',
-           image_click:'وسم الصورة', matching:'ربط الأزواج',
+           image_click:'وسم الصورة (خريطة / مناطق)',
+           image_labels:'وسم عدة صور',
+           matching:'ربط الأزواج',
            audio_choice:'اختيار صوتي', custom:'مخصص (متقدم)' }[t] || t;
 }
 
@@ -672,16 +685,40 @@ function getExerciseFormHTML(pi, ei) {
       </div>`;
 
   } else if (ex.type === 'qcm') {
+    const nCorrect = (ex.bonnesReponses || []).length;
     specific = `
       <label>نص السؤال :</label>
       <input type="text" value="${escapeAttr(ex.question)}" oninput="updateExerciseField(${pi},${ei},'question',this.value)">
-      <label style="margin-top:8px;">الخيارات (افصل بـ , أو ،) :</label>
-      <input type="text" value="${escapeAttr((ex.options||[]).join('، '))}" oninput="updateQcmOptions(${pi},${ei},this.value)">
-      <div style="margin-top:8px;">
-        <label>رقم الخيار الصحيح :</label>
-        <select onchange="updateExerciseField(${pi},${ei},'bonneReponseIndex',parseInt(this.value))">
-          ${(ex.options||[]).map((o, i) => `<option value="${i}" ${ex.bonneReponseIndex===i?'selected':''}>${i+1}. ${escapeHtml(o)}</option>`).join('')}
-        </select>
+      <div style="margin-top:14px;">
+        <label style="font-weight:800;">الخيارات (من 2 إلى 5) — علّم ✓ على الإجابات الصحيحة :</label>
+        <div id="qcm-options-${pi}-${ei}" style="margin-top:8px;">
+          ${(ex.options||[]).map((o, i) => {
+            const isCorrect = (ex.bonnesReponses || []).includes(i);
+            const canDelete = (ex.options||[]).length > 2;
+            return `
+            <div class="qcm-opt-row">
+              <input type="checkbox" class="qcm-cb" ${isCorrect ? 'checked' : ''}
+                     title="إجابة صحيحة"
+                     onchange="toggleQcmCorrect(${pi},${ei},${i},this.checked)">
+              <input type="text" placeholder="خيار ${i+1}" value="${escapeAttr(o)}"
+                     oninput="updateQcmOption(${pi},${ei},${i},this.value)">
+              <button class="btn btn-danger btn-sm"
+                      onclick="deleteQcmOption(${pi},${ei},${i})"
+                      ${canDelete ? '' : 'disabled style="opacity:.4;cursor:not-allowed;"'}>🗑️</button>
+            </div>`;
+          }).join('')}
+        </div>
+        <button class="btn btn-outline btn-sm" style="margin-top:8px;"
+                onclick="addQcmOption(${pi},${ei})"
+                ${(ex.options||[]).length >= 5 ? 'disabled style="opacity:.4;cursor:not-allowed;"' : ''}>
+          ➕ إضافة خيار (${(ex.options||[]).length}/5)
+        </button>
+        <div id="qcm-hint-${pi}-${ei}"
+             style="font-size:.85em;margin-top:10px;font-weight:bold;color:${nCorrect === 0 ? '#dc2626' : '#16a34a'};">
+          ${nCorrect === 0
+            ? '⚠️ لم تحدد أي إجابة صحيحة بعد — علّم ✓ على الخيارات الصحيحة'
+            : `✅ ${nCorrect} إجابة صحيحة محددة`}
+        </div>
       </div>`;
 
   } else if (ex.type === 'word_order') {
@@ -690,26 +727,69 @@ function getExerciseFormHTML(pi, ei) {
       <input type="text" value="${escapeAttr(ex.phraseCorrecte)}" oninput="updateExerciseField(${pi},${ei},'phraseCorrecte',this.value)">`;
 
   } else if (ex.type === 'image_click') {
+    const zones = ex.zones || [];
     specific = `
       <label>التعليمة :</label>
       <input type="text" value="${escapeAttr(ex.instruction)}" oninput="updateExerciseField(${pi},${ei},'instruction',this.value)">
-      <div style="margin-top:10px;">
-        <label>صورة التمرين :</label>
+
+      <div style="margin-top:14px;">
+        <label style="font-weight:800;">الصورة :</label>
         <input type="file" accept="image/*" onchange="handleExImage(${pi},${ei},this)">
-        <div class="preview-box">${ex.imageData ? `<img src="${ex.imageData}">` : ''}</div>
       </div>
-      <div style="margin-top:12px;">
-        <label style="font-weight:800;">المناطق (label + الكلمة الصحيحة) :</label>
-        <div id="zones-${pi}-${ei}">
-          ${(ex.zones||[]).map((z, zi) => `
-            <div class="zone-row">
-              <input type="text" placeholder="التسمية (مثال: فاكهة)" value="${escapeAttr(z.label)}" oninput="updateZone(${pi},${ei},${zi},'label',this.value)">
-              <input type="text" placeholder="الكلمة الصحيحة" value="${escapeAttr(z.reponse)}" oninput="updateZone(${pi},${ei},${zi},'reponse',this.value)">
-              <button class="btn btn-danger btn-sm" onclick="deleteZone(${pi},${ei},${zi})">🗑️</button>
+
+      ${ex.imageData ? `
+        <div style="margin-top:14px;background:#f8fafc;padding:12px;border-radius:10px;">
+          <label style="font-weight:800;color:var(--primary);">📍 انقر على الصورة لوضع منطقة استقبال :</label>
+          <p style="font-size:.82em;color:#64748b;margin:6px 0 10px;">
+            كل نقرة تضيف دائرة (منطقة). كل منطقة تستقبل تسمية واحدة عند التمرين.
+          </p>
+          <div style="overflow:auto;text-align:center;">
+            <div class="img-zones-container" id="zones-container-${pi}-${ei}" onclick="handleImageClick(event,${pi},${ei})">
+              <img src="${ex.imageData}">
+              ${zones.map((z, zi) => `
+                <div class="img-zone-marker" style="left:${z.x}%;top:${z.y}%;" title="${escapeAttr(z.reponse || 'منطقة ' + (zi+1))}">${zi+1}</div>
+              `).join('')}
+            </div>
+          </div>
+        </div>
+      ` : '<p style="font-size:.85em;color:#94a3b8;margin-top:8px;">⚠️ ارفع الصورة أولاً لتتمكن من وضع المناطق.</p>'}
+
+      <div style="margin-top:16px;">
+        <label style="font-weight:800;">المناطق (${zones.length}) — اكتب التسمية الصحيحة لكل منطقة :</label>
+        <div style="margin-top:8px;">
+          ${zones.map((z, zi) => `
+            <div style="display:grid;grid-template-columns:36px 1fr auto;gap:8px;margin-bottom:6px;align-items:center;">
+              <span class="zone-badge">${zi+1}</span>
+              <input type="text" placeholder="التسمية الصحيحة (مثال: الجزائر)" value="${escapeAttr(z.reponse)}"
+                     oninput="updateImageZone(${pi},${ei},${zi},'reponse',this.value)">
+              <button class="btn btn-danger btn-sm" onclick="deleteImageZone(${pi},${ei},${zi})">🗑️</button>
+            </div>
+          `).join('') || '<p style="color:#94a3b8;font-size:.85em;">لم تُضف أي منطقة بعد. انقر على الصورة.</p>'}
+        </div>
+        ${zones.length > 0 ? `<button class="btn btn-outline btn-sm" style="margin-top:10px;" onclick="clearImageZones(${pi},${ei})">🗑️ مسح جميع المناطق</button>` : ''}
+      </div>`;
+
+  } else if (ex.type === 'image_labels') {
+    const items = ex.items || [];
+    specific = `
+      <label>التعليمة :</label>
+      <input type="text" value="${escapeAttr(ex.instruction)}" oninput="updateExerciseField(${pi},${ei},'instruction',this.value)">
+
+      <div style="margin-top:16px;">
+        <label style="font-weight:800;">الصور والتسميات (${items.length}) :</label>
+        <div class="img-labels-grid">
+          ${items.map((it, ii) => `
+            <div class="img-label-item">
+              ${it.imageData ? `<img src="${it.imageData}">` : `<div class="lbl-preview">لا صورة</div>`}
+              <input type="file" accept="image/*" onchange="handleLabelImage(${pi},${ei},${ii},this)" style="font-size:.72em;width:100%;">
+              <input type="text" placeholder="التسمية" value="${escapeAttr(it.reponse)}"
+                     oninput="updateLabelItem(${pi},${ei},${ii},'reponse',this.value)"
+                     style="margin-top:6px;font-size:.88em;">
+              <button class="btn btn-danger btn-sm" style="margin-top:6px;width:100%;" onclick="deleteLabelItem(${pi},${ei},${ii})">🗑️ حذف</button>
             </div>
           `).join('')}
         </div>
-        <button class="btn btn-outline btn-sm" style="margin-top:6px;" onclick="addZone(${pi},${ei})">➕ إضافة منطقة</button>
+        <button class="btn btn-outline" style="margin-top:12px;" onclick="addLabelItem(${pi},${ei})">➕ إضافة صورة + تسمية</button>
       </div>`;
 
   } else if (ex.type === 'matching') {
@@ -816,21 +896,108 @@ function updateQcmOptions(pi, ei, v) {
   scheduleAutoSave();
 }
 
-/* Zones */
-function addZone(pi, ei) {
+/* ---------- QCM : gestion multi-options + cases à cocher ---------- */
+function addQcmOption(pi, ei) {
+  const ex = book.pages[pi].exercices[ei];
+  ex.options = ex.options || [];
+  if (ex.options.length >= 5) return;
+  ex.options.push('');
+  renderContextPanel();
+  scheduleAutoSave();
+}
+
+function deleteQcmOption(pi, ei, oi) {
+  const ex = book.pages[pi].exercices[ei];
+  if ((ex.options || []).length <= 2) return;
+  ex.options.splice(oi, 1);
+  ex.bonnesReponses = (ex.bonnesReponses || [])
+    .filter(idx => idx !== oi)
+    .map(idx => idx > oi ? idx - 1 : idx);
+  renderContextPanel();
+  scheduleAutoSave();
+}
+
+function updateQcmOption(pi, ei, oi, v) {
+  book.pages[pi].exercices[ei].options[oi] = v;
+  scheduleAutoSave();
+}
+
+function toggleQcmCorrect(pi, ei, oi, checked) {
+  const ex = book.pages[pi].exercices[ei];
+  ex.bonnesReponses = ex.bonnesReponses || [];
+  if (checked) {
+    if (!ex.bonnesReponses.includes(oi)) ex.bonnesReponses.push(oi);
+  } else {
+    ex.bonnesReponses = ex.bonnesReponses.filter(i => i !== oi);
+  }
+  ex.bonnesReponses.sort((a, b) => a - b);
+  scheduleAutoSave();
+
+  const hint = document.getElementById(`qcm-hint-${pi}-${ei}`);
+  if (hint) {
+    const n = ex.bonnesReponses.length;
+    hint.textContent = n === 0
+      ? '⚠️ لم تحدد أي إجابة صحيحة بعد — علّم ✓ على الخيارات الصحيحة'
+      : `✅ ${n} إجابة صحيحة محددة`;
+    hint.style.color = n === 0 ? '#dc2626' : '#16a34a';
+  }
+}
+
+/* ---------- وسم صورة واحدة (خريطة / مناطق) ---------- */
+function handleImageClick(event, pi, ei) {
+  const container = event.currentTarget;
+  const rect = container.getBoundingClientRect();
+  const x = ((event.clientX - rect.left) / rect.width) * 100;
+  const y = ((event.clientY - rect.top) / rect.height) * 100;
   const ex = book.pages[pi].exercices[ei];
   ex.zones = ex.zones || [];
-  ex.zones.push({ label: '', reponse: '' });
+  ex.zones.push({ x: +x.toFixed(1), y: +y.toFixed(1), reponse: '' });
   renderContextPanel();
+  scheduleAutoSave();
 }
-function deleteZone(pi, ei, zi) {
+function updateImageZone(pi, ei, zi, k, v) {
+  book.pages[pi].exercices[ei].zones[zi][k] = v;
+  scheduleAutoSave();
+}
+function deleteImageZone(pi, ei, zi) {
   book.pages[pi].exercices[ei].zones.splice(zi, 1);
   renderContextPanel();
   scheduleAutoSave();
 }
-function updateZone(pi, ei, zi, k, v) {
-  book.pages[pi].exercices[ei].zones[zi][k] = v;
+function clearImageZones(pi, ei) {
+  if (!confirm('مسح جميع المناطق؟')) return;
+  book.pages[pi].exercices[ei].zones = [];
+  renderContextPanel();
   scheduleAutoSave();
+}
+
+/* ---------- وسم عدة صور ---------- */
+function addLabelItem(pi, ei) {
+  const ex = book.pages[pi].exercices[ei];
+  ex.items = ex.items || [];
+  ex.items.push({ imageData: null, image: '', reponse: '' });
+  renderContextPanel();
+  scheduleAutoSave();
+}
+function deleteLabelItem(pi, ei, ii) {
+  book.pages[pi].exercices[ei].items.splice(ii, 1);
+  renderContextPanel();
+  scheduleAutoSave();
+}
+function updateLabelItem(pi, ei, ii, k, v) {
+  book.pages[pi].exercices[ei].items[ii][k] = v;
+  scheduleAutoSave();
+}
+function handleLabelImage(pi, ei, ii, input) {
+  if (!input.files?.[0]) return;
+  const reader = new FileReader();
+  reader.onload = e => {
+    book.pages[pi].exercices[ei].items[ii].imageData = e.target.result;
+    renderContextPanel();
+    scheduleAutoSave();
+    showToast('✅ صورة ' + (ii + 1));
+  };
+  reader.readAsDataURL(input.files[0]);
 }
 
 /* Pairs */
@@ -885,7 +1052,8 @@ function openAddExerciseMenu(pi) {
     ['fillblank', '✍️ ملء الفراغات'],
     ['qcm', '❓ اختيار متعدد'],
     ['word_order', '🔀 ترتيب الكلمات'],
-    ['image_click', '🖼️ وسم الصورة'],
+    ['image_click', '🗺️ وسم صورة واحدة (خريطة / مناطق)'],
+    ['image_labels', '🖼️ وسم عدة صور'],
     ['matching', '🔗 ربط الأزواج'],
     ['audio_choice', '🔊 اختيار صوتي'],
     ['custom', '⚙️ مخصص (متقدم)']
@@ -904,9 +1072,10 @@ function openAddExerciseMenu(pi) {
 function addExercise(pi, type) {
   const ex = { id: 'exo-' + Date.now(), type, titre: '' };
   if (type === 'fillblank') Object.assign(ex, { texte: '___', reponses: ['كلمة'], leurres: [], motsMelanges: ['كلمة'] });
-  else if (type === 'qcm') Object.assign(ex, { question: '', options: ['', ''], bonneReponseIndex: 0 });
-  else if (type === 'word_order') Object.assign(ex, { phraseCorrecte: '', motsMelanges: [] });
-  else if (type === 'image_click') Object.assign(ex, { instruction: 'اضغط على الجزء المناسب', imageData: null, image: '', zones: [] });
+  else if (type === 'qcm') Object.assign(ex, { question: '', options: ['', ''], bonnesReponses: [] });
+  else if (type === 'word_order') Object.assign(ex, { phraseCorrecte: '' });
+  else if (type === 'image_click') Object.assign(ex, { instruction: 'ضع كل تسمية على مكانها الصحيح في الصورة', imageData: null, image: '', zones: [] });
+  else if (type === 'image_labels') Object.assign(ex, { instruction: 'اختر التسمية المناسبة لكل صورة', items: [] });
   else if (type === 'matching') Object.assign(ex, { instruction: 'اربط كل عنصر بما يناسبه', pairs: [{ left: '', right: '' }] });
   else if (type === 'audio_choice') Object.assign(ex, { instruction: 'اسمع الكلمة واختر الكتابة الصحيحة', wordToSpeak: '', options: ['', ''], bonneReponseIndex: 0 });
   else if (type === 'custom') Object.assign(ex, { html: '<h3>مرحباً</h3><p>اضغط الزر للتفاعل</p><button onclick="parent.postMessage({type:\'bravo\'},\'*\')">صحيح</button>', css: 'body{font-family:Cairo,sans-serif;text-align:center;padding:20px;background:#f4f7f6}', js: '' });
@@ -1050,7 +1219,6 @@ async function importFromPc(input) {
       if (!jsonEntry) throw new Error('livre.json غير موجود');
       const parsed = JSON.parse(await jsonEntry.async('text'));
 
-      // Recharger les médias
       const loadB64 = async (entry) => {
         const b64 = await entry.async('base64');
         return 'data:application/octet-stream;base64,' + b64;
@@ -1085,7 +1253,6 @@ async function loadGithubCatalogue() {
   const list = document.getElementById('githubBookList');
   list.innerHTML = '<p>⏳ جاري التحميل...</p>';
 
-  // Deux sources en cascade (aucun header → aucun preflight CORS)
   const urls = [
     `https://raw.githubusercontent.com/${owner}/${repo}/${branch}/livres/catalogue.json`,
     `https://cdn.jsdelivr.net/gh/${owner}/${repo}@${branch}/livres/catalogue.json`
@@ -1094,7 +1261,7 @@ async function loadGithubCatalogue() {
   let cat = null, lastErr = '';
   for (const url of urls) {
     try {
-      const res = await fetch(url);   // ⚠️ aucun header
+      const res = await fetch(url);
       if (res.ok) { cat = await res.json(); break; }
       lastErr = `HTTP ${res.status} (${url})`;
     } catch (e) {
@@ -1132,7 +1299,6 @@ async function importFromGithub(owner, repo, branch, filePath) {
     if (!res.ok) throw new Error('HTTP ' + res.status);
     const parsed = await res.json();
 
-    // Essayer de recharger les médias
     const tryFetchB64 = async (url) => {
       try {
         const r = await fetch(url);
@@ -1167,7 +1333,6 @@ async function importFromGithub(owner, repo, branch, filePath) {
 }
 
 function loadImportedBook(data) {
-  // Compatibilité : s'assurer que tous les champs existent
   book = {
     id: data.id || 'mon-livre',
     titre: data.titre || '',
@@ -1198,6 +1363,25 @@ function loadImportedBook(data) {
       audioData: data.resume?.audioData || null
     }
   };
+
+  // Migration des anciens formats
+  book.pages.forEach(p => {
+    (p.exercices || []).forEach(ex => {
+      if (ex.type === 'qcm' && !Array.isArray(ex.bonnesReponses)) {
+        ex.bonnesReponses = (typeof ex.bonneReponseIndex === 'number') ? [ex.bonneReponseIndex] : [];
+        delete ex.bonneReponseIndex;
+      }
+      if (ex.type === 'word_order') {
+        delete ex.motsMelanges;
+      }
+      if (ex.type === 'image_click' && Array.isArray(ex.zones)) {
+        ex.zones = ex.zones
+          .filter(z => typeof z.x === 'number' && typeof z.y === 'number')
+          .map(z => ({ x: z.x, y: z.y, reponse: z.reponse || '' }));
+      }
+    });
+  });
+
   if (!book.pages.length) book.pages = [makeEmptyPage(1)];
   activeNode = { type: 'book-info', params: {} };
   renderTree();
@@ -1355,7 +1539,6 @@ async function exportFullPackageToGitHub() {
     }
     bar.style.width = '80%'; bar.textContent = '80%';
 
-    // Mise à jour du catalogue
     addGhLog('تحديث catalogue.json...');
     const catUrl = `https://api.github.com/repos/${owner}/${repo}/contents/livres/catalogue.json`;
     let cat = { derniereMAJ: new Date().toISOString(), livres: [] };
