@@ -77,17 +77,11 @@ textarea.arabic-text{font-family:'Amiri',serif;font-size:1.15em;line-height:2;mi
 .nav-tabs{display:flex;gap:6px;margin-bottom:15px;border-bottom:2px solid var(--border);overflow-x:auto}
 .nav-tab{padding:8px 14px;border:none;background:none;cursor:pointer;font-family:inherit;font-weight:700;color:#64748b;border-bottom:3px solid transparent;margin-bottom:-2px;white-space:nowrap;font-size:.85em}
 .nav-tab.active{color:var(--primary);border-bottom-color:var(--primary)}
-
-/* ===== QCM : ligne avec case à cocher ===== */
 .qcm-opt-row{display:grid;grid-template-columns:30px 1fr auto;gap:8px;margin-bottom:6px;align-items:center}
 .qcm-cb{width:22px;height:22px;cursor:pointer;accent-color:var(--primary)}
-
-/* ===== وسم الصورة : conteneur + marqueurs ===== */
 .img-zones-container{position:relative;display:inline-block;max-width:100%;cursor:crosshair;outline:2px dashed #cbd5e1;outline-offset:-2px;border-radius:10px;overflow:hidden;line-height:0}
 .img-zones-container img{display:block;max-width:100%;height:auto;pointer-events:none;border-radius:10px}
 .img-zone-marker{position:absolute;width:34px;height:34px;transform:translate(-50%,-50%);border-radius:50%;background:rgba(13,92,74,.78);color:#fff;font-weight:bold;font-size:.85em;display:flex;align-items:center;justify-content:center;border:2px solid #fff;box-shadow:0 2px 8px rgba(0,0,0,.35);pointer-events:auto;user-select:none}
-
-/* ===== وسم عدة صور ===== */
 .img-labels-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:12px;margin-top:10px}
 .img-label-item{background:#f8fafc;border:1.5px solid var(--border);border-radius:10px;padding:10px;text-align:center}
 .img-label-item img{width:100%;height:100px;object-fit:cover;border-radius:8px;display:block;margin-bottom:8px;border:1px solid #e2e8f0}
@@ -245,6 +239,7 @@ function makeEmptyBook() {
     description: '',
     auteur: '',
     niveau: 'moyen',
+    silences: { period: 1.0, comma: 0.5, question: 1.2 },
     pages: [makeEmptyPage(1)],
     resume: { texte: '', modeAudio: 'tts', audio: '', audioData: null }
   };
@@ -301,6 +296,7 @@ function loadDraft() {
     const parsed = JSON.parse(raw);
     if (!parsed || !parsed.pages) return false;
     book = parsed;
+    if (!book.silences) book.silences = { period: 1.0, comma: 0.5, question: 1.2 };
     return true;
   } catch { return false; }
 }
@@ -491,6 +487,25 @@ function getBookInfoFormHTML() {
     <div><label>وصف الكتاب *</label>
       <textarea style="height:80px;" oninput="updateBookField('description',this.value)">${escapeHtml(book.description)}</textarea>
     </div>
+  </div>
+
+  <div class="card">
+    <h2>⏱️ إعدادات المزامنة (مدة الصمت بالثواني)</h2>
+    <p style="color:#64748b;font-size:.85em;margin-bottom:12px;">
+      Ces durées correspondent au silence réel inséré par la voix TTS entre chaque ponctuation.
+      Elles servent à calculer automatiquement les timings de chaque mot à partir de la durée du MP3.
+    </p>
+    <div class="form-grid">
+      <div><label>نقطة (.)</label>
+        <input type="number" step="0.1" min="0" value="${book.silences?.period ?? 1.0}"
+               oninput="updateSilence('period',this.value)"></div>
+      <div><label>فاصلة (،)</label>
+        <input type="number" step="0.1" min="0" value="${book.silences?.comma ?? 0.5}"
+               oninput="updateSilence('comma',this.value)"></div>
+      <div><label>استفهام (؟) أو تعجب (!)</label>
+        <input type="number" step="0.1" min="0" value="${book.silences?.question ?? 1.2}"
+               oninput="updateSilence('question',this.value)"></div>
+    </div>
   </div>`;
 }
 
@@ -535,16 +550,26 @@ function getPageFormHTML(i) {
       <label style="color:var(--primary);font-weight:800;">وضع الصوت :</label>
       <div style="display:flex;gap:16px;margin-bottom:10px;">
         <label><input type="radio" name="amode-${i}" value="tts" ${p.audioMode==='tts'?'checked':''} onchange="updatePageField(${i},'audioMode','tts')"> 🤖 نطق آلي (TTS)</label>
-        <label><input type="radio" name="amode-${i}" value="mp3" ${p.audioMode==='mp3'?'checked':''} onchange="updatePageField(${i},'audioMode','mp3')"> 🎵 MP3 مع WebMAUS</label>
+        <label><input type="radio" name="amode-${i}" value="mp3" ${p.audioMode==='mp3'?'checked':''} onchange="updatePageField(${i},'audioMode','mp3')"> 🎵 MP3 + مزامنة تلقائية</label>
       </div>
       <div id="mp3Tools-${i}" style="display:${p.audioMode==='mp3'?'block':'none'};">
         <div class="form-grid">
           <div><label>ملف MP3</label><input type="file" accept="audio/*" onchange="handlePageAudio(${i},this)"></div>
-          <div><label>ملف توقيتات WebMAUS (.CSV)</label><input type="file" accept=".csv" onchange="handleWebMausCsv(${i},this)"></div>
         </div>
-        <div style="font-size:.82em;color:var(--primary);font-weight:bold;">
-          ${p.mots && p.mots.length ? `✅ ${p.mots.length} كلمة مرتبطة بتوقيتاتها` : ''}
+        <div style="margin-top:10px;">
+          <button class="btn btn-primary" onclick="generateWordTimings(${i})">
+            🔄 احسب المزامنة من النص والصوت
+          </button>
         </div>
+        ${p.mots && p.mots.length ? `
+          <div style="background:#e0f2f1;padding:10px;border-radius:8px;margin-top:12px;font-size:.85em;color:#0d5c4a;font-weight:bold;">
+            ✅ ${p.mots.length} كلمة مُزامَنة
+            ${p._syncStats ? ` — ${p._syncStats.unitsPerSecond} مقطع/ث — صمت إجمالي ${p._syncStats.totalSilence}s` : ''}
+          </div>
+          <button class="btn btn-outline btn-sm" style="margin-top:8px;" onclick="inspectMots(${i})">
+            🔍 فحص الكلمات المُزامَنة
+          </button>
+        ` : '<p style="color:#94a3b8;font-size:.85em;margin-top:8px;">لم تُحسب المزامنة بعد.</p>'}
       </div>
     </div>
 
@@ -1120,7 +1145,17 @@ function handlePageImage(pi, input) {
 function handlePageAudio(pi, input) {
   if (!input.files?.[0]) return;
   const reader = new FileReader();
-  reader.onload = e => { book.pages[pi].audioData = e.target.result; scheduleAutoSave(); showToast('✅ صوت الصفحة'); };
+  reader.onload = e => {
+    book.pages[pi].audioData = e.target.result;
+    book.pages[pi].mots = [];
+    scheduleAutoSave();
+    showToast('✅ صوت الصفحة');
+    renderContextPanel();
+    // Si le texte est déjà rempli, calcul automatique après un court délai
+    if (book.pages[pi].texteAffiche && book.pages[pi].texteAffiche.trim()) {
+      setTimeout(() => generateWordTimings(pi), 300);
+    }
+  };
   reader.readAsDataURL(input.files[0]);
 }
 function handleExImage(pi, ei, input) {
@@ -1135,32 +1170,154 @@ function handleSummaryAudio(input) {
   reader.onload = e => { book.resume.audioData = e.target.result; renderContextPanel(); scheduleAutoSave(); };
   reader.readAsDataURL(input.files[0]);
 }
-function handleWebMausCsv(pi, input) {
-  if (!input.files?.[0]) return;
-  const reader = new FileReader();
-  reader.onload = e => {
-    const lines = e.target.result.trim().split('\n');
-    const sampleRate = 44100;
-    const mots = []; const brut = [];
-    for (let i = 1; i < lines.length; i++) {
-      const cols = lines[i].split(';');
-      if (cols.length < 6) continue;
-      const token = parseInt(cols[2]);
-      const ort = cols[5]?.trim();
-      if (token >= 0 && ort && ort !== '<usb>') {
-        const begin = parseInt(cols[0]);
-        const duration = parseInt(cols[1]);
-        mots.push({ texte: ort, debut: +((begin / sampleRate).toFixed(3)), fin: +(((begin + duration) / sampleRate).toFixed(3)) });
-        brut.push(ort);
+
+/* ============================================================
+   MOTEUR DE SYNCHRONISATION SYLLABIQUE
+   ============================================================ */
+
+function tokenizeArabic(text) {
+  return text.match(/[\u0621-\u064A\u064B-\u0652\u0640]+|[\.،!؟:;]+/g) || [];
+}
+
+function countSyllables(word) {
+  const clean = word.replace(/\u0640/g, '');
+  const harakat = clean.match(/[\u064E\u064F\u0650\u064B\u064C\u064D]/g);
+  const shadda = clean.match(/\u0651/g);
+  const letters = clean.match(/[\u0621-\u064A]/g) || [];
+
+  let count;
+  if (harakat && harakat.length > 0) {
+    count = harakat.length + (shadda ? shadda.length * 0.3 : 0);
+  } else {
+    count = Math.max(1, letters.length / 2.5);
+  }
+  return Math.max(0.5, count);
+}
+
+function computeTimings(tokens, audioDuration, silences) {
+  const events = [];
+  for (const tok of tokens) {
+    if (/^[\u0621-\u064A\u064B-\u0652\u0640]+$/.test(tok)) {
+      events.push({ type: 'word', text: tok, syllables: countSyllables(tok) });
+    } else {
+      let sil = 0;
+      for (const c of tok) {
+        if (c === '.' || c === ':') sil += silences.period;
+        else if (c === '،' || c === ',' || c === ';') sil += silences.comma;
+        else if (c === '!' || c === '؟') sil += silences.question;
       }
+      if (sil > 0) events.push({ type: 'pause', text: tok, duration: sil });
     }
-    book.pages[pi].mots = mots;
-    if (!book.pages[pi].texteAffiche) book.pages[pi].texteAffiche = brut.join(' ');
+  }
+
+  const totalSyllables = events.filter(e => e.type === 'word').reduce((s, e) => s + e.syllables, 0);
+  const totalSilence = events.filter(e => e.type === 'pause').reduce((s, e) => s + e.duration, 0);
+  const speechTime = Math.max(0.5, audioDuration - totalSilence);
+  const unitsPerSecond = totalSyllables / speechTime;
+
+  let cursor = 0;
+  const wordTimings = [];
+  for (const ev of events) {
+    if (ev.type === 'word') {
+      const dur = ev.syllables / unitsPerSecond;
+      wordTimings.push({
+        texte: ev.text,
+        debut: +cursor.toFixed(3),
+        fin: +(cursor + dur).toFixed(3)
+      });
+      cursor += dur;
+    } else {
+      cursor += ev.duration;
+    }
+  }
+
+  return {
+    wordTimings,
+    stats: {
+      totalSyllables: +totalSyllables.toFixed(2),
+      totalSilence: +totalSilence.toFixed(2),
+      speechTime: +speechTime.toFixed(2),
+      unitsPerSecond: +unitsPerSecond.toFixed(2),
+      audioDuration: +audioDuration.toFixed(2)
+    }
+  };
+}
+
+function getAudioDuration(dataUrl) {
+  return new Promise((resolve, reject) => {
+    const a = new Audio();
+    a.preload = 'metadata';
+    a.onloadedmetadata = () => resolve(a.duration);
+    a.onerror = () => reject(new Error('تعذّر قراءة الملف الصوتي'));
+    a.src = dataUrl;
+  });
+}
+
+async function generateWordTimings(pi) {
+  const page = book.pages[pi];
+  if (!page.audioData) { showToast('⚠️ ارفع ملف MP3 أولاً', '#dc2626'); return; }
+  if (!page.texteAffiche || !page.texteAffiche.trim()) {
+    showToast('⚠️ املأ حقل النص أولاً', '#dc2626'); return;
+  }
+
+  try {
+    const duration = await getAudioDuration(page.audioData);
+    const silences = book.silences || { period: 1.0, comma: 0.5, question: 1.2 };
+    const tokens = tokenizeArabic(page.texteAffiche);
+    const result = computeTimings(tokens, duration, silences);
+    page.mots = result.wordTimings;
+    page._syncStats = result.stats;
     renderContextPanel();
     scheduleAutoSave();
-    showToast(`✅ ${mots.length} كلمة`);
-  };
-  reader.readAsText(input.files[0]);
+    showToast(`✅ ${result.wordTimings.length} كلمة — ${result.stats.unitsPerSecond} مقطع/ث`);
+  } catch (e) {
+    alert('خطأ : ' + e.message);
+  }
+}
+
+function updateSilence(k, v) {
+  book.silences = book.silences || { period: 1.0, comma: 0.5, question: 1.2 };
+  book.silences[k] = parseFloat(v) || 0;
+  scheduleAutoSave();
+}
+
+function inspectMots(pi) {
+  const mots = book.pages[pi].mots || [];
+  if (!mots.length) { alert('لا توجد كلمات'); return; }
+
+  const rows = mots.map((m, i) => `
+    <tr>
+      <td>${i}</td>
+      <td style="font-family:'Amiri',serif;font-size:1.1em;">${escapeHtml(m.texte)}</td>
+      <td style="direction:ltr;font-family:monospace;">${m.debut.toFixed(3)}</td>
+      <td style="direction:ltr;font-family:monospace;">${m.fin.toFixed(3)}</td>
+      <td style="direction:ltr;font-family:monospace;">${(m.fin - m.debut).toFixed(3)}</td>
+    </tr>
+  `).join('');
+
+  const stats = book.pages[pi]._syncStats || {};
+  const w = window.open('', '_blank');
+  w.document.write(`
+    <html dir="rtl"><head><title>فحص الكلمات</title>
+    <style>
+      body{font-family:Cairo,sans-serif;padding:20px;}
+      table{border-collapse:collapse;width:100%;}
+      th,td{border:1px solid #ccc;padding:6px;text-align:center;}
+      th{background:#0d5c4a;color:white;}
+      tr:nth-child(even){background:#f8fafc;}
+    </style></head><body>
+    <h2>🔍 فحص ${mots.length} كلمة</h2>
+    <p style="color:#0d5c4a;font-weight:bold;">
+      ${stats.unitsPerSecond ? `السرعة : ${stats.unitsPerSecond} مقطع/ث — ` : ''}
+      ${stats.totalSilence !== undefined ? `مجموع الصمت : ${stats.totalSilence}s — ` : ''}
+      ${stats.audioDuration ? `مدة الصوت : ${stats.audioDuration}s` : ''}
+    </p>
+    <table>
+      <tr><th>#</th><th>الكلمة</th><th>البداية (s)</th><th>النهاية (s)</th><th>المدة (s)</th></tr>
+      ${rows}
+    </table>
+    </body></html>
+  `);
 }
 
 /* ============ COMPILATION ============ */
@@ -1173,7 +1330,9 @@ function buildCleanJson() {
       ...p,
       image: p.imageData ? `livres/${id}/page${i+1}.jpg` : p.image,
       audioPage: p.audioData ? `livres/${id}/page${i+1}.mp3` : p.audioPage,
-      imageData: undefined, audioData: undefined
+      imageData: undefined,
+      audioData: undefined,
+      _syncStats: undefined
     })),
     couvertureData: undefined,
     audioData: undefined,
@@ -1341,6 +1500,7 @@ function loadImportedBook(data) {
     description: data.description || '',
     auteur: data.auteur || '',
     niveau: data.niveau || 'moyen',
+    silences: data.silences || { period: 1.0, comma: 0.5, question: 1.2 },
     audioData: data.audioData || null,
     pages: (data.pages || []).map((p, i) => ({
       numero: p.numero ?? (i + 1),
