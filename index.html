@@ -10,16 +10,16 @@
 
   <title>مكتبتي التفاعلية</title>
 <style>
-  :root { 
-    --primary: #0d5c4a; 
-    --secondary: #27ae60; 
-    --bg: #f4f7f6; 
-    --text: #333; 
+  :root {
+    --primary: #0d5c4a;
+    --secondary: #27ae60;
+    --bg: #f4f7f6;
+    --text: #333;
     --reader-font-size: 24px;
   }
   * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, sans-serif; }
   body { background: var(--bg); color: var(--text); padding-bottom: 80px; }
-  
+
   header { background: var(--primary); color: white; padding: 20px; text-align: center; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
   header h1 { font-size: 1.5em; margin-bottom: 5px; }
   header p { font-size: 0.9em; opacity: 0.9; }
@@ -39,12 +39,12 @@
   .btn-back { background: none; border: none; font-size: 1.5em; cursor: pointer; color: var(--primary); }
   .page-image { width: 100%; max-height: 250px; object-fit: cover; border-radius: 10px; margin-bottom: 15px; }
   .page-title { font-size: 1.4em; color: var(--primary); margin-bottom: 15px; text-align: center; }
-  
-  .text-container { 
-    font-size: var(--reader-font-size); 
-    line-height: 1.8; 
-    text-align: justify; 
-    margin-bottom: 20px; 
+
+  .text-container {
+    font-size: var(--reader-font-size);
+    line-height: 1.8;
+    text-align: justify;
+    margin-bottom: 20px;
   }
   .word { padding: 2px 4px; border-radius: 4px; cursor: pointer; transition: background 0.2s; display: inline-block; margin: 2px; }
   .word:hover { background: #e0f2f1; }
@@ -64,7 +64,7 @@
   .vocab-word { font-weight: bold; font-size: 1.2em; color: var(--primary); }
   .vocab-syn { color: #666; font-size: 0.9em; margin-top: 5px; }
 
-  /* Exercice à trous */
+  /* ===== Exercice à trous ===== */
   .exercise-fillblank { background: #f0f8ff; padding: 20px; border-radius: 12px; margin-bottom: 20px; border: 2px solid var(--primary); }
   .exercise-fillblank h4 { color: var(--primary); margin-bottom: 15px; text-align: center; font-size: 1.2em; }
   .texte-avec-trous { font-size: 1.5em; line-height: 2.5; text-align: center; margin: 20px 0; padding: 15px; background: white; border-radius: 10px; }
@@ -80,6 +80,7 @@
   .mot-banque:hover { background: #0a4a3c; transform: scale(1.05); }
   .mot-banque.selected { background: #ef6c00; transform: scale(1.1); box-shadow: 0 4px 10px rgba(239, 108, 0, 0.3); }
   .mot-banque.used { opacity: 0.3; cursor: not-allowed; transform: scale(0.9); }
+  .mot-banque.incorrect { animation: shake 0.5s; background: #e74c3c !important; color: #fff; }
   .message-success { text-align: center; color: var(--secondary); font-size: 1.3em; font-weight: bold; margin-top: 15px; padding: 10px; background: #d4edda; border-radius: 8px; display: none; }
   .message-success.show { display: block; animation: fadeIn 0.5s; }
   @keyframes fadeIn { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
@@ -92,49 +93,21 @@
 
   /* ============ MENU DE CONFIGURATION ============ */
   .btn-settings {
-    position: fixed;
-    top: 15px;
-    left: 15px;
-    width: 46px;
-    height: 46px;
-    border-radius: 50%;
-    background: var(--primary);
-    color: white;
-    border: none;
-    font-size: 1.4em;
-    cursor: pointer;
-    box-shadow: 0 4px 14px rgba(0,0,0,0.25);
-    z-index: 500;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    position: fixed; top: 15px; left: 15px; width: 46px; height: 46px;
+    border-radius: 50%; background: var(--primary); color: white; border: none;
+    font-size: 1.4em; cursor: pointer; box-shadow: 0 4px 14px rgba(0,0,0,0.25);
+    z-index: 500; display: flex; align-items: center; justify-content: center;
     transition: transform 0.2s;
   }
   .btn-settings:active { transform: scale(0.92); }
 
-  .settings-overlay {
-    display: none;
-    position: fixed;
-    inset: 0;
-    background: rgba(0,0,0,0.55);
-    z-index: 998;
-    backdrop-filter: blur(2px);
-  }
+  .settings-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.55); z-index: 998; backdrop-filter: blur(2px); }
   .settings-overlay.show { display: block; }
 
   .settings-panel {
-    display: none;
-    position: fixed;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    width: 92%;
-    max-width: 420px;
-    background: white;
-    border-radius: 22px;
-    box-shadow: 0 25px 70px rgba(0,0,0,0.35);
-    z-index: 999;
-    overflow: hidden;
+    display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
+    width: 92%; max-width: 420px; background: white; border-radius: 22px;
+    box-shadow: 0 25px 70px rgba(0,0,0,0.35); z-index: 999; overflow: hidden;
   }
   .settings-panel.show { display: block; animation: popIn 0.25s ease-out; }
   @keyframes popIn {
@@ -142,188 +115,140 @@
     to   { opacity: 1; transform: translate(-50%, -50%) scale(1); }
   }
 
-  .settings-header {
-    background: var(--primary);
-    color: white;
-    padding: 16px 20px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-  }
+  .settings-header { background: var(--primary); color: white; padding: 16px 20px; display: flex; justify-content: space-between; align-items: center; }
   .settings-header h3 { font-size: 1.15em; font-weight: bold; }
-  .btn-close {
-    background: none;
-    border: none;
-    color: white;
-    font-size: 1.4em;
-    cursor: pointer;
-    line-height: 1;
-    padding: 4px 8px;
-  }
+  .btn-close { background: none; border: none; color: white; font-size: 1.4em; cursor: pointer; line-height: 1; padding: 4px 8px; }
 
   .settings-body { padding: 22px 20px; }
 
-  .setting-item {
-    margin-bottom: 24px;
-    padding-bottom: 20px;
-    border-bottom: 1px solid #eee;
-  }
+  .setting-item { margin-bottom: 24px; padding-bottom: 20px; border-bottom: 1px solid #eee; }
   .setting-item:last-of-type { border-bottom: none; margin-bottom: 10px; padding-bottom: 5px; }
 
-  .setting-item > label {
-    display: block;
-    font-weight: bold;
-    color: var(--primary);
-    margin-bottom: 14px;
-    font-size: 1.02em;
-  }
+  .setting-item > label { display: block; font-weight: bold; color: var(--primary); margin-bottom: 14px; font-size: 1.02em; }
 
-  .setting-row {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-  }
-  .setting-row .edge-label {
-    font-size: 0.8em;
-    color: #888;
-    min-width: 44px;
-    text-align: center;
-    font-weight: bold;
-  }
-  .setting-row input[type=range] {
-    flex: 1;
-    accent-color: var(--primary);
-    height: 8px;
-    cursor: pointer;
-  }
-  .setting-value {
-    text-align: center;
-    margin-top: 10px;
-    font-size: 1em;
-    font-weight: bold;
-    color: var(--primary);
-    background: #e0f2f1;
-    display: inline-block;
-    padding: 4px 14px;
-    border-radius: 20px;
-  }
+  .setting-row { display: flex; align-items: center; gap: 12px; }
+  .setting-row .edge-label { font-size: 0.8em; color: #888; min-width: 44px; text-align: center; font-weight: bold; }
+  .setting-row input[type=range] { flex: 1; accent-color: var(--primary); height: 8px; cursor: pointer; }
+  .setting-value { text-align: center; margin-top: 10px; font-size: 1em; font-weight: bold; color: var(--primary); background: #e0f2f1; display: inline-block; padding: 4px 14px; border-radius: 20px; }
   .setting-value-wrapper { text-align: center; }
 
   .btn-reset {
-    width: 100%;
-    padding: 13px;
-    background: #f1f5f9;
-    border: 2px solid #e2e8f0;
-    border-radius: 12px;
-    cursor: pointer;
-    font-weight: bold;
-    color: var(--primary);
-    font-size: 0.95em;
-    transition: background 0.2s;
-    margin-top: 8px;
-    font-family: inherit;
+    width: 100%; padding: 13px; background: #f1f5f9; border: 2px solid #e2e8f0;
+    border-radius: 12px; cursor: pointer; font-weight: bold; color: var(--primary);
+    font-size: 0.95em; transition: background 0.2s; margin-top: 8px; font-family: inherit;
   }
   .btn-reset:hover { background: #e2e8f0; }
 
-  /* ============ NOUVEAUX TYPES D'EXERCICES ============ */
-  .qcm-question {
-    font-size: 1.3em;
-    text-align: center;
-    margin: 20px 0;
-    padding: 15px;
-    background: white;
-    border-radius: 10px;
-    font-weight: bold;
-    color: var(--primary);
-  }
-  .qcm-options {
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-  }
+  /* ============ QCM avec cases à cocher ============ */
+  .qcm-question { font-size: 1.3em; text-align: center; margin: 20px 0; padding: 15px; background: white; border-radius: 10px; font-weight: bold; color: var(--primary); }
+  .qcm-options { display: flex; flex-direction: column; gap: 10px; }
   .qcm-option {
-    padding: 15px;
-    background: white;
-    border: 2px solid var(--primary);
-    border-radius: 12px;
-    cursor: pointer;
-    font-size: 1.1em;
-    text-align: right;
-    transition: all 0.2s;
-    font-family: inherit;
+    padding: 15px; background: white; border: 2px solid var(--primary); border-radius: 12px;
+    cursor: pointer; font-size: 1.1em; text-align: right; transition: all 0.2s; font-family: inherit;
   }
   .qcm-option:hover { background: #e0f2f1; }
   .qcm-option.correct { background: #d4edda; border-color: var(--secondary); font-weight: bold; }
   .qcm-option.incorrect { background: #f8d7da; border-color: #e74c3c; animation: shake 0.5s; }
 
+  .qcm-option-checkbox {
+    display: flex; align-items: center; gap: 12px; padding: 14px 16px;
+    background: white; border: 2px solid var(--primary); border-radius: 12px;
+    cursor: pointer; font-size: 1.1em; transition: all 0.2s; user-select: none;
+  }
+  .qcm-option-checkbox:hover { background: #e0f2f1; }
+  .qcm-option-checkbox input[type=checkbox] { width: 24px; height: 24px; cursor: pointer; accent-color: var(--primary); flex-shrink: 0; }
+  .qcm-option-checkbox span { flex: 1; }
+  .qcm-option-checkbox.correct { background: #d4edda; border-color: var(--secondary); font-weight: bold; }
+  .qcm-option-checkbox.incorrect { background: #f8d7da; border-color: #e74c3c; animation: shake 0.5s; }
+
+  .btn-verify {
+    display: block; margin: 18px auto 8px; padding: 12px 32px;
+    background: var(--primary); color: white; border: none; border-radius: 12px;
+    font-size: 1.05em; font-weight: bold; cursor: pointer; font-family: inherit;
+    transition: transform 0.15s, background 0.2s;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+  }
+  .btn-verify:hover { background: #0a4a3c; transform: scale(1.03); }
+  .btn-verify:active { transform: scale(0.97); }
+  .btn-verify:disabled { opacity: 0.5; cursor: not-allowed; }
+
+  .message-error {
+    text-align: center; color: #c0392b; font-size: 1.2em; font-weight: bold;
+    margin-top: 12px; padding: 10px; background: #f8d7da; border-radius: 8px; display: none;
+  }
+  .message-error.show { display: block; animation: fadeIn 0.5s; }
+
+  /* ============ ترتيب الكلمات ============ */
   .word-order-answer {
-    min-height: 70px;
-    padding: 15px;
-    background: #fff9e6;
-    border: 3px dashed var(--primary);
-    border-radius: 10px;
-    display: flex;
-    flex-wrap: wrap;
-    gap: 10px;
-    justify-content: flex-start;
-    margin-bottom: 15px;
-    align-items: center;
+    min-height: 70px; padding: 15px; background: #fff9e6;
+    border: 3px dashed var(--primary); border-radius: 10px;
+    display: flex; flex-wrap: wrap; gap: 10px; justify-content: flex-start;
+    margin-bottom: 15px; align-items: center; transition: all 0.25s;
   }
   .word-order-answer:empty::before {
-    content: "اضغط على الكلمات لترتيبها هنا...";
-    color: #999;
-    font-style: italic;
-    font-size: 0.9em;
+    content: "اضغط على الكلمات بالترتيب الصحيح...";
+    color: #999; font-style: italic; font-size: 0.9em;
   }
-  .word-order-answer .mot-banque { background: var(--secondary); }
+  .word-order-answer .mot-banque { background: var(--secondary); cursor: default; animation: fadeIn 0.35s; }
   .word-order-answer.correct { border: 3px solid var(--secondary); background: #d4edda; }
-  .word-order-answer.incorrect { animation: shake 0.5s; border-color: #e74c3c; }
 
-  .exercise-image {
-    width: 100%;
-    max-width: 350px;
-    display: block;
-    margin: 15px auto;
-    border-radius: 12px;
-    border: 2px solid #e0e0e0;
+  /* ============ وسم صورة واحدة (خريطة) ============ */
+  .img-map-container {
+    position: relative; display: inline-block; max-width: 100%;
+    margin: 15px auto; border-radius: 12px; overflow: hidden;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.12);
   }
-  .image-labels-area {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 8px;
-    justify-content: center;
-    margin: 15px 0;
+  .img-map-container > img { display: block; max-width: 100%; height: auto; }
+  .img-map-zone {
+    position: absolute; transform: translate(-50%, -50%);
+    min-width: 46px; min-height: 46px; padding: 6px 12px;
+    border: 3px dashed var(--primary); border-radius: 50%;
+    background: rgba(255, 249, 230, 0.85); color: var(--primary);
+    font-weight: bold; font-size: 0.9em;
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer; transition: all 0.25s;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.15); text-align: center; user-select: none;
   }
+  .img-map-zone:hover { background: rgba(255, 243, 205, 0.95); transform: translate(-50%, -50%) scale(1.08); }
+  .img-map-zone.correct { border: 3px solid var(--secondary); border-radius: 10px; background: #d4edda; cursor: default; }
+  .img-map-zone.incorrect { animation: shake 0.5s; border-color: #e74c3c; }
+
+  /* ============ وسم عدة صور ============ */
+  .img-labels-app-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 14px; margin: 15px 0; }
+  .img-labels-cell { text-align: center; background: #fff; padding: 8px; border-radius: 12px; border: 2px solid #e2e8f0; }
+  .img-labels-cell img { width: 100%; height: 120px; object-fit: cover; border-radius: 10px; display: block; border: 1px solid #e2e8f0; }
+  .img-labels-cell .image-label-zone { margin-top: 8px; min-height: 48px; display: flex; align-items: center; justify-content: center; font-size: 0.95em; }
+
   .image-label-zone {
-    display: inline-block;
-    min-width: 100px;
-    min-height: 44px;
-    padding: 6px 12px;
-    border: 2px dashed var(--primary);
-    border-radius: 8px;
-    background: #fff9e6;
-    text-align: center;
-    margin: 5px;
-    cursor: pointer;
-    vertical-align: middle;
-    font-weight: bold;
-    color: var(--primary);
-    transition: all 0.2s;
+    display: inline-block; min-width: 100px; min-height: 44px; padding: 6px 12px;
+    border: 2px dashed var(--primary); border-radius: 8px; background: #fff9e6;
+    text-align: center; margin: 5px; cursor: pointer; vertical-align: middle;
+    font-weight: bold; color: var(--primary); transition: all 0.2s;
   }
   .image-label-zone.correct { border: 2px solid var(--secondary); background: #d4edda; cursor: default; }
   .image-label-zone.incorrect { animation: shake 0.5s; border-color: #e74c3c; background: #f8d7da; }
 
+  /* ============ اختيار صوتي ============ */
+  .audio-choice-listen { display: flex; flex-direction: column; align-items: center; margin: 18px 0; }
+  .audio-choice-btn {
+    width: 90px; height: 90px; border-radius: 50%; border: none;
+    background: var(--secondary); color: white; font-size: 2.4em; cursor: pointer;
+    box-shadow: 0 6px 18px rgba(39,174,96,0.35);
+    transition: transform 0.15s, background 0.2s;
+  }
+  .audio-choice-btn:hover { background: #1e8b4d; }
+  .audio-choice-btn:active { transform: scale(0.92); }
+  .audio-choice-btn.playing { animation: pulse 1.2s infinite; }
+  @keyframes pulse {
+    0%, 100% { box-shadow: 0 6px 18px rgba(39,174,96,0.35); }
+    50%      { box-shadow: 0 6px 30px rgba(39,174,96,0.75); }
+  }
+  .audio-choice-hint { margin-top: 10px; font-size: 0.9em; color: #64748b; font-style: italic; }
+
   .btn-listen {
-    background: var(--secondary);
-    color: white;
-    border: none;
-    border-radius: 50%;
-    width: 36px;
-    height: 36px;
-    cursor: pointer;
-    font-size: 1em;
-    margin-right: 8px;
-    vertical-align: middle;
+    background: var(--secondary); color: white; border: none; border-radius: 50%;
+    width: 36px; height: 36px; cursor: pointer; font-size: 1em;
+    margin-right: 8px; vertical-align: middle;
   }
   .btn-listen:active { transform: scale(0.9); }
 </style>
@@ -407,9 +332,9 @@
 
     <!-- Onglets interactifs -->
     <div class="tabs">
-      <button class="tab-btn active" onclick="switchTab('vocab')">📖 المفردات</button>
-      <button class="tab-btn" onclick="switchTab('exercises')">🎮 التمارين</button>
-      <button class="tab-btn" onclick="switchTab('notes')">📌 ملاحظات</button>
+      <button class="tab-btn active" onclick="switchTab('vocab', event)">📖 المفردات</button>
+      <button class="tab-btn" onclick="switchTab('exercises', event)">🎮 التمارين</button>
+      <button class="tab-btn" onclick="switchTab('notes', event)">📌 ملاحظات</button>
     </div>
 
     <div id="tab-vocab" class="tab-content active card"></div>
@@ -564,7 +489,7 @@
         return;
       }
       let html = '<div class="book-grid">';
-      catalogue.forEach((book, idx) => {
+      catalogue.forEach((book) => {
         const cover = book.couverture ? `${GITHUB_BASE}/${book.couverture}` : 'https://via.placeholder.com/150/0d5c4a/ffffff?text=كتاب';
         const textePresentation = (book.titre + '. ' + (book.description || '')).replace(/'/g, "\\'");
         html += `
@@ -613,6 +538,11 @@
         imgEl.style.display = 'none';
       }
 
+      // Nettoyage des iframes custom de la page précédente
+      document.querySelectorAll('#tab-exercises [data-cleanup]').forEach(el => {
+        if (el._cleanup) el._cleanup();
+      });
+
       stopAudio();
 
       const textContainer = document.getElementById('page-text');
@@ -655,10 +585,9 @@
       }
 
       // Vocabulaire
-            const vocabDiv = document.getElementById('tab-vocab');
+      const vocabDiv = document.getElementById('tab-vocab');
       if (page.vocabulaire && page.vocabulaire.length > 0) {
         vocabDiv.innerHTML = page.vocabulaire.map((v) => {
-          // Construit le texte complet : mot . traduction . مرادفات: ... . exemple
           const parts = [];
           if (v.mot) parts.push(v.mot);
           if (v.traduction) parts.push(v.traduction);
@@ -848,7 +777,6 @@
               const measuredCPS = batchText.length / actual / rate;
               ttsCharsPerSecond = ttsCharsPerSecond * 0.7 + measuredCPS * 0.3;
               ttsCharsPerSecond = Math.max(8, Math.min(25, ttsCharsPerSecond));
-              console.log(`⏱️ Débit TTS calibré : ${ttsCharsPerSecond.toFixed(1)} car/s`);
             }
           }
 
@@ -935,11 +863,6 @@
       }
     }
 
-    function stopSpeakText() {
-      simpleTtsSession++;
-      window.speechSynthesis.cancel();
-    }
-
     function speakSummary() {
       if (!currentBook || !currentBook.resume) return;
       speakText(currentBook.resume.texte || '');
@@ -949,12 +872,10 @@
     function speakTryAgain() { speakText('حاول مرة أخرى'); }
 
     // ============ TTS : LECTURE D'UN SEUL MOT ============
-        function playWordTTS(word, span) {
+    function playWordTTS(word, span) {
       const mySession = ++ttsSessionId;
       clearHighlightTimer();
 
-      // ⚡ Si un MP3 est en cours, on le met en pause
-      //    pour éviter la superposition voix humaine + voix TTS
       if (!audio.paused) {
         audio.pause();
         playStopTime = null;
@@ -1002,13 +923,9 @@
     }
 
     // ============ MP3 : LECTURE DEPUIS UN MOT ============
-        // ============ CLIC SUR UN MOT : TOUJOURS EN TTS ============
-    // (le MP3 est réservé à la lecture complète ; le TTS garantit la
-    //  prononciation exacte du mot affiché, sans dépendre du CSV WebMAUS)
     function playFromWord(index) {
       const page = currentBook.pages[currentPageIndex];
       if (!page || !page.mots || !page.mots[index]) return;
-
       const mot = page.mots[index];
       const span = document.querySelector(`.word[data-index="${index}"]`);
       playWordTTS(mot.texte, span);
@@ -1077,14 +994,23 @@
       if (screenName !== 'reader') stopAudio();
     }
 
-    function switchTab(tabName) {
+    function switchTab(tabName, ev) {
       document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
       document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
       document.getElementById(`tab-${tabName}`).classList.add('active');
-      event.target.classList.add('active');
+      if (ev && ev.target) ev.target.classList.add('active');
     }
 
-    // ============ EXERCICES ============
+    // ============ Mélange Fisher-Yates ============
+    function shuffleArray(a) {
+      for (let i = a.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [a[i], a[j]] = [a[j], a[i]];
+      }
+      return a;
+    }
+
+    // ============ EXERCICES : dispatcher ============
     function renderExercises(exercices) {
       const container = document.getElementById('tab-exercises');
       if (!exercices || exercices.length === 0) {
@@ -1093,19 +1019,19 @@
       }
       container.innerHTML = '';
       exercices.forEach(ex => {
-        if (ex.type === 'fillblank') {
-          container.appendChild(creerExerciceATrous(ex));
-        } else if (ex.type === 'qcm') {
-          container.appendChild(creerExerciceQCM(ex));
-        } else if (ex.type === 'word_order') {
-          container.appendChild(creerExerciceWordOrder(ex));
-        } else if (ex.type === 'image_click') {
-          container.appendChild(creerExerciceImageClick(ex));
-        }
+        if      (ex.type === 'fillblank')    container.appendChild(creerExerciceATrous(ex));
+        else if (ex.type === 'qcm')          container.appendChild(creerExerciceQCM(ex));
+        else if (ex.type === 'word_order')   container.appendChild(creerExerciceWordOrder(ex));
+        else if (ex.type === 'image_click')  container.appendChild(creerExerciceImageClick(ex));
+        else if (ex.type === 'image_labels') container.appendChild(creerExerciceImageLabels(ex));
+        else if (ex.type === 'audio_choice') container.appendChild(creerExerciceAudioChoice(ex));
+        else if (ex.type === 'matching')     container.appendChild(creerExerciceMatching(ex));
+        else if (ex.type === 'custom')       container.appendChild(creerExerciceCustom(ex));
       });
     }
 
-        function creerExerciceATrous(exercice) {
+    // ============ 1) ملء الفراغات ============
+    function creerExerciceATrous(exercice) {
       const container = document.createElement('div');
       container.className = 'exercise-fillblank';
 
@@ -1117,7 +1043,7 @@
       texteDiv.className = 'texte-avec-trous';
 
       let indexTrou = 0;
-      const texteHTML = exercice.texte.replace(/___/g, () => {
+      const texteHTML = String(exercice.texte || '').replace(/___/g, () => {
         const trouId = `trou-${Date.now()}-${indexTrou}`;
         indexTrou++;
         return `<span class="trou" id="${trouId}" data-index="${indexTrou - 1}" onclick="placerMotDansTrou(this, ${indexTrou - 1})"></span>`;
@@ -1128,22 +1054,16 @@
       const banqueDiv = document.createElement('div');
       banqueDiv.className = 'banque-mots';
 
-      // Nettoyage : sépare sur virgule ASCII (,) ET virgule arabe (،)
-      const raw = exercice.motsMelanges || exercice.reponses || [];
+      const raw = exercice.motsMelanges && exercice.motsMelanges.length
+        ? exercice.motsMelanges
+        : (exercice.reponses || []);
       const flat = [];
       raw.forEach(m => {
         if (typeof m !== 'string') return;
         m.split(/[,،]/).map(s => s.trim()).filter(Boolean).forEach(p => flat.push(p));
       });
-
-      // Dédoublonnage (au cas où une réponse apparaît aussi dans motsMelanges)
       const uniq = [...new Set(flat)];
-
-      // Mélange Fisher-Yates
-      for (let i = uniq.length - 1; i > 0; i--) {
-        const j = Math.floor(Math.random() * (i + 1));
-        [uniq[i], uniq[j]] = [uniq[j], uniq[i]];
-      }
+      shuffleArray(uniq);
 
       uniq.forEach((mot, index) => {
         const motSpan = document.createElement('span');
@@ -1169,10 +1089,9 @@
 
     function selectionnerMot(element, container) {
       if (element.classList.contains('used')) return;
-      document.querySelectorAll('.mot-banque').forEach(m => m.classList.remove('selected'));
+      container.querySelectorAll('.mot-banque').forEach(m => m.classList.remove('selected'));
       element.classList.add('selected');
       container.dataset.selectedMot = element.dataset.mot;
-      container.dataset.selectedElementIndex = element.dataset.index;
     }
 
     function placerMotDansTrou(trouElement, indexTrou) {
@@ -1214,19 +1133,19 @@
       } else {
         trouElement.classList.add('incorrect');
         setTimeout(() => trouElement.classList.remove('incorrect'), 500);
-        document.querySelectorAll('.mot-banque').forEach(m => m.classList.remove('selected'));
+        container.querySelectorAll('.mot-banque').forEach(m => m.classList.remove('selected'));
         container.dataset.selectedMot = '';
         speakTryAgain();
       }
     }
 
-    // ============ QCM ============
+    // ============ 2) QCM (cases à cocher + bouton vérifier) ============
     function creerExerciceQCM(exercice) {
       const container = document.createElement('div');
       container.className = 'exercise-fillblank';
 
       const titre = document.createElement('h4');
-      titre.textContent = '❓ ' + (exercice.titre || 'اختر الإجابة الصحيحة:');
+      titre.textContent = '❓ ' + (exercice.titre || 'اختر الإجابة أو الإجابات الصحيحة ثم اضغط "تأكد من الإجابة"');
       container.appendChild(titre);
 
       const q = document.createElement('div');
@@ -1234,8 +1153,387 @@
       q.textContent = exercice.question || '';
       container.appendChild(q);
 
+      // Compat : bonnesReponses[] (nouveau) ou bonneReponseIndex (ancien)
+      const bonnes = Array.isArray(exercice.bonnesReponses)
+        ? exercice.bonnesReponses
+        : (typeof exercice.bonneReponseIndex === 'number' ? [exercice.bonneReponseIndex] : []);
+      const correctSet = new Set(bonnes);
+
       const opts = document.createElement('div');
       opts.className = 'qcm-options';
+
+      (exercice.options || []).forEach((opt, i) => {
+        const label = document.createElement('label');
+        label.className = 'qcm-option-checkbox';
+        label.innerHTML = `<input type="checkbox" value="${i}"><span>${opt}</span>`;
+        opts.appendChild(label);
+      });
+      container.appendChild(opts);
+
+      const btnVerify = document.createElement('button');
+      btnVerify.className = 'btn-verify';
+      btnVerify.textContent = '✅ تأكد من الإجابة';
+      container.appendChild(btnVerify);
+
+      const msgOk = document.createElement('div');
+      msgOk.className = 'message-success';
+      msgOk.textContent = '🎉 ممتاز! أحسنت!';
+      container.appendChild(msgOk);
+
+      const msgErr = document.createElement('div');
+      msgErr.className = 'message-error';
+      msgErr.textContent = '❌ حاول مرة أخرى';
+      container.appendChild(msgErr);
+
+      btnVerify.onclick = () => {
+        const selected = new Set();
+        opts.querySelectorAll('.qcm-option-checkbox').forEach((lbl, i) => {
+          const cb = lbl.querySelector('input');
+          if (cb.checked) selected.add(i);
+        });
+
+        if (selected.size === 0) {
+          msgErr.textContent = '⚠️ اختر إجابة واحدة على الأقل';
+          msgErr.classList.add('show');
+          setTimeout(() => msgErr.classList.remove('show'), 1500);
+          speakTryAgain();
+          return;
+        }
+
+        let ok = selected.size === correctSet.size;
+        if (ok) {
+          for (const i of selected) {
+            if (!correctSet.has(i)) { ok = false; break; }
+          }
+        }
+
+        opts.querySelectorAll('.qcm-option-checkbox').forEach((lbl, i) => {
+          const cb = lbl.querySelector('input');
+          lbl.classList.remove('correct', 'incorrect');
+          if (correctSet.has(i)) {
+            lbl.classList.add('correct');
+          } else if (cb.checked) {
+            lbl.classList.add('incorrect');
+          }
+        });
+
+        if (ok) {
+          msgOk.classList.add('show');
+          msgErr.classList.remove('show');
+          msgErr.textContent = '❌ حاول مرة أخرى';
+          btnVerify.disabled = true;
+          opts.querySelectorAll('input').forEach(c => c.disabled = true);
+          speakBravo();
+        } else {
+          msgErr.textContent = '❌ حاول مرة أخرى';
+          msgErr.classList.add('show');
+          setTimeout(() => msgErr.classList.remove('show'), 1800);
+          speakTryAgain();
+        }
+      };
+
+      return container;
+    }
+
+    // ============ 3) ترتيب الكلمات (validation par position) ============
+    function creerExerciceWordOrder(exercice) {
+      const container = document.createElement('div');
+      container.className = 'exercise-fillblank';
+
+      const titre = document.createElement('h4');
+      titre.textContent = '🔀 ' + (exercice.titre || 'اضغط على الكلمات بالترتيب الصحيح لتكوين الجملة:');
+      container.appendChild(titre);
+
+      // SOURCE UNIQUE = phraseCorrecte (on ignore motsMelanges qui peut être [])
+      const phraseCorrecte = String(exercice.phraseCorrecte || '').trim();
+      const correctWords = phraseCorrecte.split(/\s+/).filter(w => w.length > 0);
+
+      if (correctWords.length === 0) {
+        const warn = document.createElement('div');
+        warn.style.cssText = 'background:#fef3c7;border:1px solid #fbbf24;color:#78350f;padding:12px;border-radius:10px;font-size:.9em;text-align:center;';
+        warn.textContent = '⚠️ لم تُحدَّد الجملة الصحيحة بعد. أضفها من الاستوديو.';
+        container.appendChild(warn);
+        console.warn('[word_order] phraseCorrecte vide :', exercice);
+        return container;
+      }
+
+      const answerZone = document.createElement('div');
+      answerZone.className = 'word-order-answer';
+      container.appendChild(answerZone);
+
+      const bank = document.createElement('div');
+      bank.className = 'banque-mots';
+
+      const words = [...correctWords];
+      shuffleArray(words);
+      if (words.length > 1 && words.join(' ') === correctWords.join(' ')) {
+        [words[0], words[1]] = [words[1], words[0]];
+      }
+
+      const msg = document.createElement('div');
+      msg.className = 'message-success';
+      msg.textContent = '🎉 ممتاز! الجملة صحيحة.';
+      container.appendChild(msg);
+
+      let nextExpected = 0;
+
+      words.forEach(w => {
+        const span = document.createElement('span');
+        span.className = 'mot-banque';
+        span.textContent = w;
+
+        span.onclick = () => {
+          if (span.classList.contains('placed')) return;
+
+          if (w === correctWords[nextExpected]) {
+            answerZone.appendChild(span);
+            span.classList.add('placed');
+            nextExpected++;
+
+            if (nextExpected === correctWords.length) {
+              answerZone.classList.add('correct');
+              msg.classList.add('show');
+              speakBravo();
+            }
+          } else {
+            span.classList.add('incorrect');
+            setTimeout(() => span.classList.remove('incorrect'), 500);
+            speakTryAgain();
+          }
+        };
+
+        bank.appendChild(span);
+      });
+
+      container.appendChild(bank);
+      return container;
+    }
+
+    // ============ 4) وسم صورة واحدة (خريطة / مناطق) ============
+    function creerExerciceImageClick(exercice) {
+      const container = document.createElement('div');
+      container.className = 'exercise-fillblank';
+
+      const titre = document.createElement('h4');
+      titre.textContent = '🗺️ ' + (exercice.titre || exercice.instruction || 'ضع كل تسمية على مكانها الصحيح');
+      container.appendChild(titre);
+
+      const imgSrc = exercice.imageData || (exercice.image ? `${GITHUB_BASE}/${exercice.image}` : '');
+      if (!imgSrc || !(exercice.zones || []).length) {
+        const p = document.createElement('p');
+        p.style.cssText = 'text-align:center;color:#999;';
+        p.textContent = 'لا توجد صورة أو مناطق.';
+        container.appendChild(p);
+        return container;
+      }
+
+      const wrap = document.createElement('div');
+      wrap.style.textAlign = 'center';
+
+      const mapEl = document.createElement('div');
+      mapEl.className = 'img-map-container';
+
+      const img = document.createElement('img');
+      img.src = imgSrc;
+      mapEl.appendChild(img);
+
+      const zones = exercice.zones || [];
+
+      zones.forEach((z, i) => {
+        const zoneEl = document.createElement('div');
+        zoneEl.className = 'img-map-zone';
+        zoneEl.style.left = z.x + '%';
+        zoneEl.style.top  = z.y + '%';
+        zoneEl.textContent = '?';
+        zoneEl.dataset.reponse = z.reponse;
+        zoneEl.dataset.idx = i;
+        zoneEl.onclick = () => handleMapZoneClick(zoneEl, container);
+        mapEl.appendChild(zoneEl);
+      });
+
+      wrap.appendChild(mapEl);
+      container.appendChild(wrap);
+
+      const bank = document.createElement('div');
+      bank.className = 'banque-mots';
+      const labels = zones.map(z => z.reponse);
+      shuffleArray(labels);
+      labels.forEach(l => {
+        const span = document.createElement('span');
+        span.className = 'mot-banque';
+        span.textContent = l;
+        span.onclick = () => {
+          if (span.classList.contains('used')) return;
+          container.querySelectorAll('.mot-banque').forEach(m => m.classList.remove('selected'));
+          span.classList.add('selected');
+        };
+        bank.appendChild(span);
+      });
+      container.appendChild(bank);
+
+      const msg = document.createElement('div');
+      msg.className = 'message-success';
+      msg.textContent = '🎉 ممتاز! أحسنت!';
+      container.appendChild(msg);
+
+      container.dataset.placed = '0';
+      container.dataset.total = String(zones.length);
+      return container;
+    }
+
+    function handleMapZoneClick(zoneEl, container) {
+      if (zoneEl.classList.contains('correct')) return;
+      const sel = container.querySelector('.mot-banque.selected');
+      if (!sel) { speakTryAgain(); return; }
+
+      if (sel.textContent === zoneEl.dataset.reponse) {
+        zoneEl.textContent = sel.textContent;
+        zoneEl.classList.add('correct');
+        sel.classList.add('used');
+        sel.classList.remove('selected');
+
+        const placed = parseInt(container.dataset.placed) + 1;
+        container.dataset.placed = placed;
+        if (placed === parseInt(container.dataset.total)) {
+          container.querySelector('.message-success').classList.add('show');
+          speakBravo();
+        }
+      } else {
+        zoneEl.classList.add('incorrect');
+        setTimeout(() => zoneEl.classList.remove('incorrect'), 500);
+        speakTryAgain();
+      }
+    }
+
+    // ============ 5) وسم عدة صور ============
+    function creerExerciceImageLabels(exercice) {
+      const container = document.createElement('div');
+      container.className = 'exercise-fillblank';
+
+      const titre = document.createElement('h4');
+      titre.textContent = '🖼️ ' + (exercice.titre || exercice.instruction || 'اختر التسمية المناسبة لكل صورة');
+      container.appendChild(titre);
+
+      const items = exercice.items || [];
+      if (items.length === 0) {
+        const p = document.createElement('p');
+        p.style.cssText = 'text-align:center;color:#999;';
+        p.textContent = 'لا توجد صور.';
+        container.appendChild(p);
+        return container;
+      }
+
+      const grid = document.createElement('div');
+      grid.className = 'img-labels-app-grid';
+
+      items.forEach(it => {
+        const cell = document.createElement('div');
+        cell.className = 'img-labels-cell';
+
+        const src = it.imageData || (it.image ? `${GITHUB_BASE}/${it.image}` : '');
+        if (src) {
+          const img = document.createElement('img');
+          img.src = src;
+          img.alt = '';
+          cell.appendChild(img);
+        }
+
+        const zone = document.createElement('div');
+        zone.className = 'image-label-zone';
+        zone.textContent = '?';
+        zone.dataset.reponse = it.reponse;
+        zone.onclick = () => handleImageLabelClick(zone, container);
+        cell.appendChild(zone);
+
+        grid.appendChild(cell);
+      });
+      container.appendChild(grid);
+
+      const bank = document.createElement('div');
+      bank.className = 'banque-mots';
+      const labels = items.map(it => it.reponse);
+      shuffleArray(labels);
+      labels.forEach(l => {
+        const span = document.createElement('span');
+        span.className = 'mot-banque';
+        span.textContent = l;
+        span.onclick = () => {
+          if (span.classList.contains('used')) return;
+          container.querySelectorAll('.mot-banque').forEach(m => m.classList.remove('selected'));
+          span.classList.add('selected');
+        };
+        bank.appendChild(span);
+      });
+      container.appendChild(bank);
+
+      const msg = document.createElement('div');
+      msg.className = 'message-success';
+      msg.textContent = '🎉 ممتاز! أحسنت!';
+      container.appendChild(msg);
+
+      container.dataset.placed = '0';
+      container.dataset.total = String(items.length);
+      return container;
+    }
+
+    function handleImageLabelClick(zoneEl, container) {
+      if (zoneEl.classList.contains('correct')) return;
+      const sel = container.querySelector('.mot-banque.selected');
+      if (!sel) { speakTryAgain(); return; }
+
+      if (sel.textContent === zoneEl.dataset.reponse) {
+        zoneEl.textContent = sel.textContent;
+        zoneEl.classList.add('correct');
+        sel.classList.add('used');
+        sel.classList.remove('selected');
+
+        const placed = parseInt(container.dataset.placed) + 1;
+        container.dataset.placed = placed;
+        if (placed === parseInt(container.dataset.total)) {
+          container.querySelector('.message-success').classList.add('show');
+          speakBravo();
+        }
+      } else {
+        zoneEl.classList.add('incorrect');
+        setTimeout(() => zoneEl.classList.remove('incorrect'), 500);
+        speakTryAgain();
+      }
+    }
+
+    // ============ 6) اختيار صوتي ============
+    function creerExerciceAudioChoice(exercice) {
+      const container = document.createElement('div');
+      container.className = 'exercise-fillblank';
+
+      const titre = document.createElement('h4');
+      titre.textContent = '🔊 ' + (exercice.titre || exercice.instruction || 'اسمع الكلمة واختر الكتابة الصحيحة');
+      container.appendChild(titre);
+
+      const listenWrap = document.createElement('div');
+      listenWrap.className = 'audio-choice-listen';
+
+      const btnListen = document.createElement('button');
+      btnListen.className = 'audio-choice-btn';
+      btnListen.textContent = '🔊';
+      btnListen.onclick = () => {
+        if (!exercice.wordToSpeak) { speakTryAgain(); return; }
+        btnListen.classList.add('playing');
+        speakText(exercice.wordToSpeak);
+        setTimeout(() => btnListen.classList.remove('playing'), 1200);
+      };
+      listenWrap.appendChild(btnListen);
+
+      const hint = document.createElement('div');
+      hint.className = 'audio-choice-hint';
+      hint.textContent = 'اضغط على مكبر الصوت للاستماع، ثم اختر الإجابة';
+      listenWrap.appendChild(hint);
+
+      container.appendChild(listenWrap);
+
+      const opts = document.createElement('div');
+      opts.className = 'qcm-options';
+
+      const bonne = (typeof exercice.bonneReponseIndex === 'number') ? exercice.bonneReponseIndex : 0;
 
       (exercice.options || []).forEach((opt, i) => {
         const btn = document.createElement('button');
@@ -1243,7 +1541,7 @@
         btn.textContent = opt;
         btn.onclick = () => {
           if (btn.disabled) return;
-          if (i === exercice.bonneReponseIndex) {
+          if (i === bonne) {
             btn.classList.add('correct');
             opts.querySelectorAll('.qcm-option').forEach(o => o.disabled = true);
             msg.classList.add('show');
@@ -1266,130 +1564,138 @@
       return container;
     }
 
-    // ============ ORDONNER LES MOTS ============
-    function creerExerciceWordOrder(exercice) {
+    // ============ 7) ربط الأزواج ============
+    function creerExerciceMatching(exercice) {
       const container = document.createElement('div');
       container.className = 'exercise-fillblank';
 
       const titre = document.createElement('h4');
-      titre.textContent = '🔀 ' + (exercice.titre || 'رتب الكلمات لتكوين جملة صحيحة:');
+      titre.textContent = '🔗 ' + (exercice.titre || exercice.instruction || 'اربط كل عنصر بما يناسبه');
       container.appendChild(titre);
 
-      const answerZone = document.createElement('div');
-      answerZone.className = 'word-order-answer';
-      answerZone.dataset.correct = exercice.phraseCorrecte || '';
-      container.appendChild(answerZone);
-
-      const bank = document.createElement('div');
-      bank.className = 'banque-mots';
-
-      const words = [...(exercice.motsMelanges || (exercice.phraseCorrecte || '').split(/\s+/))];
-      for (let i = words.length - 1; i > 0; i--) {
-        const j = Math.floor(Math.random() * (i + 1));
-        [words[i], words[j]] = [words[j], words[i]];
+      const pairs = exercice.pairs || [];
+      if (pairs.length === 0) {
+        const p = document.createElement('p');
+        p.style.cssText = 'text-align:center;color:#999;';
+        p.textContent = 'لا توجد أزواج.';
+        container.appendChild(p);
+        return container;
       }
 
-      words.forEach(w => {
-        const span = document.createElement('span');
-        span.className = 'mot-banque';
-        span.textContent = w;
-        span.onclick = () => {
-          if (answerZone.contains(span)) {
-            bank.appendChild(span);
-          } else {
-            answerZone.appendChild(span);
-          }
-          if (bank.children.length === 0) {
-            const composed = Array.from(answerZone.children).map(c => c.textContent).join(' ').trim();
-            const correct = (exercice.phraseCorrecte || '').trim();
-            if (composed === correct) {
-              answerZone.classList.add('correct');
-              msg.classList.add('show');
-              speakBravo();
-            } else {
-              answerZone.classList.add('incorrect');
-              setTimeout(() => answerZone.classList.remove('incorrect'), 600);
-              speakTryAgain();
-            }
-          }
-        };
-        bank.appendChild(span);
-      });
-      container.appendChild(bank);
+      const leftCol  = pairs.map(p => p.left);
+      const rightCol = shuffleArray(pairs.map(p => p.right));
+
+      const grid = document.createElement('div');
+      grid.style.cssText = 'display:grid;grid-template-columns:1fr 1fr;gap:14px;margin:15px 0;';
+
+      const leftBox  = document.createElement('div');
+      const rightBox = document.createElement('div');
+      leftBox.style.cssText = rightBox.style.cssText = 'display:flex;flex-direction:column;gap:8px;';
+
+      let selectedLeft = null;
+      let matchedCount = 0;
+      const total = pairs.length;
 
       const msg = document.createElement('div');
       msg.className = 'message-success';
-      msg.textContent = '🎉 ممتاز! الجملة صحيحة.';
+      msg.textContent = '🎉 ممتاز! أحسنت!';
       container.appendChild(msg);
 
-      return container;
-    }
-
-    // ============ IMAGE + LABELS ============
-    function creerExerciceImageClick(exercice) {
-      const container = document.createElement('div');
-      container.className = 'exercise-fillblank';
-
-      const titre = document.createElement('h4');
-      titre.textContent = '🖼️ ' + (exercice.instruction || 'اختر الكلمة المناسبة لكل صورة:');
-      container.appendChild(titre);
-
-      if (exercice.image) {
-        const img = document.createElement('img');
-        img.className = 'exercise-image';
-        img.src = `${GITHUB_BASE}/${exercice.image}`;
-        container.appendChild(img);
-      }
-
-      const zones = exercice.zones || [];
-      const zonesDiv = document.createElement('div');
-      zonesDiv.className = 'image-labels-area';
-
-      zones.forEach((z, i) => {
+      leftCol.forEach(l => {
         const el = document.createElement('div');
-        el.className = 'image-label-zone';
-        el.textContent = z.label || '___';
-        el.dataset.reponse = z.reponse;
-        el.dataset.idx = i;
+        el.className = 'qcm-option';
+        el.style.textAlign = 'center';
+        el.textContent = l;
+        el.dataset.value = l;
         el.onclick = () => {
           if (el.classList.contains('correct')) return;
-          const sel = document.querySelector('.mot-banque.selected');
-          if (!sel) { speakTryAgain(); return; }
-          if (sel.textContent === z.reponse) {
-            el.textContent = z.reponse;
+          leftBox.querySelectorAll('.qcm-option').forEach(o => { o.classList.remove('selected'); o.style.background = ''; });
+          el.classList.add('selected');
+          el.style.background = '#fff3cd';
+          selectedLeft = el;
+        };
+        leftBox.appendChild(el);
+      });
+
+      rightCol.forEach(r => {
+        const el = document.createElement('div');
+        el.className = 'qcm-option';
+        el.style.textAlign = 'center';
+        el.textContent = r;
+        el.dataset.value = r;
+        el.onclick = () => {
+          if (el.classList.contains('correct')) return;
+          if (!selectedLeft) { speakTryAgain(); return; }
+
+          const ok = pairs.some(p => p.left === selectedLeft.dataset.value && p.right === el.dataset.value);
+          if (ok) {
+            selectedLeft.classList.add('correct');
+            selectedLeft.style.background = '';
+            selectedLeft.classList.remove('selected');
             el.classList.add('correct');
-            sel.classList.add('used');
-            sel.classList.remove('selected');
+            matchedCount++;
+            selectedLeft = null;
             speakBravo();
+            if (matchedCount === total) msg.classList.add('show');
           } else {
             el.classList.add('incorrect');
             setTimeout(() => el.classList.remove('incorrect'), 500);
             speakTryAgain();
           }
         };
-        zonesDiv.appendChild(el);
+        rightBox.appendChild(el);
       });
-      container.appendChild(zonesDiv);
 
-      const bank = document.createElement('div');
-      bank.className = 'banque-mots';
-      const words = zones.map(z => z.reponse);
-      for (let i = words.length - 1; i > 0; i--) {
-        const j = Math.floor(Math.random() * (i + 1));
-        [words[i], words[j]] = [words[j], words[i]];
-      }
-      words.forEach(w => {
-        const span = document.createElement('span');
-        span.className = 'mot-banque';
-        span.textContent = w;
-        span.onclick = () => {
-          if (span.classList.contains('used')) return;
-          document.querySelectorAll('.mot-banque').forEach(m => m.classList.remove('selected'));
-          span.classList.add('selected');
-        };
-        bank.appendChild(span);
-      });
-      container.appendChild(bank);
+      grid.appendChild(leftBox);
+      grid.appendChild(rightBox);
+      container.appendChild(grid);
+
+      return container;
+    }
+
+    // ============ 8) مخصص (iframe sandbox) ============
+    function creerExerciceCustom(exercice) {
+      const container = document.createElement('div');
+      container.className = 'exercise-fillblank';
+
+      const titre = document.createElement('h4');
+      titre.textContent = '⚙️ ' + (exercice.titre || 'تمرين مخصص');
+      container.appendChild(titre);
+
+      const iframe = document.createElement('iframe');
+      iframe.style.cssText = 'width:100%;min-height:340px;border:2px solid #e2e8f0;border-radius:12px;background:#fff;';
+      iframe.setAttribute('sandbox', 'allow-scripts');
+      iframe.srcdoc = `<!DOCTYPE html><html dir="rtl"><head><meta charset="utf-8">
+        <style>body{font-family:Cairo,sans-serif;padding:16px;margin:0;}${exercice.css || ''}</style>
+        </head><body>${exercice.html || ''}
+        <script>
+          ${exercice.js || ''}
+          window.addEventListener('message', e => {
+            try {
+              const d = typeof e.data === 'string' ? JSON.parse(e.data) : e.data;
+              if (!d || !d.type) return;
+              if (d.type === 'bravo')      parent.postMessage({type:'bravo'}, '*');
+              if (d.type === 'tryAgain')   parent.postMessage({type:'tryAgain'}, '*');
+            } catch(_) {}
+          });
+        <\/script></body></html>`;
+      container.appendChild(iframe);
+
+      const msg = document.createElement('div');
+      msg.className = 'message-success';
+      msg.textContent = '🎉 ممتاز! أحسنت!';
+      container.appendChild(msg);
+
+      const handler = (e) => {
+        const d = e.data;
+        if (!d || typeof d !== 'object') return;
+        if (d.type === 'bravo') { msg.classList.add('show'); speakBravo(); }
+        if (d.type === 'tryAgain') { speakTryAgain(); }
+      };
+      window.addEventListener('message', handler);
+
+      container.setAttribute('data-cleanup', '1');
+      container._cleanup = () => window.removeEventListener('message', handler);
 
       return container;
     }
