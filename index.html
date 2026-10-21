@@ -4,9 +4,14 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="theme-color" content="#0d5c4a">
-  <link rel="manifest" href="/application-lecture/manifest.json">
-  <link rel="icon" href="/application-lecture/icon-192.png">
-  <link rel="apple-touch-icon" href="/application-lecture/icon-192.png">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="مكتبتي">
+
+  <!-- Chemins RELATIFS : fonctionnent quel que soit le dossier de déploiement -->
+  <link rel="manifest" href="manifest.json">
+  <link rel="icon" href="icon-192.png">
+  <link rel="apple-touch-icon" href="icon-192.png">
 
   <title>مكتبتي التفاعلية</title>
 <style>
@@ -34,6 +39,21 @@
   .book-card img { width: 100%; height: 200px; object-fit: cover; border-radius: 10px; cursor: pointer; }
   .book-card h3 { font-size: 1em; margin: 10px 0 5px; color: var(--primary); cursor: pointer; }
   .book-card .level { font-size: 0.8em; background: #e0f2f1; color: var(--primary); padding: 3px 8px; border-radius: 10px; display: inline-block; }
+
+  .btn-offline-dl {
+    width: 100%; padding: 8px; border-radius: 8px; border: none;
+    background: var(--primary); color: #fff; font-weight: bold; font-size: 0.85em;
+    margin-top: 8px; cursor: pointer; font-family: inherit;
+    transition: background 0.2s;
+  }
+  .btn-offline-dl:hover { background: #0a4a3c; }
+  .btn-offline-dl:disabled { opacity: 0.6; cursor: wait; }
+  .btn-offline-ok {
+    width: 100%; padding: 8px; border-radius: 8px; border: none;
+    background: #d4edda; color: #166534; font-weight: bold; font-size: 0.85em;
+    margin-top: 8px; cursor: pointer; font-family: inherit;
+  }
+  .btn-offline-ok:hover { background: #c3e6cb; }
 
   .reader-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
   .btn-back { background: none; border: none; font-size: 1.5em; cursor: pointer; color: var(--primary); }
@@ -64,7 +84,6 @@
   .vocab-word { font-weight: bold; font-size: 1.2em; color: var(--primary); }
   .vocab-syn { color: #666; font-size: 0.9em; margin-top: 5px; }
 
-  /* ===== Exercice à trous ===== */
   .exercise-fillblank { background: #f0f8ff; padding: 20px; border-radius: 12px; margin-bottom: 20px; border: 2px solid var(--primary); }
   .exercise-fillblank h4 { color: var(--primary); margin-bottom: 15px; text-align: center; font-size: 1.2em; }
   .texte-avec-trous { font-size: 1.5em; line-height: 2.5; text-align: center; margin: 20px 0; padding: 15px; background: white; border-radius: 10px; }
@@ -91,7 +110,6 @@
 
   .loading { text-align: center; padding: 50px; color: #666; }
 
-  /* ============ MENU DE CONFIGURATION ============ */
   .btn-settings {
     position: fixed; top: 15px; left: 15px; width: 46px; height: 46px;
     border-radius: 50%; background: var(--primary); color: white; border: none;
@@ -123,7 +141,6 @@
 
   .setting-item { margin-bottom: 24px; padding-bottom: 20px; border-bottom: 1px solid #eee; }
   .setting-item:last-of-type { border-bottom: none; margin-bottom: 10px; padding-bottom: 5px; }
-
   .setting-item > label { display: block; font-weight: bold; color: var(--primary); margin-bottom: 14px; font-size: 1.02em; }
 
   .setting-row { display: flex; align-items: center; gap: 12px; }
@@ -139,7 +156,6 @@
   }
   .btn-reset:hover { background: #e2e8f0; }
 
-  /* ============ QCM avec cases à cocher ============ */
   .qcm-question { font-size: 1.3em; text-align: center; margin: 20px 0; padding: 15px; background: white; border-radius: 10px; font-weight: bold; color: var(--primary); }
   .qcm-options { display: flex; flex-direction: column; gap: 10px; }
   .qcm-option {
@@ -178,7 +194,6 @@
   }
   .message-error.show { display: block; animation: fadeIn 0.5s; }
 
-  /* ============ ترتيب الكلمات ============ */
   .word-order-answer {
     min-height: 70px; padding: 15px; background: #fff9e6;
     border: 3px dashed var(--primary); border-radius: 10px;
@@ -192,7 +207,6 @@
   .word-order-answer .mot-banque { background: var(--secondary); cursor: default; animation: fadeIn 0.35s; }
   .word-order-answer.correct { border: 3px solid var(--secondary); background: #d4edda; }
 
-  /* ============ وسم صورة واحدة (خريطة) ============ */
   .img-map-container {
     position: relative; display: inline-block; max-width: 100%;
     margin: 15px auto; border-radius: 12px; overflow: hidden;
@@ -213,7 +227,6 @@
   .img-map-zone.correct { border: 3px solid var(--secondary); border-radius: 10px; background: #d4edda; cursor: default; }
   .img-map-zone.incorrect { animation: shake 0.5s; border-color: #e74c3c; }
 
-  /* ============ وسم عدة صور ============ */
   .img-labels-app-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 14px; margin: 15px 0; }
   .img-labels-cell { text-align: center; background: #fff; padding: 8px; border-radius: 12px; border: 2px solid #e2e8f0; }
   .img-labels-cell img { width: 100%; height: 120px; object-fit: cover; border-radius: 10px; display: block; border: 1px solid #e2e8f0; }
@@ -228,7 +241,6 @@
   .image-label-zone.correct { border: 2px solid var(--secondary); background: #d4edda; cursor: default; }
   .image-label-zone.incorrect { animation: shake 0.5s; border-color: #e74c3c; background: #f8d7da; }
 
-  /* ============ اختيار صوتي ============ */
   .audio-choice-listen { display: flex; flex-direction: column; align-items: center; margin: 18px 0; }
   .audio-choice-btn {
     width: 90px; height: 90px; border-radius: 50%; border: none;
@@ -255,10 +267,8 @@
 </head>
 <body>
 
-  <!-- ============ BOUTON PARAMÈTRES FLOTTANT ============ -->
   <button class="btn-settings" onclick="toggleSettings()" aria-label="الإعدادات" title="الإعدادات">⚙️</button>
 
-  <!-- ============ PANNEAU PARAMÈTRES ============ -->
   <div id="settings-overlay" class="settings-overlay" onclick="closeSettings()"></div>
   <div id="settings-panel" class="settings-panel" role="dialog" aria-modal="true">
     <div class="settings-header">
@@ -266,7 +276,6 @@
       <button class="btn-close" onclick="closeSettings()" aria-label="إغلاق">✕</button>
     </div>
     <div class="settings-body">
-
       <div class="setting-item">
         <label>🔊 سرعة القراءة</label>
         <div class="setting-row">
@@ -279,7 +288,6 @@
           <span id="speedValue" class="setting-value">0.85x</span>
         </div>
       </div>
-
       <div class="setting-item">
         <label>🔤 حجم الخط</label>
         <div class="setting-row">
@@ -292,57 +300,46 @@
           <span id="fontValue" class="setting-value">24 px</span>
         </div>
       </div>
-
       <button class="btn-reset" onclick="resetSettings()">🔄 إعادة التعيين للإعدادات الافتراضية</button>
     </div>
   </div>
 
-  <!-- ============ EN-TÊTE ============ -->
   <header>
     <h1>📚 مكتبتي التفاعلية</h1>
     <p>تعلّم بسهولة ومتعة</p>
   </header>
 
-  <!-- ÉCRAN 1 : BIBLIOTHÈQUE -->
   <div id="screen-library" class="screen active">
     <div id="library-content">
       <div class="loading">⏳ جاري تحميل الكتب...</div>
     </div>
   </div>
 
-  <!-- ÉCRAN 2 : LECTEUR -->
   <div id="screen-reader" class="screen">
     <div class="reader-header">
       <button class="btn-back" onclick="showScreen('library')">🏠</button>
       <span id="reader-page-info" style="font-weight:bold; color:var(--primary);"></span>
     </div>
-
     <div class="card">
       <img id="page-img" class="page-image" src="" alt="Page" style="display:none;">
       <h2 id="page-title" class="page-title"></h2>
-
       <div id="page-text" class="text-container"></div>
-
       <div class="audio-controls">
         <button class="btn-control" onclick="prevPage()" title="الصفحة السابقة">⏭</button>
         <button class="btn-control play" id="btn-play" onclick="togglePlay()" title="تشغيل / إيقاف">▶</button>
         <button class="btn-control" onclick="nextPage()" title="الصفحة التالية">⏮</button>
       </div>
     </div>
-
-    <!-- Onglets interactifs -->
     <div class="tabs">
       <button class="tab-btn active" onclick="switchTab('vocab', event)">📖 المفردات</button>
       <button class="tab-btn" onclick="switchTab('exercises', event)">🎮 التمارين</button>
       <button class="tab-btn" onclick="switchTab('notes', event)">📌 ملاحظات</button>
     </div>
-
     <div id="tab-vocab" class="tab-content active card"></div>
     <div id="tab-exercises" class="tab-content card"></div>
     <div id="tab-notes" class="tab-content card"></div>
   </div>
 
-  <!-- ÉCRAN 3 : RÉSUMÉ -->
   <div id="screen-summary" class="screen">
     <div class="reader-header">
       <button class="btn-back" onclick="showScreen('reader')">🔙 رجوع</button>
@@ -390,71 +387,204 @@
           fontSize: typeof saved.fontSize === 'number' ? saved.fontSize : DEFAULT_SETTINGS.fontSize,
           ttsBatchSize: typeof saved.ttsBatchSize === 'number' ? saved.ttsBatchSize : DEFAULT_SETTINGS.ttsBatchSize
         };
-      } catch {
-        userSettings = { ...DEFAULT_SETTINGS };
-      }
+      } catch { userSettings = { ...DEFAULT_SETTINGS }; }
       applySettings();
     }
-
     function saveSettings() {
       try { localStorage.setItem(SETTINGS_KEY, JSON.stringify(userSettings)); } catch {}
     }
-
     function applySettings() {
       document.documentElement.style.setProperty('--reader-font-size', userSettings.fontSize + 'px');
       if (audio) audio.playbackRate = userSettings.speed;
-
       const speedSlider = document.getElementById('speedSlider');
       const fontSlider  = document.getElementById('fontSlider');
       if (speedSlider) speedSlider.value = userSettings.speed;
       if (fontSlider)  fontSlider.value  = userSettings.fontSize;
-
       updateSpeedDisplay();
       updateFontDisplay();
     }
-
     function updateSpeed(val) {
       userSettings.speed = parseFloat(val);
       saveSettings();
       if (audio) audio.playbackRate = userSettings.speed;
       updateSpeedDisplay();
-
       if (isPlaying && ttsCurrentIndex >= 0 && currentWords.length > 0) {
         playTTSFullText(ttsCurrentIndex);
       }
     }
-
     function updateFontSize(val) {
       userSettings.fontSize = parseInt(val);
       saveSettings();
       document.documentElement.style.setProperty('--reader-font-size', userSettings.fontSize + 'px');
       updateFontDisplay();
     }
-
     function updateSpeedDisplay() {
       const el = document.getElementById('speedValue');
       if (el) el.textContent = userSettings.speed.toFixed(2) + 'x';
     }
-
     function updateFontDisplay() {
       const el = document.getElementById('fontValue');
       if (el) el.textContent = userSettings.fontSize + ' px';
     }
-
     function toggleSettings() {
       document.getElementById('settings-overlay').classList.toggle('show');
       document.getElementById('settings-panel').classList.toggle('show');
     }
-
     function closeSettings() {
       document.getElementById('settings-overlay').classList.remove('show');
       document.getElementById('settings-panel').classList.remove('show');
     }
-
     function resetSettings() {
       userSettings = { ...DEFAULT_SETTINGS };
       saveSettings();
       applySettings();
+    }
+
+    // ================================================================
+    // IndexedDB : persistance locale des livres (hors-ligne)
+    // ================================================================
+    const DB_NAME = 'maktabati_db';
+    const DB_VERSION = 1;
+    let _db = null;
+
+    function openDB() {
+      if (_db) return Promise.resolve(_db);
+      return new Promise((resolve, reject) => {
+        const req = indexedDB.open(DB_NAME, DB_VERSION);
+        req.onupgradeneeded = e => {
+          const d = e.target.result;
+          if (!d.objectStoreNames.contains('books')) {
+            d.createObjectStore('books', { keyPath: 'id' });
+          }
+        };
+        req.onsuccess = () => { _db = req.result; resolve(_db); };
+        req.onerror = () => reject(req.error);
+      });
+    }
+
+    async function storeBookLocal(bookObj) {
+      const d = await openDB();
+      return new Promise((resolve, reject) => {
+        const tx = d.transaction('books', 'readwrite');
+        tx.objectStore('books').put({ id: bookObj.id, data: bookObj, savedAt: Date.now() });
+        tx.oncomplete = resolve;
+        tx.onerror = () => reject(tx.error);
+      });
+    }
+
+    async function getBookLocal(bookId) {
+      try {
+        const d = await openDB();
+        return await new Promise((resolve, reject) => {
+          const req = d.transaction('books', 'readonly').objectStore('books').get(bookId);
+          req.onsuccess = () => resolve(req.result ? req.result.data : null);
+          req.onerror = () => reject(req.error);
+        });
+      } catch { return null; }
+    }
+
+    async function deleteBookLocal(bookId) {
+      const d = await openDB();
+      return new Promise((resolve, reject) => {
+        const tx = d.transaction('books', 'readwrite');
+        tx.objectStore('books').delete(bookId);
+        tx.oncomplete = resolve;
+        tx.onerror = () => reject(tx.error);
+      });
+    }
+
+    function bookIdOf(meta) {
+      return meta.id || meta.fichierJSON.split('/').pop().replace('.json', '');
+    }
+
+    async function urlToDataURL(url) {
+      try {
+        const res = await fetch(url);
+        if (!res.ok) return null;
+        const blob = await res.blob();
+        return await new Promise(resolve => {
+          const fr = new FileReader();
+          fr.onload = () => resolve(fr.result);
+          fr.onerror = () => resolve(null);
+          fr.readAsDataURL(blob);
+        });
+      } catch { return null; }
+    }
+
+    async function downloadBookForOffline(bookId, btnEl) {
+      const meta = catalogue.find(b => bookIdOf(b) === bookId);
+      if (!meta) { alert('Livre introuvable dans le catalogue'); return; }
+
+      if (btnEl) { btnEl.disabled = true; btnEl.textContent = '⏳ 0%'; }
+
+      try {
+        // 1) JSON
+        const res = await fetch(`${GITHUB_BASE}/${meta.fichierJSON}`, { cache: 'no-store' });
+        if (!res.ok) throw new Error('HTTP ' + res.status);
+        const bookJson = await res.json();
+        bookJson.id = bookId;
+
+        // 2) Couverture
+        if (meta.couverture) {
+          const b = await urlToDataURL(`${GITHUB_BASE}/${meta.couverture}`);
+          if (b) bookJson.couvertureData = b;
+        }
+
+        // 3) Pages : images + audio
+        const pages = bookJson.pages || [];
+        let done = 0;
+        const total = pages.length * 2 + 1;
+        const tick = () => {
+          done++;
+          if (btnEl) btnEl.textContent = `⏳ ${Math.round(done / total * 100)}%`;
+        };
+
+        for (const p of pages) {
+          if (p.image) p.imageData = await urlToDataURL(`${GITHUB_BASE}/${p.image}`);
+          tick();
+          if (p.audioPage) p.audioData = await urlToDataURL(`${GITHUB_BASE}/${p.audioPage}`);
+          tick();
+        }
+
+        // 4) Audio résumé
+        if (bookJson.resume?.audio) {
+          bookJson.resume.audioData = await urlToDataURL(`${GITHUB_BASE}/${bookJson.resume.audio}`);
+        }
+        tick();
+
+        // 5) Persistance
+        await storeBookLocal(bookJson);
+        showToast(`✅ « ${bookJson.titre} » متاح دون اتصال`);
+        renderLibrary();
+      } catch (err) {
+        console.error(err);
+        if (btnEl) { btnEl.disabled = false; btnEl.textContent = '⬇️ تحميل للاستخدام دون اتصال'; }
+        alert('❌ Téléchargement impossible : ' + err.message);
+      }
+    }
+
+    async function deleteBookFromOffline(bookId) {
+      if (!confirm('🗑️ Supprimer ce livre du stockage hors-ligne ?')) return;
+      await deleteBookLocal(bookId);
+      showToast('Livre supprimé du stockage hors-ligne');
+      renderLibrary();
+    }
+
+    function showToast(msg) {
+      let t = document.getElementById('__toast');
+      if (!t) {
+        t = document.createElement('div');
+        t.id = '__toast';
+        t.style.cssText = 'position:fixed;bottom:90px;left:50%;transform:translateX(-50%);'
+          + 'background:#0d5c4a;color:#fff;padding:10px 22px;border-radius:30px;'
+          + 'z-index:9999;font-weight:bold;box-shadow:0 6px 20px rgba(0,0,0,.3);'
+          + 'font-size:.9em;transition:opacity .3s;max-width:90%;text-align:center;';
+        document.body.appendChild(t);
+      }
+      t.textContent = msg;
+      t.style.opacity = '1';
+      clearTimeout(t._tid);
+      t._tid = setTimeout(() => { t.style.opacity = '0'; }, 2500);
     }
 
     // ============ INITIALISATION ============
@@ -470,35 +600,97 @@
         if (!response.ok) throw new Error(`HTTP ${response.status}`);
         const data = await response.json();
         catalogue = data.livres || [];
-        console.log('Catalogue chargé:', catalogue);
-        renderLibrary();
+        await renderLibrary();
       } catch (error) {
         console.error('Erreur chargement catalogue:', error);
+        // Tentative de fallback : livres déjà téléchargés ?
+        const locals = await listLocalBooks();
+        if (locals.length > 0) {
+          catalogue = locals.map(b => ({
+            id: b.id, titre: b.titre, description: b.description,
+            couverture: '', niveau: b.niveau, auteur: b.auteur,
+            nombrePages: (b.pages || []).length,
+            fichierJSON: '', _offlineOnly: true
+          }));
+          await renderLibrary();
+          return;
+        }
         document.getElementById('library-content').innerHTML = `
-          <div class="card" style="text-align:center; color:red;">
-            ❌ خطأ في تحميل الفهرس.<br>
+          <div class="card" style="text-align:center; color:#c0392b;">
+            ❌ Impossible de charger le catalogue.<br>
             <small>${error.message}</small><br>
-            <button onclick="loadCatalogue()" style="margin-top:10px;">🔄 إعادة المحاولة</button>
+            <p style="margin-top:12px;font-size:.9em;color:#666;">
+              💡 Connectez-vous à Internet au moins une fois pour télécharger le catalogue.
+            </p>
+            <button onclick="loadCatalogue()" style="margin-top:10px;padding:8px 20px;border-radius:8px;border:none;background:var(--primary);color:#fff;cursor:pointer;">🔄 Réessayer</button>
           </div>`;
       }
     }
 
-    function renderLibrary() {
+    async function listLocalBooks() {
+      try {
+        const d = await openDB();
+        return await new Promise((resolve, reject) => {
+          const req = d.transaction('books', 'readonly').objectStore('books').getAll();
+          req.onsuccess = () => resolve((req.result || []).map(r => r.data));
+          req.onerror = () => reject(req.error);
+        });
+      } catch { return []; }
+    }
+
+    async function renderLibrary() {
       if (catalogue.length === 0) {
-        document.getElementById('library-content').innerHTML = '<div class="card" style="text-align:center;">لا يوجد أي كتاب متاح.</div>';
+        document.getElementById('library-content').innerHTML =
+          '<div class="card" style="text-align:center;">لا يوجد أي كتاب متاح.</div>';
         return;
       }
+
+      // Statuts hors-ligne + couvertures locales
+      const infos = await Promise.all(catalogue.map(async book => {
+        const id = bookIdOf(book);
+        const local = await getBookLocal(id);
+        return { id, local, book };
+      }));
+
       let html = '<div class="book-grid">';
-      catalogue.forEach((book) => {
-        const cover = book.couverture ? `${GITHUB_BASE}/${book.couverture}` : 'https://via.placeholder.com/150/0d5c4a/ffffff?text=كتاب';
-        const textePresentation = (book.titre + '. ' + (book.description || '')).replace(/'/g, "\\'");
+      infos.forEach(({ id, local, book }) => {
+        // Couverture : locale d'abord, sinon réseau
+        let cover;
+        if (local?.couvertureData) {
+          cover = local.couvertureData;
+        } else if (book.couverture) {
+          cover = `${GITHUB_BASE}/${book.couverture}`;
+        } else {
+          cover = 'https://via.placeholder.com/150/0d5c4a/ffffff?text=كتاب';
+        }
+
+        const offline = !!local;
+        const safeId = String(id).replace(/'/g, "\\'");
+        const texte = (book.titre + '. ' + (book.description || '')).replace(/'/g, "\\'");
+
         html += `
           <div class="card book-card">
-            <img src="${cover}" alt="${book.titre}" onclick="loadBook('${book.fichierJSON}')" onerror="this.src='https://via.placeholder.com/150/0d5c4a/ffffff?text=كتاب'">
-            <h3 onclick="loadBook('${book.fichierJSON}')">${book.titre}</h3>
+            <img src="${cover}" alt="${book.titre}"
+                 onclick="loadBook('${book.fichierJSON || ''}', '${safeId}')"
+                 onerror="this.src='https://via.placeholder.com/150/0d5c4a/ffffff?text=كتاب'">
+            <h3 onclick="loadBook('${book.fichierJSON || ''}', '${safeId}')">${book.titre}</h3>
             <span class="level">${book.niveau || 'moyen'}</span>
-            <p style="font-size:0.85em; color:#666; margin-top:5px;">${book.nombrePages || '?'} صفحة</p>
-            <button class="btn-listen" onclick="event.stopPropagation(); speakText('${textePresentation}')" title="اسمع تعريف الكتاب">🔊</button>
+            <p style="font-size:0.85em; color:#666; margin-top:5px;">${book.nombrePages || (local?.pages?.length) || '?'} صفحة</p>
+
+            ${offline
+              ? `<button class="btn-offline-ok"
+                   onclick="deleteBookFromOffline('${safeId}')"
+                   title="اضغط للحذف من التخزين المحلي">
+                   ✅ متاح دون اتصال — 🗑️
+                 </button>`
+              : `<button class="btn-offline-dl"
+                   onclick="downloadBookForOffline('${safeId}', this)"
+                   title="تحميل للاستخدام دون اتصال">
+                   ⬇️ تحميل للاستخدام دون اتصال
+                 </button>`
+            }
+
+            <button class="btn-listen" onclick="event.stopPropagation(); speakText('${texte}')" title="اسمع تعريف الكتاب">🔊</button>
           </div>`;
       });
       html += '</div>';
@@ -506,18 +698,37 @@
     }
 
     // ============ CHARGEMENT DU LIVRE ============
-    async function loadBook(jsonPath) {
+    async function loadBook(jsonPath, bookId) {
+      bookId = bookId || (jsonPath ? jsonPath.split('/').pop().replace('.json', '') : null);
+      if (!bookId) { alert('Livre invalide'); return; }
+
       try {
-        const fullUrl = `${GITHUB_BASE}/${jsonPath}`;
-        const response = await fetch(fullUrl);
+        // 1) Cache local d'abord
+        const local = await getBookLocal(bookId);
+        if (local) {
+          console.log('📂 Chargement depuis IndexedDB :', bookId);
+          currentBook = local;
+          currentPageIndex = 0;
+          showScreen('reader');
+          renderPage();
+          return;
+        }
+
+        // 2) Fallback réseau
+        if (!jsonPath) throw new Error('Ce livre n\'est pas disponible hors-ligne');
+        console.log('🌐 Chargement depuis GitHub :', jsonPath);
+        const response = await fetch(`${GITHUB_BASE}/${jsonPath}`);
         if (!response.ok) throw new Error(`HTTP ${response.status}`);
         currentBook = await response.json();
+        currentBook.id = currentBook.id || bookId;
         currentPageIndex = 0;
         showScreen('reader');
         renderPage();
       } catch (error) {
         console.error('Erreur chargement livre:', error);
-        alert(`خطأ في تحميل الكتاب: ${error.message}`);
+        alert(`❌ Impossible de charger le livre : ${error.message}\n\n`
+            + `💡 Connectez-vous à Internet et téléchargez le livre (bouton ⬇️) `
+            + `pour pouvoir le lire hors-ligne.`);
       }
     }
 
@@ -526,19 +737,23 @@
       const page = currentBook.pages[currentPageIndex];
       if (!page) return;
 
-      document.getElementById('reader-page-info').textContent = `صفحة ${currentPageIndex + 1} / ${currentBook.pages.length}`;
+      document.getElementById('reader-page-info').textContent =
+        `صفحة ${currentPageIndex + 1} / ${currentBook.pages.length}`;
       document.getElementById('page-title').textContent = page.titreSection || '';
 
+      // Image : base64 local d'abord, sinon URL réseau
       const imgEl = document.getElementById('page-img');
-      if (page.image) {
-        imgEl.src = `${GITHUB_BASE}/${page.image}`;
+      const imgSrc = page.imageData
+        ? page.imageData
+        : (page.image ? `${GITHUB_BASE}/${page.image}` : '');
+      if (imgSrc) {
+        imgEl.src = imgSrc;
         imgEl.style.display = 'block';
         imgEl.onerror = () => { imgEl.style.display = 'none'; };
       } else {
         imgEl.style.display = 'none';
       }
 
-      // Nettoyage des iframes custom de la page précédente
       document.querySelectorAll('#tab-exercises [data-cleanup]').forEach(el => {
         if (el._cleanup) el._cleanup();
       });
@@ -550,7 +765,9 @@
       currentWords = [];
       currentWordSpans = [];
 
-      const isMp3Mode = (page.audioMode === 'mp3' && page.audioPage && page.mots && page.mots.length > 0);
+      const isMp3Mode = (page.audioMode === 'mp3' &&
+                        (page.audioPage || page.audioData) &&
+                        page.mots && page.mots.length > 0);
 
       if (isMp3Mode) {
         page.mots.forEach((mot, index) => {
@@ -573,10 +790,7 @@
             span.className = 'word';
             span.textContent = part;
             const wordText = part;
-            span.onclick = (e) => {
-              e.stopPropagation();
-              playWordTTS(wordText, span);
-            };
+            span.onclick = (e) => { e.stopPropagation(); playWordTTS(wordText, span); };
             textContainer.appendChild(span);
             currentWords.push(wordText);
             currentWordSpans.push(span);
@@ -594,7 +808,6 @@
           if (v.synonymes && v.synonymes.length) parts.push('مرادفات: ' + v.synonymes.join('، '));
           if (v.exemple) parts.push(v.exemple);
           const fullText = parts.join('. ').replace(/'/g, "\\'");
-
           return `
           <div class="vocab-item">
             <div class="vocab-word">
@@ -611,11 +824,14 @@
       }
 
       renderExercises(page.exercices);
+      document.getElementById('tab-notes').innerHTML = page.notes
+        ? `<p style="line-height:1.6;">${page.notes}</p>`
+        : '<p style="text-align:center; color:#999;">لا توجد ملاحظات.</p>';
 
-      document.getElementById('tab-notes').innerHTML = page.notes ? `<p style="line-height:1.6;">${page.notes}</p>` : '<p style="text-align:center; color:#999;">لا توجد ملاحظات.</p>';
-
-      if (page.audioMode === 'mp3' && page.audioPage) {
-        audio.src = `${GITHUB_BASE}/${page.audioPage}`;
+      // Audio de page : base64 local d'abord, sinon URL réseau
+      const hasPageAudio = (page.audioMode === 'mp3' && (page.audioData || page.audioPage));
+      if (hasPageAudio) {
+        audio.src = page.audioData ? page.audioData : `${GITHUB_BASE}/${page.audioPage}`;
         audio.playbackRate = userSettings.speed;
         audio.onerror = () => {
           console.error('Erreur chargement audio:', audio.src);
@@ -628,7 +844,7 @@
       }
     }
 
-    // ============ MP3 : surlignage + STOP à la fin du mot ============
+    // ============ MP3 : surlignage ============
     audio.ontimeupdate = () => {
       if (!isPlaying || !currentBook || !currentBook.pages[currentPageIndex]) return;
       const currentTime = audio.currentTime;
@@ -642,7 +858,6 @@
         clearAllHighlight();
         return;
       }
-
       if (!page.mots || page.mots.length === 0) return;
 
       const currentWord = page.mots.find(m => currentTime >= m.debut && currentTime < m.fin);
@@ -668,14 +883,11 @@
     function togglePlay() {
       const page = currentBook.pages[currentPageIndex];
       if (!page) return;
-
-      const isMp3Mode = (page.audioMode === 'mp3' && page.audioPage);
+      const isMp3Mode = (page.audioMode === 'mp3' && (page.audioData || page.audioPage));
 
       if (isMp3Mode) {
         if (isPlaying) {
-          audio.pause();
-          isPlaying = false;
-          playStopTime = null;
+          audio.pause(); isPlaying = false; playStopTime = null;
         } else {
           playStopTime = null;
           audio.play().catch(e => console.error('Erreur lecture audio:', e));
@@ -696,10 +908,9 @@
       updatePlayButton();
     }
 
-    // ============ TTS : LECTURE EN LOTS + SURLIGNAGE TIMER ============
+    // ============ TTS ============
     function playTTSFullText(startIndex = 0) {
       if (!currentWords || currentWords.length === 0) return;
-
       const mySession = ++ttsSessionId;
       window.speechSynthesis.cancel();
       clearHighlightTimer();
@@ -709,7 +920,6 @@
 
       const voices = window.speechSynthesis.getVoices();
       const arVoice = voices.find(v => v.lang && v.lang.startsWith('ar'));
-
       const BATCH_SIZE = userSettings.ttsBatchSize || 5;
 
       const batches = [];
@@ -721,21 +931,15 @@
       }
 
       let batchPos = 0;
-
       const speakNextBatch = () => {
         if (mySession !== ttsSessionId) return;
         if (batchPos >= batches.length) {
-          isPlaying = false;
-          ttsCurrentIndex = -1;
-          updatePlayButton();
-          clearAllHighlight();
-          clearHighlightTimer();
+          isPlaying = false; ttsCurrentIndex = -1;
+          updatePlayButton(); clearAllHighlight(); clearHighlightTimer();
           return;
         }
-
         const batch = batches[batchPos];
         const batchText = batch.words.join(' ');
-
         const rate = userSettings.speed;
         const cumulTimes = [0];
         let acc = 0;
@@ -744,13 +948,11 @@
           acc += dur;
           cumulTimes.push(acc);
         }
-
         const utt = new SpeechSynthesisUtterance(batchText);
         utt.lang = 'ar-DZ';
         if (arVoice) utt.voice = arVoice;
         utt.rate = rate;
         utt.pitch = 1.0;
-
         let batchStartTime = 0;
 
         ttsCurrentIndex = batch.startIdx;
@@ -760,17 +962,14 @@
           firstSpan.classList.add('active');
           firstSpan.scrollIntoView({ behavior: 'smooth', block: 'center', inline: 'center' });
         }
-
         utt.onstart = () => {
           if (mySession !== ttsSessionId) return;
           batchStartTime = performance.now();
           startHighlightTimer(batch, mySession, cumulTimes);
         };
-
         utt.onend = () => {
           if (mySession !== ttsSessionId) return;
           clearHighlightTimer();
-
           if (batchStartTime > 0) {
             const actual = (performance.now() - batchStartTime) / 1000;
             if (actual > 0.2) {
@@ -779,11 +978,9 @@
               ttsCharsPerSecond = Math.max(8, Math.min(25, ttsCharsPerSecond));
             }
           }
-
           batchPos++;
           speakNextBatch();
         };
-
         utt.onerror = (e) => {
           if (mySession !== ttsSessionId) return;
           clearHighlightTimer();
@@ -791,7 +988,6 @@
           batchPos++;
           speakNextBatch();
         };
-
         window.speechSynthesis.speak(utt);
       };
 
@@ -826,21 +1022,15 @@
       const firstDelta = cumulTimes[1] - cumulTimes[0];
       ttsHighlightTimer = setTimeout(advance, firstDelta);
     }
-
     function clearHighlightTimer() {
-      if (ttsHighlightTimer) {
-        clearTimeout(ttsHighlightTimer);
-        ttsHighlightTimer = null;
-      }
+      if (ttsHighlightTimer) { clearTimeout(ttsHighlightTimer); ttsHighlightTimer = null; }
     }
 
-    // ============ TTS SANS SURLIGNAGE ============
     let simpleTtsSession = 0;
     function speakText(text) {
       if (!text) return;
       const mySession = ++simpleTtsSession;
       window.speechSynthesis.cancel();
-
       const doSpeak = () => {
         if (mySession !== simpleTtsSession) return;
         const utt = new SpeechSynthesisUtterance(text);
@@ -852,39 +1042,28 @@
         utt.pitch = 1.0;
         window.speechSynthesis.speak(utt);
       };
-
       if (window.speechSynthesis.getVoices().length === 0) {
         window.speechSynthesis.onvoiceschanged = () => {
           window.speechSynthesis.onvoiceschanged = null;
           doSpeak();
         };
-      } else {
-        doSpeak();
-      }
+      } else { doSpeak(); }
     }
 
     function speakSummary() {
       if (!currentBook || !currentBook.resume) return;
       speakText(currentBook.resume.texte || '');
     }
-
     function speakBravo() { speakText('أحسنت!'); }
     function speakTryAgain() { speakText('حاول مرة أخرى'); }
 
-    // ============ TTS : LECTURE D'UN SEUL MOT ============
     function playWordTTS(word, span) {
       const mySession = ++ttsSessionId;
       clearHighlightTimer();
-
-      if (!audio.paused) {
-        audio.pause();
-        playStopTime = null;
-      }
-
+      if (!audio.paused) { audio.pause(); playStopTime = null; }
       window.speechSynthesis.cancel();
       clearAllHighlight();
       if (span) span.classList.add('active');
-
       const utter = () => {
         const utt = new SpeechSynthesisUtterance(word);
         utt.lang = 'ar-DZ';
@@ -893,36 +1072,27 @@
         if (arVoice) utt.voice = arVoice;
         utt.rate = userSettings.speed;
         utt.pitch = 1.0;
-
         utt.onend = () => {
           if (mySession !== ttsSessionId) return;
           if (span) span.classList.remove('active');
-          isPlaying = false;
-          updatePlayButton();
+          isPlaying = false; updatePlayButton();
         };
         utt.onerror = () => {
           if (mySession !== ttsSessionId) return;
           if (span) span.classList.remove('active');
-          isPlaying = false;
-          updatePlayButton();
+          isPlaying = false; updatePlayButton();
         };
-
-        isPlaying = true;
-        updatePlayButton();
+        isPlaying = true; updatePlayButton();
         window.speechSynthesis.speak(utt);
       };
-
       if (window.speechSynthesis.getVoices().length === 0) {
         window.speechSynthesis.onvoiceschanged = () => {
           window.speechSynthesis.onvoiceschanged = null;
           utter();
         };
-      } else {
-        utter();
-      }
+      } else { utter(); }
     }
 
-    // ============ MP3 : LECTURE DEPUIS UN MOT ============
     function playFromWord(index) {
       const page = currentBook.pages[currentPageIndex];
       if (!page || !page.mots || !page.mots[index]) return;
@@ -948,7 +1118,6 @@
       const btn = document.getElementById('btn-play');
       if (btn) btn.textContent = isPlaying ? '⏸' : '▶';
     }
-
     function clearAllHighlight() {
       document.querySelectorAll('.word').forEach(w => w.classList.remove('active'));
     }
@@ -962,12 +1131,8 @@
         showSummary();
       }
     }
-
     function prevPage() {
-      if (currentPageIndex > 0) {
-        currentPageIndex--;
-        renderPage();
-      }
+      if (currentPageIndex > 0) { currentPageIndex--; renderPage(); }
     }
 
     function showSummary() {
@@ -976,8 +1141,13 @@
       const sumAudio = document.getElementById('summary-audio');
       const btnTts = document.getElementById('btn-summary-tts');
 
-      if (currentBook.resume.modeAudio === 'mp3' && currentBook.resume.audio) {
-        sumAudio.src = `${GITHUB_BASE}/${currentBook.resume.audio}`;
+      const hasAudio = (currentBook.resume.modeAudio === 'mp3' &&
+                        (currentBook.resume.audioData || currentBook.resume.audio));
+
+      if (hasAudio) {
+        sumAudio.src = currentBook.resume.audioData
+          ? currentBook.resume.audioData
+          : `${GITHUB_BASE}/${currentBook.resume.audio}`;
         sumAudio.style.display = 'block';
         if (btnTts) btnTts.style.display = 'none';
       } else {
@@ -987,7 +1157,6 @@
       showScreen('summary');
     }
 
-    // ============ UTILITAIRES ============
     function showScreen(screenName) {
       document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
       document.getElementById(`screen-${screenName}`).classList.add('active');
@@ -1001,7 +1170,6 @@
       if (ev && ev.target) ev.target.classList.add('active');
     }
 
-    // ============ Mélange Fisher-Yates ============
     function shuffleArray(a) {
       for (let i = a.length - 1; i > 0; i--) {
         const j = Math.floor(Math.random() * (i + 1));
@@ -1010,7 +1178,7 @@
       return a;
     }
 
-    // ============ EXERCICES : dispatcher ============
+    // ============ EXERCICES ============
     function renderExercises(exercices) {
       const container = document.getElementById('tab-exercises');
       if (!exercices || exercices.length === 0) {
@@ -1030,18 +1198,14 @@
       });
     }
 
-    // ============ 1) ملء الفراغات ============
     function creerExerciceATrous(exercice) {
       const container = document.createElement('div');
       container.className = 'exercise-fillblank';
-
       const titre = document.createElement('h4');
       titre.textContent = '✍️ أكمل الفراغات بالضغط على الكلمة ثم على الفراغ:';
       container.appendChild(titre);
-
       const texteDiv = document.createElement('div');
       texteDiv.className = 'texte-avec-trous';
-
       let indexTrou = 0;
       const texteHTML = String(exercice.texte || '').replace(/___/g, () => {
         const trouId = `trou-${Date.now()}-${indexTrou}`;
@@ -1050,10 +1214,8 @@
       });
       texteDiv.innerHTML = texteHTML;
       container.appendChild(texteDiv);
-
       const banqueDiv = document.createElement('div');
       banqueDiv.className = 'banque-mots';
-
       const raw = exercice.motsMelanges && exercice.motsMelanges.length
         ? exercice.motsMelanges
         : (exercice.reponses || []);
@@ -1064,7 +1226,6 @@
       });
       const uniq = [...new Set(flat)];
       shuffleArray(uniq);
-
       uniq.forEach((mot, index) => {
         const motSpan = document.createElement('span');
         motSpan.className = 'mot-banque';
@@ -1075,12 +1236,10 @@
         banqueDiv.appendChild(motSpan);
       });
       container.appendChild(banqueDiv);
-
       const messageSuccess = document.createElement('div');
       messageSuccess.className = 'message-success';
       messageSuccess.textContent = '🎉 ممتاز! أحسنت!';
       container.appendChild(messageSuccess);
-
       container.dataset.trousRemplis = '0';
       container.dataset.totalTrous = indexTrou;
       container.dataset.reponses = JSON.stringify(exercice.reponses || []);
@@ -1115,7 +1274,6 @@
         trouElement.innerHTML = `<span class="mot-place">${motSelectionne}</span>`;
         trouElement.classList.add('correct');
         trouElement.classList.remove('incorrect');
-
         const motElement = container.querySelector(`.mot-banque[data-mot="${motSelectionne}"]:not(.used)`);
         if (motElement) {
           motElement.classList.add('used');
@@ -1124,7 +1282,6 @@
         let trousRemplis = parseInt(container.dataset.trousRemplis) + 1;
         container.dataset.trousRemplis = trousRemplis;
         container.dataset.selectedMot = '';
-
         const totalTrous = parseInt(container.dataset.totalTrous);
         if (trousRemplis === totalTrous) {
           container.querySelector('.message-success').classList.add('show');
@@ -1139,29 +1296,22 @@
       }
     }
 
-    // ============ 2) QCM (cases à cocher + bouton vérifier) ============
     function creerExerciceQCM(exercice) {
       const container = document.createElement('div');
       container.className = 'exercise-fillblank';
-
       const titre = document.createElement('h4');
       titre.textContent = '❓ ' + (exercice.titre || 'اختر الإجابة أو الإجابات الصحيحة ثم اضغط "تأكد من الإجابة"');
       container.appendChild(titre);
-
       const q = document.createElement('div');
       q.className = 'qcm-question';
       q.textContent = exercice.question || '';
       container.appendChild(q);
-
-      // Compat : bonnesReponses[] (nouveau) ou bonneReponseIndex (ancien)
       const bonnes = Array.isArray(exercice.bonnesReponses)
         ? exercice.bonnesReponses
         : (typeof exercice.bonneReponseIndex === 'number' ? [exercice.bonneReponseIndex] : []);
       const correctSet = new Set(bonnes);
-
       const opts = document.createElement('div');
       opts.className = 'qcm-options';
-
       (exercice.options || []).forEach((opt, i) => {
         const label = document.createElement('label');
         label.className = 'qcm-option-checkbox';
@@ -1169,29 +1319,24 @@
         opts.appendChild(label);
       });
       container.appendChild(opts);
-
       const btnVerify = document.createElement('button');
       btnVerify.className = 'btn-verify';
       btnVerify.textContent = '✅ تأكد من الإجابة';
       container.appendChild(btnVerify);
-
       const msgOk = document.createElement('div');
       msgOk.className = 'message-success';
       msgOk.textContent = '🎉 ممتاز! أحسنت!';
       container.appendChild(msgOk);
-
       const msgErr = document.createElement('div');
       msgErr.className = 'message-error';
       msgErr.textContent = '❌ حاول مرة أخرى';
       container.appendChild(msgErr);
-
       btnVerify.onclick = () => {
         const selected = new Set();
         opts.querySelectorAll('.qcm-option-checkbox').forEach((lbl, i) => {
           const cb = lbl.querySelector('input');
           if (cb.checked) selected.add(i);
         });
-
         if (selected.size === 0) {
           msgErr.textContent = '⚠️ اختر إجابة واحدة على الأقل';
           msgErr.classList.add('show');
@@ -1199,24 +1344,14 @@
           speakTryAgain();
           return;
         }
-
         let ok = selected.size === correctSet.size;
-        if (ok) {
-          for (const i of selected) {
-            if (!correctSet.has(i)) { ok = false; break; }
-          }
-        }
-
+        if (ok) for (const i of selected) if (!correctSet.has(i)) { ok = false; break; }
         opts.querySelectorAll('.qcm-option-checkbox').forEach((lbl, i) => {
           const cb = lbl.querySelector('input');
           lbl.classList.remove('correct', 'incorrect');
-          if (correctSet.has(i)) {
-            lbl.classList.add('correct');
-          } else if (cb.checked) {
-            lbl.classList.add('incorrect');
-          }
+          if (correctSet.has(i)) lbl.classList.add('correct');
+          else if (cb.checked) lbl.classList.add('incorrect');
         });
-
         if (ok) {
           msgOk.classList.add('show');
           msgErr.classList.remove('show');
@@ -1231,65 +1366,49 @@
           speakTryAgain();
         }
       };
-
       return container;
     }
 
-    // ============ 3) ترتيب الكلمات (validation par position) ============
     function creerExerciceWordOrder(exercice) {
       const container = document.createElement('div');
       container.className = 'exercise-fillblank';
-
       const titre = document.createElement('h4');
       titre.textContent = '🔀 ' + (exercice.titre || 'اضغط على الكلمات بالترتيب الصحيح لتكوين الجملة:');
       container.appendChild(titre);
-
-      // SOURCE UNIQUE = phraseCorrecte (on ignore motsMelanges qui peut être [])
       const phraseCorrecte = String(exercice.phraseCorrecte || '').trim();
       const correctWords = phraseCorrecte.split(/\s+/).filter(w => w.length > 0);
-
       if (correctWords.length === 0) {
         const warn = document.createElement('div');
         warn.style.cssText = 'background:#fef3c7;border:1px solid #fbbf24;color:#78350f;padding:12px;border-radius:10px;font-size:.9em;text-align:center;';
         warn.textContent = '⚠️ لم تُحدَّد الجملة الصحيحة بعد. أضفها من الاستوديو.';
         container.appendChild(warn);
-        console.warn('[word_order] phraseCorrecte vide :', exercice);
         return container;
       }
-
       const answerZone = document.createElement('div');
       answerZone.className = 'word-order-answer';
       container.appendChild(answerZone);
-
       const bank = document.createElement('div');
       bank.className = 'banque-mots';
-
       const words = [...correctWords];
       shuffleArray(words);
       if (words.length > 1 && words.join(' ') === correctWords.join(' ')) {
         [words[0], words[1]] = [words[1], words[0]];
       }
-
       const msg = document.createElement('div');
       msg.className = 'message-success';
       msg.textContent = '🎉 ممتاز! الجملة صحيحة.';
       container.appendChild(msg);
-
       let nextExpected = 0;
-
       words.forEach(w => {
         const span = document.createElement('span');
         span.className = 'mot-banque';
         span.textContent = w;
-
         span.onclick = () => {
           if (span.classList.contains('placed')) return;
-
           if (w === correctWords[nextExpected]) {
             answerZone.appendChild(span);
             span.classList.add('placed');
             nextExpected++;
-
             if (nextExpected === correctWords.length) {
               answerZone.classList.add('correct');
               msg.classList.add('show');
@@ -1301,23 +1420,18 @@
             speakTryAgain();
           }
         };
-
         bank.appendChild(span);
       });
-
       container.appendChild(bank);
       return container;
     }
 
-    // ============ 4) وسم صورة واحدة (خريطة / مناطق) ============
     function creerExerciceImageClick(exercice) {
       const container = document.createElement('div');
       container.className = 'exercise-fillblank';
-
       const titre = document.createElement('h4');
       titre.textContent = '🗺️ ' + (exercice.titre || exercice.instruction || 'ضع كل تسمية على مكانها الصحيح');
       container.appendChild(titre);
-
       const imgSrc = exercice.imageData || (exercice.image ? `${GITHUB_BASE}/${exercice.image}` : '');
       if (!imgSrc || !(exercice.zones || []).length) {
         const p = document.createElement('p');
@@ -1326,19 +1440,14 @@
         container.appendChild(p);
         return container;
       }
-
       const wrap = document.createElement('div');
       wrap.style.textAlign = 'center';
-
       const mapEl = document.createElement('div');
       mapEl.className = 'img-map-container';
-
       const img = document.createElement('img');
       img.src = imgSrc;
       mapEl.appendChild(img);
-
       const zones = exercice.zones || [];
-
       zones.forEach((z, i) => {
         const zoneEl = document.createElement('div');
         zoneEl.className = 'img-map-zone';
@@ -1350,10 +1459,8 @@
         zoneEl.onclick = () => handleMapZoneClick(zoneEl, container);
         mapEl.appendChild(zoneEl);
       });
-
       wrap.appendChild(mapEl);
       container.appendChild(wrap);
-
       const bank = document.createElement('div');
       bank.className = 'banque-mots';
       const labels = zones.map(z => z.reponse);
@@ -1370,12 +1477,10 @@
         bank.appendChild(span);
       });
       container.appendChild(bank);
-
       const msg = document.createElement('div');
       msg.className = 'message-success';
       msg.textContent = '🎉 ممتاز! أحسنت!';
       container.appendChild(msg);
-
       container.dataset.placed = '0';
       container.dataset.total = String(zones.length);
       return container;
@@ -1385,13 +1490,11 @@
       if (zoneEl.classList.contains('correct')) return;
       const sel = container.querySelector('.mot-banque.selected');
       if (!sel) { speakTryAgain(); return; }
-
       if (sel.textContent === zoneEl.dataset.reponse) {
         zoneEl.textContent = sel.textContent;
         zoneEl.classList.add('correct');
         sel.classList.add('used');
         sel.classList.remove('selected');
-
         const placed = parseInt(container.dataset.placed) + 1;
         container.dataset.placed = placed;
         if (placed === parseInt(container.dataset.total)) {
@@ -1405,15 +1508,12 @@
       }
     }
 
-    // ============ 5) وسم عدة صور ============
     function creerExerciceImageLabels(exercice) {
       const container = document.createElement('div');
       container.className = 'exercise-fillblank';
-
       const titre = document.createElement('h4');
       titre.textContent = '🖼️ ' + (exercice.titre || exercice.instruction || 'اختر التسمية المناسبة لكل صورة');
       container.appendChild(titre);
-
       const items = exercice.items || [];
       if (items.length === 0) {
         const p = document.createElement('p');
@@ -1422,14 +1522,11 @@
         container.appendChild(p);
         return container;
       }
-
       const grid = document.createElement('div');
       grid.className = 'img-labels-app-grid';
-
       items.forEach(it => {
         const cell = document.createElement('div');
         cell.className = 'img-labels-cell';
-
         const src = it.imageData || (it.image ? `${GITHUB_BASE}/${it.image}` : '');
         if (src) {
           const img = document.createElement('img');
@@ -1437,18 +1534,15 @@
           img.alt = '';
           cell.appendChild(img);
         }
-
         const zone = document.createElement('div');
         zone.className = 'image-label-zone';
         zone.textContent = '?';
         zone.dataset.reponse = it.reponse;
         zone.onclick = () => handleImageLabelClick(zone, container);
         cell.appendChild(zone);
-
         grid.appendChild(cell);
       });
       container.appendChild(grid);
-
       const bank = document.createElement('div');
       bank.className = 'banque-mots';
       const labels = items.map(it => it.reponse);
@@ -1465,12 +1559,10 @@
         bank.appendChild(span);
       });
       container.appendChild(bank);
-
       const msg = document.createElement('div');
       msg.className = 'message-success';
       msg.textContent = '🎉 ممتاز! أحسنت!';
       container.appendChild(msg);
-
       container.dataset.placed = '0';
       container.dataset.total = String(items.length);
       return container;
@@ -1480,13 +1572,11 @@
       if (zoneEl.classList.contains('correct')) return;
       const sel = container.querySelector('.mot-banque.selected');
       if (!sel) { speakTryAgain(); return; }
-
       if (sel.textContent === zoneEl.dataset.reponse) {
         zoneEl.textContent = sel.textContent;
         zoneEl.classList.add('correct');
         sel.classList.add('used');
         sel.classList.remove('selected');
-
         const placed = parseInt(container.dataset.placed) + 1;
         container.dataset.placed = placed;
         if (placed === parseInt(container.dataset.total)) {
@@ -1500,18 +1590,14 @@
       }
     }
 
-    // ============ 6) اختيار صوتي ============
     function creerExerciceAudioChoice(exercice) {
       const container = document.createElement('div');
       container.className = 'exercise-fillblank';
-
       const titre = document.createElement('h4');
       titre.textContent = '🔊 ' + (exercice.titre || exercice.instruction || 'اسمع الكلمة واختر الكتابة الصحيحة');
       container.appendChild(titre);
-
       const listenWrap = document.createElement('div');
       listenWrap.className = 'audio-choice-listen';
-
       const btnListen = document.createElement('button');
       btnListen.className = 'audio-choice-btn';
       btnListen.textContent = '🔊';
@@ -1522,19 +1608,14 @@
         setTimeout(() => btnListen.classList.remove('playing'), 1200);
       };
       listenWrap.appendChild(btnListen);
-
       const hint = document.createElement('div');
       hint.className = 'audio-choice-hint';
       hint.textContent = 'اضغط على مكبر الصوت للاستماع، ثم اختر الإجابة';
       listenWrap.appendChild(hint);
-
       container.appendChild(listenWrap);
-
       const opts = document.createElement('div');
       opts.className = 'qcm-options';
-
       const bonne = (typeof exercice.bonneReponseIndex === 'number') ? exercice.bonneReponseIndex : 0;
-
       (exercice.options || []).forEach((opt, i) => {
         const btn = document.createElement('button');
         btn.className = 'qcm-option';
@@ -1555,24 +1636,19 @@
         opts.appendChild(btn);
       });
       container.appendChild(opts);
-
       const msg = document.createElement('div');
       msg.className = 'message-success';
       msg.textContent = '🎉 ممتاز! أحسنت!';
       container.appendChild(msg);
-
       return container;
     }
 
-    // ============ 7) ربط الأزواج ============
     function creerExerciceMatching(exercice) {
       const container = document.createElement('div');
       container.className = 'exercise-fillblank';
-
       const titre = document.createElement('h4');
       titre.textContent = '🔗 ' + (exercice.titre || exercice.instruction || 'اربط كل عنصر بما يناسبه');
       container.appendChild(titre);
-
       const pairs = exercice.pairs || [];
       if (pairs.length === 0) {
         const p = document.createElement('p');
@@ -1581,26 +1657,20 @@
         container.appendChild(p);
         return container;
       }
-
       const leftCol  = pairs.map(p => p.left);
       const rightCol = shuffleArray(pairs.map(p => p.right));
-
       const grid = document.createElement('div');
       grid.style.cssText = 'display:grid;grid-template-columns:1fr 1fr;gap:14px;margin:15px 0;';
-
       const leftBox  = document.createElement('div');
       const rightBox = document.createElement('div');
       leftBox.style.cssText = rightBox.style.cssText = 'display:flex;flex-direction:column;gap:8px;';
-
       let selectedLeft = null;
       let matchedCount = 0;
       const total = pairs.length;
-
       const msg = document.createElement('div');
       msg.className = 'message-success';
       msg.textContent = '🎉 ممتاز! أحسنت!';
       container.appendChild(msg);
-
       leftCol.forEach(l => {
         const el = document.createElement('div');
         el.className = 'qcm-option';
@@ -1616,7 +1686,6 @@
         };
         leftBox.appendChild(el);
       });
-
       rightCol.forEach(r => {
         const el = document.createElement('div');
         el.className = 'qcm-option';
@@ -1626,7 +1695,6 @@
         el.onclick = () => {
           if (el.classList.contains('correct')) return;
           if (!selectedLeft) { speakTryAgain(); return; }
-
           const ok = pairs.some(p => p.left === selectedLeft.dataset.value && p.right === el.dataset.value);
           if (ok) {
             selectedLeft.classList.add('correct');
@@ -1645,23 +1713,18 @@
         };
         rightBox.appendChild(el);
       });
-
       grid.appendChild(leftBox);
       grid.appendChild(rightBox);
       container.appendChild(grid);
-
       return container;
     }
 
-    // ============ 8) مخصص (iframe sandbox) ============
     function creerExerciceCustom(exercice) {
       const container = document.createElement('div');
       container.className = 'exercise-fillblank';
-
       const titre = document.createElement('h4');
       titre.textContent = '⚙️ ' + (exercice.titre || 'تمرين مخصص');
       container.appendChild(titre);
-
       const iframe = document.createElement('iframe');
       iframe.style.cssText = 'width:100%;min-height:340px;border:2px solid #e2e8f0;border-radius:12px;background:#fff;';
       iframe.setAttribute('sandbox', 'allow-scripts');
@@ -1680,12 +1743,10 @@
           });
         <\/script></body></html>`;
       container.appendChild(iframe);
-
       const msg = document.createElement('div');
       msg.className = 'message-success';
       msg.textContent = '🎉 ممتاز! أحسنت!';
       container.appendChild(msg);
-
       const handler = (e) => {
         const d = e.data;
         if (!d || typeof d !== 'object') return;
@@ -1693,21 +1754,19 @@
         if (d.type === 'tryAgain') { speakTryAgain(); }
       };
       window.addEventListener('message', handler);
-
       container.setAttribute('data-cleanup', '1');
       container._cleanup = () => window.removeEventListener('message', handler);
-
       return container;
     }
   </script>
 
   <script>
-    // Enregistrement du Service Worker pour le mode hors ligne
+    // Enregistrement du Service Worker (chemin relatif)
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {
-        navigator.serviceWorker.register('/app-alphabetisation/service-worker.js')
-          .then(reg => console.log('✅ Service Worker enregistré', reg))
-          .catch(err => console.log('❌ Erreur SW:', err));
+        navigator.serviceWorker.register('service-worker.js')
+          .then(reg => console.log('✅ Service Worker enregistré :', reg.scope))
+          .catch(err => console.error('❌ Erreur SW :', err));
       });
     }
   </script>
