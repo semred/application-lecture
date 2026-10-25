@@ -57,7 +57,16 @@
 
   .reader-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
   .btn-back { background: none; border: none; font-size: 1.5em; cursor: pointer; color: var(--primary); }
-  .page-image { width: 100%; max-height: 250px; object-fit: cover; border-radius: 10px; margin-bottom: 15px; }
+  .page-image {
+  display: block;
+  width: auto;
+  height: auto;
+  max-width: 100%;
+  max-height: 70vh;     /* jamais plus haut que 70% de l'écran */
+  object-fit: contain;  /* image entière, jamais rognée */
+  border-radius: 10px;
+  margin: 0 auto 15px;  /* centrée horizontalement */
+} 
   .page-title { font-size: 1.4em; color: var(--primary); margin-bottom: 15px; text-align: center; }
 
   .text-container {
@@ -1054,7 +1063,7 @@
       if (!currentBook || !currentBook.resume) return;
       speakText(currentBook.resume.texte || '');
     }
-    function speakBravo() { speakText('أحسنت!'); }
+    function speakBravo() { speakText('أَحْسَنْتَ!'); }   // fatha sur le hamza, pas damma
     function speakTryAgain() { speakText('حاول مرة أخرى'); }
 
     function playWordTTS(word, span) {
