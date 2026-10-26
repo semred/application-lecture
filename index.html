@@ -8,7 +8,6 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="مكتبتي">
 
-  <!-- Chemins RELATIFS : fonctionnent quel que soit le dossier de déploiement -->
   <link rel="manifest" href="manifest.json">
   <link rel="icon" href="icon-192.png">
   <link rel="apple-touch-icon" href="icon-192.png">
@@ -57,16 +56,18 @@
 
   .reader-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
   .btn-back { background: none; border: none; font-size: 1.5em; cursor: pointer; color: var(--primary); }
+
+  /* ✅ Image de page : jamais rognée, centrée, hauteur limitée */
   .page-image {
-  display: block;
-  width: auto;
-  height: auto;
-  max-width: 100%;
-  max-height: 70vh;     /* jamais plus haut que 70% de l'écran */
-  object-fit: contain;  /* image entière, jamais rognée */
-  border-radius: 10px;
-  margin: 0 auto 15px;  /* centrée horizontalement */
-} 
+    display: block;
+    width: auto;
+    height: auto;
+    max-width: 100%;
+    max-height: 70vh;
+    object-fit: contain;
+    border-radius: 10px;
+    margin: 0 auto 15px;
+  }
   .page-title { font-size: 1.4em; color: var(--primary); margin-bottom: 15px; text-align: center; }
 
   .text-container {
@@ -238,7 +239,7 @@
 
   .img-labels-app-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 14px; margin: 15px 0; }
   .img-labels-cell { text-align: center; background: #fff; padding: 8px; border-radius: 12px; border: 2px solid #e2e8f0; }
-  .img-labels-cell img { width: 100%; height: 120px; object-fit: cover; border-radius: 10px; display: block; border: 1px solid #e2e8f0; }
+  .img-labels-cell img { width: 100%; height: 120px; object-fit: contain; border-radius: 10px; display: block; border: 1px solid #e2e8f0; background: #f8fafc; }
   .img-labels-cell .image-label-zone { margin-top: 8px; min-height: 48px; display: flex; align-items: center; justify-content: center; font-size: 0.95em; }
 
   .image-label-zone {
@@ -382,6 +383,10 @@
     let ttsCurrentIndex = -1;
     let ttsHighlightTimer = null;
     let ttsCharsPerSecond = 14;
+
+    // Audio de présentation (MP3 si dispo, sinon fallback TTS)
+    let presentationAudioMap = {};
+    let currentPresentationAudio = null;
 
     // ============ PARAMÈTRES UTILISATEUR ============
     const SETTINGS_KEY = 'lecteur_settings_v1';
@@ -542,7 +547,8 @@
         // 3) Pages : images + audio
         const pages = bookJson.pages || [];
         let done = 0;
-        const total = pages.length * 2 + 1;
+        // +2 : étape "resume" + étape "presentation"
+        const total = pages.length * 2 + 2;
         const tick = () => {
           done++;
           if (btnEl) btnEl.textContent = `⏳ ${Math.round(done / total * 100)}%`;
@@ -561,7 +567,13 @@
         }
         tick();
 
-        // 5) Persistance
+        // 5) Audio de présentation du livre
+        if (bookJson.presentationAudio) {
+          bookJson.presentationAudioData = await urlToDataURL(`${GITHUB_BASE}/${bookJson.presentationAudio}`);
+        }
+        tick();
+
+        // 6) Persistance
         await storeBookLocal(bookJson);
         showToast(`✅ « ${bookJson.titre} » متاح دون اتصال`);
         renderLibrary();
@@ -619,6 +631,7 @@
             id: b.id, titre: b.titre, description: b.description,
             couverture: '', niveau: b.niveau, auteur: b.auteur,
             nombrePages: (b.pages || []).length,
+            presentationAudio: b.presentationAudio || null,
             fichierJSON: '', _offlineOnly: true
           }));
           await renderLibrary();
@@ -654,6 +667,9 @@
         return;
       }
 
+      // Reset du map (les URLs/index changent à chaque rendu)
+      presentationAudioMap = {};
+
       // Statuts hors-ligne + couvertures locales
       const infos = await Promise.all(catalogue.map(async book => {
         const id = bookIdOf(book);
@@ -662,7 +678,7 @@
       }));
 
       let html = '<div class="book-grid">';
-      infos.forEach(({ id, local, book }) => {
+      infos.forEach(({ id, local, book }, idx) => {
         // Couverture : locale d'abord, sinon réseau
         let cover;
         if (local?.couvertureData) {
@@ -672,6 +688,12 @@
         } else {
           cover = 'https://via.placeholder.com/150/0d5c4a/ffffff?text=كتاب';
         }
+
+        // Audio de présentation : local (base64) d'abord, sinon URL du catalogue
+        const presSrc = local?.presentationAudioData
+          ? local.presentationAudioData
+          : (book.presentationAudio ? `${GITHUB_BASE}/${book.presentationAudio}` : null);
+        if (presSrc) presentationAudioMap[idx] = presSrc;
 
         const offline = !!local;
         const safeId = String(id).replace(/'/g, "\\'");
@@ -699,11 +721,55 @@
                  </button>`
             }
 
-            <button class="btn-listen" onclick="event.stopPropagation(); speakText('${texte}')" title="اسمع تعريف الكتاب">🔊</button>
+            ${presSrc
+              ? `<button class="btn-listen" onclick="event.stopPropagation(); playPresentation(${idx}, this)" title="اسمع تعريف الكتاب">🔊</button>`
+              : `<button class="btn-listen" onclick="event.stopPropagation(); speakText('${texte}')" title="اسمع تعريف الكتاب">🔊</button>`
+            }
           </div>`;
       });
       html += '</div>';
       document.getElementById('library-content').innerHTML = html;
+    }
+
+    // ============ LECTURE DE L'AUDIO DE PRÉSENTATION ============
+    function playPresentation(idx, btn) {
+      // Toggle : re-clic sur le même bouton = arrêt
+      if (btn._playing) {
+        if (currentPresentationAudio) { currentPresentationAudio.pause(); currentPresentationAudio = null; }
+        btn._playing = false;
+        btn.textContent = '🔊';
+        return;
+      }
+      // Arrête un éventuel autre bouton actif
+      document.querySelectorAll('.btn-listen').forEach(b => {
+        if (b._playing) { b._playing = false; b.textContent = '🔊'; }
+      });
+      if (currentPresentationAudio) { currentPresentationAudio.pause(); currentPresentationAudio = null; }
+
+      const src = presentationAudioMap[idx];
+      if (!src) return;
+
+      const a = new Audio(src);
+      a.playbackRate = userSettings.speed;
+      currentPresentationAudio = a;
+      btn._playing = true;
+      btn.textContent = '⏸';
+
+      a.onended = () => {
+        btn._playing = false;
+        btn.textContent = '🔊';
+        if (currentPresentationAudio === a) currentPresentationAudio = null;
+      };
+
+      a.play().catch(err => {
+        console.error('Erreur lecture présentation:', err);
+        btn._playing = false;
+        btn.textContent = '🔊';
+        if (currentPresentationAudio === a) currentPresentationAudio = null;
+        // Fallback TTS si le MP3 est inaccessible
+        const meta = catalogue[idx];
+        if (meta) speakText((meta.titre || '') + '. ' + (meta.description || ''));
+      });
     }
 
     // ============ CHARGEMENT DU LIVRE ============
@@ -1063,8 +1129,10 @@
       if (!currentBook || !currentBook.resume) return;
       speakText(currentBook.resume.texte || '');
     }
-    function speakBravo() { speakText('أَحْسَنْتَ!'); }   // fatha sur le hamza, pas damma
-    function speakTryAgain() { speakText('حَاوِلْ مَرَّةً أُخْرَىَ'); }
+
+    // ✅ Prononciation correcte : "أَحْسَنْتَ" (fatha sur le hamza, pas damma)
+    function speakBravo() { speakText('أَحْسَنْتَ!'); }
+    function speakTryAgain() { speakText('حاول مرة أخرى'); }
 
     function playWordTTS(word, span) {
       const mySession = ++ttsSessionId;
