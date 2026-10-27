@@ -1495,12 +1495,12 @@
         if (ok) {
           msgOk.classList.add('show');
           msgErr.classList.remove('show');
-          msgErr.textContent = '❌ حاول مرة أخرى';
+          msgErr.textContent = '❌ حَاوِلْ مَرَّةً أُخْرَىَ';
           btnVerify.disabled = true;
           opts.querySelectorAll('input').forEach(c => c.disabled = true);
           speakBravo();
         } else {
-          msgErr.textContent = '❌ حاول مرة أخرى';
+          msgErr.textContent = '❌ حَاوِلْ مَرَّةً أُخْرَىَ';
           msgErr.classList.add('show');
           setTimeout(() => msgErr.classList.remove('show'), 1800);
           speakTryAgain();
