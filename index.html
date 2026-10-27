@@ -845,15 +845,78 @@
                         page.mots && page.mots.length > 0);
 
       if (isMp3Mode) {
-        page.mots.forEach((mot, index) => {
-          const span = document.createElement('span');
-          span.className = 'word';
-          span.textContent = mot.texte + ' ';
-          span.dataset.index = index;
-          span.onclick = (e) => { e.stopPropagation(); playFromWord(index); };
-          textContainer.appendChild(span);
-        });
-      } else {
+  // Affiche le texte complet (avec ponctuation) et associe chaque mot
+  // à son entrée dans page.mots pour garder le surlignage synchronisé.
+  const texte = page.texteAffiche || '';
+  const parts = texte.split(/(\s+)/);
+
+  // Normalisation : retire la ponctuation arabe et latine
+  const stripPunct = s => String(s || '')
+    .replace(/[.,;:!?؟،؛«»"'’‘“”()\[\]{}…\-–—]/g, '')
+    .trim();
+
+  const mots = page.mots || [];
+
+  // 1) Aligner les mots affichés avec les indices de page.mots
+  const wordParts = [];        // { partIndex, text, core }
+  parts.forEach((p, i) => {
+    if (p === '' || /^\s+$/.test(p)) return;
+    const core = stripPunct(p);
+    if (core) wordParts.push({ partIndex: i, text: p, core });
+  });
+
+  const mapping = new Map();   // partIndex -> mots index
+  let motsPtr = 0;
+
+  wordParts.forEach(wt => {
+    // sauter les entrées "mots" qui sont de la pure ponctuation
+    while (motsPtr < mots.length && stripPunct(mots[motsPtr].texte) === '') motsPtr++;
+    if (motsPtr >= mots.length) return;
+
+    const coreMots = stripPunct(mots[motsPtr].texte);
+    if (coreMots === wt.core) {
+      mapping.set(wt.partIndex, motsPtr);
+      motsPtr++;
+      return;
+    }
+    // tolérance : préfixe commun (ex. "كتاب" vs "كتابٌ")
+    if (coreMots && (wt.core.startsWith(coreMots) || coreMots.startsWith(wt.core))) {
+      mapping.set(wt.partIndex, motsPtr);
+      motsPtr++;
+      return;
+    }
+    // fenêtre glissante en cas de décalage ponctuel
+    for (let k = motsPtr + 1; k < Math.min(motsPtr + 5, mots.length); k++) {
+      const c = stripPunct(mots[k].texte);
+      if (c === wt.core) { mapping.set(wt.partIndex, k); motsPtr = k + 1; return; }
+    }
+    // pas de correspondance trouvée : le mot reste affiché mais non cliquable
+  });
+
+  // 2) Rendu : on garde la ponctuation, on n'attache data-index qu'aux mots alignés
+  parts.forEach((part, i) => {
+    if (part === '') return;
+    if (/^\s+$/.test(part)) {
+      textContainer.appendChild(document.createTextNode(part));
+      return;
+    }
+    const span = document.createElement('span');
+    span.className = 'word';
+    span.textContent = part;
+
+    if (mapping.has(i)) {
+      const motsIdx = mapping.get(i);
+      span.dataset.index = motsIdx;
+      span.onclick = (e) => { e.stopPropagation(); playFromWord(motsIdx); };
+    } else {
+      // ponctuation isolée ou mot non aligné : non cliquable, non surlignable
+      span.style.cursor = 'default';
+    }
+    textContainer.appendChild(span);
+  });
+}
+	  
+	  else {
         const texte = page.texteAffiche || '';
         const parts = texte.split(/(\s+)/);
         parts.forEach(part => {
